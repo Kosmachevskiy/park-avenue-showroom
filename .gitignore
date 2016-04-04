@@ -1,0 +1,11 @@
+#.gitignore
+*/*/SendRoot
+*.DSK
+*.bak
+*._m_
+*.mas
+*.origin
+*.big
+*.webx
+*.bak.orig
+*.myBak

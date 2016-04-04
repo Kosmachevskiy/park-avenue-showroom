@@ -1,0 +1,10 @@
+'R' register area map
+;* Main file 'C:\WORK_SPACE\MOSAICWORKSPACE\MOSAICAPP\PARK-AVENUE-SHOWROOM\PARK-AVENUE-SHOWROOM\000-MAIN\000-MAIN.MAK'
+
+R    0   	 =PRGMAIN MAIN	; 
+	R0	  > MAIN~DUMMY
+
+No errors.
+
+
+;* Map completed.
