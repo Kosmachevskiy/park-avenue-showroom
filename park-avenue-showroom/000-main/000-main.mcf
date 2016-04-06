@@ -7,5 +7,9 @@ CONFIGURATION _000_main
     PROGRAM BalconyLight WITH FreeWheeling : prgBalconyLight ();
     PROGRAM Bedroom2Light WITH FreeWheeling : prgBedroom2Light ();
     PROGRAM EatingroomLight WITH FreeWheeling : prgEatingroomLight ();
+    PROGRAM Bathroom1Light WITH FreeWheeling : prgBathroom1Light ();
+    PROGRAM Bathroom2Light WITH FreeWheeling : prgBathroom2Light ();
+    PROGRAM LivingroomLight WITH FreeWheeling : prgLivingroomLight ();
+    PROGRAM Bedroom1Light WITH FreeWheeling : prgBedroom1Light ();
   END_RESOURCE
 END_CONFIGURATION

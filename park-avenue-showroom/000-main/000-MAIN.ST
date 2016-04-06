@@ -13,7 +13,7 @@ VAR_GLOBAL RETAIN
            r5_1Bedroom2Light12                              at %R1.1  : bool;
            r6_1WardrobeLight13_21                           at %R1.2  : bool;
            r8_1Bathroom2Light14_15_16                       at %R1.3  : bool;
-           r8_1Bathroom2Light17_18_19                       at %R1.4  : bool; //dimm
+           r7_1Bathroom1Light17_18_19                       at %R1.4  : bool; //dimm
 
 (*Lightgroups mode switches*)
            r1_1HallLight01_auto                             at %R1.5  : bool;
@@ -27,7 +27,7 @@ VAR_GLOBAL RETAIN
            r5_15Bedroom2Light12_auto                        at %R2.5  : bool;
            r6_1WardrobeLight13_21_auto                      at %R2.6  : bool;
            r8_1Bathroom2Light14_15_16_auto                  at %R2.7  : bool;
-           r8_1Bathroom2Light17_18_19_auto                  at %R3.0  : bool; //dimm
+           r7_1Bathroom1Light17_18_19_auto                  at %R3.0  : bool; //dimm
 
 (*Blinds Moving Buttons*)
            r2_1EatingroomBlindsUp                           at %R3.1  : bool;
@@ -39,10 +39,12 @@ VAR_GLOBAL RETAIN
            r5_1Bedroom2BlindsUp                             at %R3.7  : bool;
            r5_1Bedroom2BlindsDown                           at %R4.0  : bool;
            r5_1Bedroom2BlindsStop                           at %R4.1  : bool;
+           
+           generalPower                                     at %R4.2  : bool;
 
 (*Dimmed groups brightness level*)
-           r2_3Livingroom_02_07_08_level                    at %R5    : real;
-           r8_1Bathroom2_17_18_19_level                     at %R9    : real;
+           r2_3LivingroomLight02_07_08_level                at %R5    : real;
+           r7_1Bathroom1Light17_18_19_level                 at %R9    : real;
 
 (*Blinds position control*)
            r2_1EatingroomBlindsPosition                     at %R13   : real;

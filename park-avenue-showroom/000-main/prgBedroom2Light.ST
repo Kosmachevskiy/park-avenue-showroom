@@ -22,9 +22,9 @@ PROGRAM prgBedroom2Light
   END_VAR
 
   if not init then
-     out_Lamp1                  := adr(PLC_OUT.DO1);
-     out_Lamp2                  := adr(MODULE1_OUT.DOs.DO7);
-     out_Lamp3                  := adr(MODULE1_OUT.DOs.DO8);
+     out_Lamp1                  := adr(MODULE1_OUT.DOs.DO7);
+     out_Lamp2                  := adr(MODULE1_OUT.DOs.DO8);
+     out_Lamp3                  := adr(IR_15_01_OUT.DO6);
      r2_2KitchenLight04_24_auto := AUTO_MODE_DEFAULT_STATE;
      Auto.timeAfterMotionDetect := AUTO_MODE_DEFAULT_TIME;
      Auto.Sensor_Motion.mode    := NC;

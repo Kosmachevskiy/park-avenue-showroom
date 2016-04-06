@@ -39,4 +39,8 @@
 #usefile "prgBalconyLight.ST"
 #usefile "prgBedroom2Light.ST"
 #usefile "prgEatingroomLight.ST"
+#usefile "prgBathroom1Light.ST"
+#usefile "prgBathroom2Light.ST"
+#usefile "prgLivingroomLight.ST"
+#usefile "prgBedroom1Light.ST"
 #usefile "000-main.mcf", 'auto'
