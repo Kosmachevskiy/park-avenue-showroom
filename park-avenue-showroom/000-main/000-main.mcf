@@ -2,5 +2,10 @@ CONFIGURATION _000_main
   RESOURCE CPM
     TASK FreeWheeling(Number := 0);
     PROGRAM Main WITH FreeWheeling : prgMain ();
+    PROGRAM HallLight WITH FreeWheeling : prgHallLight ();
+    PROGRAM KitchenLight WITH FreeWheeling : prgKitchenLight ();
+    PROGRAM BalconyLight WITH FreeWheeling : prgBalconyLight ();
+    PROGRAM Bedroom2Light WITH FreeWheeling : prgBedroom2Light ();
+    PROGRAM EatingroomLight WITH FreeWheeling : prgEatingroomLight ();
   END_RESOURCE
 END_CONFIGURATION

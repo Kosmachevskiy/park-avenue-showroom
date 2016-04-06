@@ -12,7 +12,7 @@
 ;</History>
 ;**************************************
 #useoption CPM = 9              ; CPM type: K
-#useoption RemZone = 0          ; the remanent zone length
+#useoption RemZone = 25         ; the remanent zone length
 #useoption AlarmTime = 500      ; first alarm [milisec]
 #useoption MaxCycleTime = 600   ; maximum cycle [milisec]
 #useoption PLCstart = 1         ; cold start
@@ -28,5 +28,15 @@
 #usefile "Sysgen\CIBMaker.mos", 'auto'
 #usefile "SysGen\000-main.hwc", 'auto'
 #usefile "..\park-avenue-showroom.hwn", 'auto'
+#usefile "000-MAIN.ST"
+#usefile "fbTimer.ST"
+#usefile "RalayAndDimmer.ST"
+#usefile "fbBlindController.ST"
+#usefile "prgWardrobeLight.ST"
 #usefile "prgMain.ST"
+#usefile "prgHallLight.ST"
+#usefile "prgKitchenLight.ST"
+#usefile "prgBalconyLight.ST"
+#usefile "prgBedroom2Light.ST"
+#usefile "prgEatingroomLight.ST"
 #usefile "000-main.mcf", 'auto'

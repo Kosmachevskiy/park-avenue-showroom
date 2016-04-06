@@ -1,0 +1,25 @@
+[Pos0]
+ModulID=1501
+ModuleName=
+ModuleFileName=
+RemUnit=0
+Verze=
+ModulFormat=1
+ScriptFormat=1
+XPosE2=86,0|
+YPosE2=5,0|
+ExtendedSizeParam=0
+Table=1501 , $00, $00, $80, $00, $00, $00, $00, $00, $00, $00, $80, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+
+[Pos1]
+ModulID=1602
+ModuleName=
+ModuleFileName=
+RemUnit=0
+Verze=
+ModulFormat=1
+ScriptFormat=1
+XPosE2=108,0|
+YPosE2=20,0|
+ExtendedSizeParam=0
+

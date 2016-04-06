@@ -88,8 +88,8 @@ ETH0_DNS3=0
 [Pos2]
 ModulID=3127
 ModuleName=
-ModuleFileName=
-RemUnit=1
+ModuleFileName=panel_R0_P2
+RemUnit=0
 Verze=
 ModulFormat=1
 ScriptFormat=1

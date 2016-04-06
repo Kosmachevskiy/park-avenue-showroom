@@ -2,6 +2,8 @@
 ACTIVE=22
 ACTIVE_type=FOXTROT
 NetworkFileName=..\..\park-avenue-showroom.hwnx
+Signature=HWCX project
+VER=2
 
 [NS950]
 SetRack=0;1
@@ -277,3 +279,4 @@ CH4_log=4
 
 [PanelSIM]
 ActiveSetupPanelSim1=;;-1;-1;;;;;;;32;1;0;2;0;0;100;260;0;0;1
+

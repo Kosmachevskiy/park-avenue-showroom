@@ -42,6 +42,12 @@ TYPE
     UACU   : REAL;
   END_STRUCT;
 
+  TAO_TC6 : STRUCT
+    FS  : INT ;
+    ENG  : REAL;
+    PCT  : REAL;
+  END_STRUCT;
+
   TDI_IR1061 : STRUCT
     DI0   : BOOL;
     DI1   : BOOL;
@@ -62,9 +68,45 @@ TYPE
     EACU  : BOOL;
   END_STRUCT;
 
+  TBIN_4DIP  : STRUCT
+    DIP0  : BOOL;
+    DIP1  : BOOL;
+    DIP2  : BOOL;
+    DIP3  : BOOL;
+  END_STRUCT;
+
+  TBIN_4DI : STRUCT
+    DI0  : BOOL;
+    DI1  : BOOL;
+    DI2  : BOOL;
+    DI3  : BOOL;
+  END_STRUCT;
+
+  TCNTF_IN : STRUCT
+    SCNT : UINT;
+    VALA : UDINT;
+    VALB : UDINT;
+  END_STRUCT;
+
+  TCNTF_OUT : STRUCT
+    CCNT: UINT; 
+    SET : UDINT;
+  END_STRUCT;
+
   TBIN_2DO : STRUCT
     DO0  : BOOL;
     DO1  : BOOL;
+  END_STRUCT;
+
+  TBIN_8DO : STRUCT
+    DO0  : BOOL;
+    DO1  : BOOL;
+    DO2  : BOOL;
+    DO3  : BOOL;
+    DO4  : BOOL;
+    DO5  : BOOL;
+    DO6  : BOOL;
+    DO7  : BOOL;
   END_STRUCT;
 
   TCHStatistic : STRUCT
@@ -93,18 +135,58 @@ VAR_GLOBAL
   r0_p2_Control_MI_CIB1 AT %Y0   : TCHControl;
   r0_p2_Statistic_MI_CIB2 AT %X10  : TCHStatistic;
   r0_p2_Control_MI_CIB2 AT %Y2   : TCHControl;
+(* alias *)
+  DIMMER_IN            AT MI_CIB1_IN.ID2_IN;
+  DIMMER_OUT           AT MI_CIB1_OUT.ID2_OUT;
+  MODULE1_IN           AT MI_CIB1_IN.ID1_IN;
+  MODULE1_OUT          AT MI_CIB1_OUT.ID1_OUT;
+  PANEL_IN             AT MI_CIB1_IN.ID3_IN;
+  PANEL_OUT            AT MI_CIB1_OUT.ID3_OUT;
 END_VAR
 (* ---------------------------------------------------------------------- *)
 (* IR-1061 *)
 VAR_GLOBAL
-  r0_p5_DI             AT %X10  : TDI_IR1061;
-  r0_p5_STPW           AT %X11  : TSTPW;
-  r0_p5_AI0            AT %X12  : TAI;
-  r0_p5_AI1            AT %X24  : TAI;
-  r0_p5_AI2            AT %X36  : TAI;
-  r0_p5_AI3            AT %X48  : TAI;
-  r0_p5_AIPW           AT %X60  : TAIPW;
-  r0_p5_DO             AT %Y2   : TBIN_2DO;
+  r0_p5_DI             AT %X20  : TDI_IR1061;
+  r0_p5_STPW           AT %X21  : TSTPW;
+  r0_p5_AI0            AT %X22  : TAI;
+  r0_p5_AI1            AT %X34  : TAI;
+  r0_p5_AI2            AT %X46  : TAI;
+  r0_p5_AI3            AT %X58  : TAI;
+  r0_p5_AIPW           AT %X70  : TAIPW;
+  r0_p5_DO             AT %Y4   : TBIN_2DO;
+(* alias *)
+  PLC_IN               AT r0_p5_DI;
+  PLC_OUT              AT r0_p5_DO;
+END_VAR
+(* ********************************************************************** *)
+(* ---------------------------------------------------------------------- *)
+(* IR-1501 *)
+VAR_GLOBAL
+  r1_p0_DI             AT %X86  : TBIN_4DI;
+  r1_p0_DIP            AT %X87  : TBIN_4DIP;
+  r1_p0_CNT_IN1        AT %X88  : TCNTF_IN;
+  r1_p0_CNT_IN2        AT %X98  : TCNTF_IN;
+  r1_p0_DO             AT %Y5   : TBIN_8DO;
+  r1_p0_dummy          AT %Y6   : USINT;
+  r1_p0_CNT_OUT1       AT %Y7   : TCNTF_OUT;
+  r1_p0_CNT_OUT2       AT %Y13  : TCNTF_OUT;
+(* alias *)
+  IR_15_01_IN          AT r1_p0_DI;
+  IR_15_01_OUT         AT r1_p0_DO;
+END_VAR
+(* ---------------------------------------------------------------------- *)
+(* IT-1602 *)
+VAR_GLOBAL
+  r1_p1_AI0            AT %X108 : TAI;
+  r1_p1_AI1            AT %X120 : TAI;
+  r1_p1_AI2            AT %X132 : TAI;
+  r1_p1_AI3            AT %X144 : TAI;
+  r1_p1_AI4            AT %X156 : TAI;
+  r1_p1_AI5            AT %X168 : TAI;
+  r1_p1_AI6            AT %X180 : TAI;
+  r1_p1_AI7            AT %X192 : TAI;
+  r1_p1_AO0            AT %Y20  : TAO_TC6;
+  r1_p1_AO1            AT %Y30  : TAO_TC6;
 END_VAR
 (* -- *)
 (* -- *)
