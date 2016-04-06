@@ -170,7 +170,7 @@ _TTS_LINE[MAXRFOX] Line
 
 #table byte[45]  iniJed_MI_CIB1_J1 = $EE,$0C, ;code = 3310 'C-HM-1113M'
                                      $00,$00, ;mode = $00
-                                     $00,$00, ;fadr = $0000
+                                     $9B,$2B, ;fadr = $2B9B
                                      $00,$05, ;ladr = $00, ndev 
                                      $80,$00,$08,$00,$00,$00, ;
                                      $80,$00,$30,$00,$00,$00, ;
@@ -182,7 +182,7 @@ _TTS_LINE[MAXRFOX] Line
 
 #table byte[59]  iniJed_MI_CIB1_J2 = $1E,$0D, ;code = 3358 'C-DM-0402M-RLC'
                                      $00,$00, ;mode = $00
-                                     $00,$00, ;fadr = $0000
+                                     $1F,$47, ;fadr = $471F
                                      $01,$06, ;ladr = $01, ndev 
                                      $00,$00,$10,$00,$00,$00, ;
                                      $83,$00,$08,$00,$18,$00, ;
