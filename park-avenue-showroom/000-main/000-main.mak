@@ -12,7 +12,7 @@
 ;</History>
 ;**************************************
 #useoption CPM = 9              ; CPM type: K
-#useoption RemZone = 25         ; the remanent zone length
+#useoption RemZone = 42         ; the remanent zone length
 #useoption AlarmTime = 500      ; first alarm [milisec]
 #useoption MaxCycleTime = 600   ; maximum cycle [milisec]
 #useoption PLCstart = 1         ; cold start
@@ -20,6 +20,9 @@
 #useoption RestartOnError = 0   ; PLC will not be restarted after hard error
 
 #uselib "LocalLib\StdLib_V21_20140514.mlb"
+#uselib "LocalLib\SysLib_V35_20150416.mlb"
+#uselib "LocalLib\ComLib_V21_20130528.mlb"
+#uselib "LocalLib\BuildingLib_V13_20140707.mlb"
 #endlibs
 
 ;**************************************
@@ -29,9 +32,13 @@
 #usefile "SysGen\000-main.hwc", 'auto'
 #usefile "..\park-avenue-showroom.hwn", 'auto'
 #usefile "000-MAIN.ST"
+#usefile "WaterLeakegeControl.ST"
+#usefile "fbRealObserver.ST"
 #usefile "fbTimer.ST"
 #usefile "RalayAndDimmer.ST"
 #usefile "fbBlindController.ST"
+#usefile "fbGlobalCacheSender.ST"
+#usefile "fbFloorHeatingSimple.ST"
 #usefile "prgWardrobeLight.ST"
 #usefile "prgMain.ST"
 #usefile "prgHallLight.ST"
@@ -43,4 +50,6 @@
 #usefile "prgBathroom2Light.ST"
 #usefile "prgLivingroomLight.ST"
 #usefile "prgBedroom1Light.ST"
+#usefile "prgFloorHeating.ST"
+#usefile "prgWaterLeakegeControl.ST"
 #usefile "000-main.mcf", 'auto'

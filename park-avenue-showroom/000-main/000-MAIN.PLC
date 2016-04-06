@@ -74,6 +74,8 @@ mustcompile=0
 shownds=0
 nodeplus="PlcComnPrj"
 nodeplus="PlcHw"
+nodeplus="PlcSw"
+nodeplus="PlcIde"
 [/prjmngr]
 
 [txtextsyneditor]
@@ -167,7 +169,7 @@ initiallibtestpassed=1
 [weblc]
 lcifile=""
 maymod=""
-lastfile=""
+lastfile="NONAME1.txt"
 modlock=1
 listwidth=121
 findhistory=""

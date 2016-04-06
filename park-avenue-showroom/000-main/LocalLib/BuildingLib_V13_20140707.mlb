@@ -1,0 +1,2298 @@
+(*` {CSY}Knihovna vývojového systému Mosaic{ENU}Mosaic IDE library *)
+(*` {CSY}Jméno souboru{ENU}File name{} : D:\TecoLib\BuildingLib_V13_20140707.mlb *)
+(*` {CSY}Knihovna : BuildingLib{ENU}Library : BuildingLib{} 1.3 *)
+(*` {CSY}Autor{ENU}Author{} : Teco a.s. Kolin *)
+(*` {CSY}Autorská práva{ENU}Copyright{} : (c) 2014 Teco a.s. *)
+(*` {CSY}Verze IEC pøekladaèe{ENU}IEC compiler version{} : 3.8.20.0 *)
+(*` {CSY}Verze assembleru{ENU}Assembler version{} : 4.3.00 *)
+
+//{Knihovna : BuildingLib 1.3  }
+(*` {CSY}Historie{ENU}History{}: *)
+(*`
+**** BuildingLib knihovna ****
+
+v.1.3.	* 07.07.2014 *
+	- oprava bloku PWM (pri zmene delky pulsu se choval nekorektne)
+
+v.1.2.	* 18.04.2012 *
+	- doplneny anglicke nazvy funkcnich bloku
+	- doplneny anglicke nazvy funkcnich bloku
+
+v.1.1.	* 25.08.2011 *
+	- blok jednotlacitkoveho ovladace DMA1 doplnen o parametr vyhodnoceni 
+dlouheho stisku
+
+v.1.0.	* 21.08.2008 *
+	- vychozi verze
+*)
+
+(*----------------------------------------------------------------------------*)
+// {LIBRARY="LOCALLIB\STDLIB_V18_20060404.MLB"}
+
+TYPE _TDMA1_CFG_ :
+  STRUCT  (*`konfiguracni struktura bloku*)
+    MinOut           : real;  (*`minimum vystupu [%]*)
+    MaxOut           : real;  (*`maximum vystupu [%]*)
+    Tup              : time;  (*`doba nabehu pri zapnuti*)
+    Tdw              : time;  (*`doba dobehu pri vypnuti*)
+    Tch              : time;  (*`doba prebehu min<->max pri zmene jasu*)
+    Tac              : time;  (*`doba svitu*)
+    Twt              : time;  (*`odchodove zpozdeni pri vypnuti*)
+    Tlong            : time :=  T#500ms;  (*`prodleva vyhodnoceni dlouheho stisku*)
+  END_STRUCT;
+END_TYPE
+
+__DECL FUNCTION_BLOCK DMA1
+(*`{CSY} Jednotlacitkovy Stmivac
+  {ENU} One Button Dimmer Automat*)
+  VAR_INPUT
+    In               : bool;  (*`ovladaci tlacitko*)
+    Cfg              : _TDMA1_CFG_;  (*`konfiguracni struktura bloku*)
+  END_VAR
+  VAR_OUTPUT
+    Out              : real;  (*`vystupni vykon [%]*)
+    Sig              : bool;  (*`signalizaze chodu*)
+    Sup              : bool;  (*`pomocny vystupni kontakt (spina pri Out>10% maxima)*)
+  END_VAR
+  VAR
+    PUSHtimer        : TON;  (*`casovac stisku tlacitka*)
+    OUTtimer         : TON;  (*`casovac rychlosti stmivani*)
+    timerUP          : TON;  (*`casovac nabehove rampy*)
+    timerSvit        : TON;  (*`casovac doby svitu*)
+    timerOdchod      : TON;  (*`casovac odchodoveho zpozdeni*)
+    timerDW          : TON;  (*`casovac dobehove rampy*)
+    LastOut          : real;  (*`minuly stav vystupu (pred vypnutim)*)
+    smer             : bool;  (*`smer stmivani - 0/1 = stmivat/pridavat*)
+    hranaUP          : R_TRIG;  (*`nabezna hrana tlacitka*)
+    hranaDW          : F_TRIG;  (*`sestupna hrana tlacitka*)
+    hranaLONG        : R_TRIG;  (*`nabezna hrana vyhodnoceni dlouheho stisku*)
+    shortPUSH        : bool;  (*`kratky stisk,  <0.5s*)
+    longPUSH         : bool;  (*`dlouhy stisk, >=0.5s*)
+    RQout            : real;  (*`pozadovany stav vystupu (pred nabehovou rampou)*)
+    STARTout         : real;  (*`pocatecni stav vystupu pro rampu*)
+    STARTchng        : real;  (*`pocatecni stav vystupu pro zmenu jasu*)
+    nabeh            : bool;  (*`priznak nabehu*)
+    svit             : bool;  (*`priznak svitu*)
+    odchod           : bool;  (*`priznak odchodoveho zpozdeni*)
+    dobeh            : bool;  (*`priznak dobehu*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+__DECL FUNCTION_BLOCK SCA1
+(*`{CSY}
+  Schodistovy automat se signalizaci pred vypnutim
+  rezim AUTO - bez moznosti prodlouzeni casu
+  rezim PROG - delka svitu urcena poctem stisku
+  rezim ON   - trvale svitit
+  
+  {ENU}
+  Staircase automat*)
+  VAR_INPUT
+    In               : bool;  (*`ovladaci tlacitko*)
+    Tac              : time;  (*`delka svitu*)
+    Fce              : usint;  (*`funkce bloku - AUTO/PROG/ON = 0/1/2*)
+  END_VAR
+  VAR_OUTPUT
+    Out              : bool;  (*`vystupni kontakt*)
+  END_VAR
+  VAR
+    OUTtimer         : TON;  (*`casovac svitu*)
+    PUSHtimer        : TON;  (*`casovac delky stisku tlacitka*)
+    OUTpt            : time;  (*`delka svitu*)
+    hranaUP          : R_TRIG;  (*`nabezna hrana*)
+    svitit           : bool;
+  END_VAR
+END_FUNCTION_BLOCK
+
+TYPE _TSCA2_CFG_ :
+  STRUCT  (*`konfiguracni struktura bloku*)
+    Tup              : time;  (*`delka nabehu*)
+    Tac              : time;  (*`delka svitu*)
+    Tdw              : time;  (*`delka dobehu*)
+    MinOut           : real;  (*`minimum vystupu stmivace [%]*)
+    MaxOut           : real;  (*`maximum vystupu stmivace [%]*)
+  END_STRUCT;
+END_TYPE
+
+__DECL FUNCTION_BLOCK SCA2
+(*`{CSY} Schodistovy automat se stmivanim
+  {ENU} Staircase automat with dimmer*)
+  VAR_INPUT
+    In1              : bool;  (*`ovladaci tlacitko*)
+    In2              : bool;  (*`ovladaci spinac*)
+    Cfg              : _TSCA2_CFG_;  (*`konfiguracni struktura bloku*)
+  END_VAR
+  VAR_OUTPUT
+    Out              : real;  (*`vystupni vykon [%]*)
+    Sig              : bool;  (*`signalizaze chodu*)
+    Sup              : bool;  (*`pomocny vystupni kontakt (spina pri Out>10% maxima)*)
+  END_VAR
+  VAR
+    timerUP          : TON;  (*`casovac nabehu*)
+    timerACT         : TON;  (*`casovac svitu*)
+    timerDW          : TON;  (*`casovac dobehu*)
+    hranaUP1         : R_TRIG;  (*`nabezna hrana tlacitka*)
+    hranaUP2         : R_TRIG;  (*`nabezna hrana spinace*)
+    nabeh            : bool;  (*`priznak nabehu*)
+    svit             : bool;  (*`priznak svitu*)
+    dobeh            : bool;  (*`priznak dobehu*)
+    startOut         : real;  (*`pocatecni stav vystupu pri startu nabehu*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+TYPE _TSBC1_CFG_ :
+  STRUCT  (*`konfiguracni struktura bloku*)
+    Tac              : time;  (*`maximalni doba behu motoru*)
+    Twt              : time;  (*`prodleva po zastaveni chodu motoru*)
+  END_STRUCT;
+END_TYPE
+
+__DECL FUNCTION_BLOCK SBC1
+(*`{CSY} Zaluziove/Roletove Ovladani 1
+  {ENU} Sunblind Control 1*)
+  VAR_INPUT
+    IUp              : bool R_EDGE;  (*`ovladaci tlacitko nahoru*)
+    IDown            : bool R_EDGE;  (*`ovladaci tlacitko dolu*)
+    Cfg              : _TSBC1_CFG_;  (*`konfiguracni struktura bloku*)
+  END_VAR
+  VAR_OUTPUT
+    Up               : bool;  (*`vystup nahoru*)
+    Down             : bool;  (*`vystup dolu*)
+  END_VAR
+  VAR
+    RqUp             : bool;  (*`zadost nahoru*)
+    RqDown           : bool;  (*`zadost dolu*)
+    RqWait           : bool;  (*`zadost o prodlevu (casovat prodlevu pri reverzaci chodu motoru)*)
+    smer             : bool;  (*`posledni smer pohybu - 1/0 = nahoru/dolu*)
+    ACTtimer         : TON;  (*`casovac doby behu*)
+    WAITtimer        : TON;  (*`casovac prodlevy pri reverzaci chodu motoru*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+TYPE _TMFT1_CFG_ :
+  STRUCT  (*`konfiguracni struktura bloku*)
+    Hyst             : real;  (*`hystereze teploty 1*)
+    Tup              : time;  (*`casove zpozdeni sepnuti vystupu*)
+    Tdw              : time;  (*`casove zpozdeni rozepnuti vystupu*)
+  END_STRUCT;
+END_TYPE
+
+__DECL FUNCTION_BLOCK MFT1
+(*`{CSY} Jednourovnovy Termostat
+  {ENU} One Level Thermostat*)
+  VAR_INPUT
+    In               : real;  (*`merena teplota*)
+    Rq               : real;  (*`zadana teplota*)
+    Cfg              : _TMFT1_CFG_;  (*`konfiguracni struktura bloku*)
+  END_VAR
+  VAR_OUTPUT
+    Out              : bool;  (*`vystup*)
+  END_VAR
+  VAR
+    timerUP          : TON;  (*`casovac sepnuti vystupu 1*)
+    timerDW          : TON;  (*`casovac vypnuti vystupu 1*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+TYPE _TMFT2_CFG_ :
+  STRUCT  (*`konfiguracni struktura bloku*)
+    Hyst1            : real;  (*`hystereze teploty 1*)
+    Hyst2            : real;  (*`hystereze teploty 2*)
+    Diff             : real;  (*`diference teplot*)
+    Tup              : time;  (*`casove zpozdeni sepnuti vystupu*)
+    Tdw              : time;  (*`casove zpozdeni rozepnuti vystupu*)
+  END_STRUCT;
+END_TYPE
+
+__DECL FUNCTION_BLOCK MFT2
+(*`{CSY} Dvourovnovy Termostat
+  {ENU} Two Level Thermostat*)
+  VAR_INPUT
+    In               : real;  (*`merena teplota*)
+    Rq               : real;  (*`zadana teplota*)
+    Cfg              : _TMFT2_CFG_;  (*`konfiguracni struktura bloku*)
+  END_VAR
+  VAR_OUTPUT
+    Out1             : bool;  (*`vystup 1*)
+    Out2             : bool;  (*`vystup 2*)
+  END_VAR
+  VAR
+    timer1UP         : TON;  (*`casovac sepnuti vystupu 1*)
+    timer1DW         : TON;  (*`casovac vypnuti vystupu 1*)
+    timer2UP         : TON;  (*`casovac sepnuti vystupu 2*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+TYPE _TMFT3_CFG_ :
+  STRUCT  (*`konfiguracni struktura bloku*)
+    Hyst1            : real;  (*`hystereze teploty 1*)
+    Hyst2            : real;  (*`hystereze teploty 2*)
+    Diff             : real;  (*`diference teplot*)
+    Tup              : time;  (*`casove zpozdeni sepnuti vystupu*)
+    Tdw              : time;  (*`casove zpozdeni rozepnuti vystupu*)
+  END_STRUCT;
+END_TYPE
+
+__DECL FUNCTION_BLOCK MFT3
+(*`{CSY} Diferencni Termostat
+  {ENU} Diferential Thermostat*)
+  VAR_INPUT
+    In1              : real;  (*`merena teplota 1*)
+    In2              : real;  (*`merena teplota 2*)
+    Cfg              : _TMFT3_CFG_;  (*`konfiguracni struktura bloku*)
+  END_VAR
+  VAR_OUTPUT
+    Out1             : bool;  (*`vystup 1*)
+    Out2             : bool;  (*`vystup 2*)
+  END_VAR
+  VAR
+    timer1UP         : TON;  (*`casovac sepnuti vystupu 1*)
+    timer1DW         : TON;  (*`casovac vypnuti vystupu 1*)
+    timer2UP         : TON;  (*`casovac sepnuti vystupu 2*)
+    timer2DW         : TON;  (*`casovac vypnuti vystupu 2*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+TYPE _TMFT4_CFG_ :
+  STRUCT  (*`konfiguracni struktura bloku*)
+    Hyst1            : real;  (*`hystereze teploty 1*)
+    Hyst2            : real;  (*`hystereze teploty 2*)
+    Tup              : time;  (*`casove zpozdeni sepnuti vystupu*)
+    Tdw              : time;  (*`casove zpozdeni rozepnuti vystupu*)
+  END_STRUCT;
+END_TYPE
+
+__DECL FUNCTION_BLOCK MFT4
+(*`{CSY} Termostat S Mrtvou Zonou
+  {ENU} Thermostat With Dead Zone*)
+  VAR_INPUT
+    In               : real;  (*`merena teplota*)
+    Rq1              : real;  (*`zadana teplota 1*)
+    Rq2              : real;  (*`zadana teplota 2*)
+    Cfg              : _TMFT4_CFG_;  (*`konfiguracni struktura bloku*)
+  END_VAR
+  VAR_OUTPUT
+    Out1             : bool;  (*`vystup 1*)
+    Out2             : bool;  (*`vystup 2*)
+  END_VAR
+  VAR
+    timer1UP         : TON;  (*`casovac sepnuti vystupu 1*)
+    timer1DW         : TON;  (*`casovac vypnuti vystupu 1*)
+    timer2UP         : TON;  (*`casovac sepnuti vystupu 2*)
+    timer2DW         : TON;  (*`casovac vypnuti vystupu 2*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+__DECL FUNCTION_BLOCK PWM
+(*`{CSY} Pulsne sirkova modulace
+  {ENU} Pulse Width Modulation*)
+  VAR_INPUT
+    Enb              : bool;  (*`povolovaci vstup*)
+    Per              : time;  (*`perioda modulace*)
+    Pls              : real;  (*`delka pulsu [%] (0-100%)*)
+  END_VAR
+  VAR_OUTPUT
+    Out              : bool;  (*`vystup*)
+  END_VAR
+  VAR
+    timerPeriod      : TOF;  (*`casovac periody*)
+    timerPulse       : TON;  (*`casovac sirky pulsu*)
+    ptPulse          : time;  (*`predvolba delky pulsu*)
+    start            : bool;  (*`priznak prvniho pruchodu blokem*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+
+
+#srcfile 'D:\TECOAPP\KNIHOVNY\BUILDINGLIB\DMA1.ST'
+#pou DMA1
+#srcline 15 ;FUNCTION_BLOCK DMA1
+#table byte __Init___DMA1_Cfg = 
+      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+      0,  0,  0,  0,  0,  0,  0,244,  1,  0,  0;
+P     61
+DMA1_L0:
+ LINK 0
+#srcline 58 ;  IF %S2.4 THEN                        //prvy pruchod cyklem po studenem restartu?
+ LD   %S2.4
+ JMC  DMA1_L1
+#srcline 59 ;    LastOut := Cfg.MaxOut;             //inicializace vystupu
+ LDX  Cfg~MaxOut
+#debug real Cfg.MaxOut
+ WRX  LastOut
+#debug_left real LastOut
+#srcline 60 ;  END_IF;
+DMA1_L1:
+#srcline 61 ;  //
+#srcline 62 ;  // Vyhodnoceni delky stisku tlacitka
+#srcline 63 ;  //
+#srcline 64 ;  hranaUP(CLK := In);                  //nabezna hrana tlacitka
+ LDX  In
+#debug bool In
+ WRX  hranaUP~CLK
+#debug_left bool hranaUP~CLK
+ LEAX hranaUP
+ CAL  R_TRIG_L0
+#srcline 65 ;  IF hranaUP.Q THEN
+ LDX  hranaUP~Q
+#debug bool hranaUP.Q
+ JMC  DMA1_L3
+#srcline 66 ;    shortPUSH := true;                 //kratky stisk
+ LD   bool -1       ; true
+ WRX  shortPUSH
+#debug_left bool shortPUSH
+#srcline 67 ;    longPUSH  := false;
+ LD   bool 0       ; false
+ WRX  longPUSH
+#debug_left bool longPUSH
+#srcline 68 ;  END_IF;
+DMA1_L3:
+#srcline 69 ;  //
+#srcline 70 ;  PUSHtimer(IN := shortPUSH, PT := Cfg.Tlong);  //casovac delky stisku tlacitka
+ LDX  shortPUSH
+#debug bool shortPUSH
+ WRX  PUSHtimer~IN
+#debug_left bool PUSHtimer~IN
+ LDX  Cfg~Tlong
+#debug time Cfg.Tlong
+ WRX  PUSHtimer~PT
+#debug_left time PUSHtimer~PT
+ LEAX PUSHtimer
+ CAL  TON_L0
+#srcline 71 ;  IF PUSHtimer.Q THEN
+ LDX  PUSHtimer~Q
+#debug bool PUSHtimer.Q
+ JMC  DMA1_L5
+#srcline 72 ;    shortPUSH := false;
+ LD   bool 0       ; false
+ WRX  shortPUSH
+#debug_left bool shortPUSH
+#srcline 73 ;    longPUSH  := true;                 //dlouhy stisk
+ LD   bool -1       ; true
+ WRX  longPUSH
+#debug_left bool longPUSH
+#srcline 74 ;  END_IF;
+DMA1_L5:
+#srcline 75 ;  //
+#srcline 76 ;  // Zpracovani kratkeho stisku
+#srcline 77 ;  //
+#srcline 78 ;  hranaDW(CLK := In);                  //vyhodnoceni sestupne hrany na tlacitku
+ LDX  In
+#debug bool In
+ WRX  hranaDW~CLK
+#debug_left bool hranaDW~CLK
+ LEAX hranaDW
+ CAL  F_TRIG_L0
+#srcline 79 ;  IF (hranaDW.Q AND shortPUSH) THEN
+ LDX  hranaDW~Q
+#debug bool hranaDW.Q
+ LDX  shortPUSH
+#debug bool shortPUSH
+ AND
+ JMC  DMA1_L7
+#srcline 80 ;    IF not Sig THEN                    //rozsvitit na predchozi jas - podle rampy
+ LDX  Sig
+#debug bool Sig
+ NEG
+ JMC  DMA1_L9
+#srcline 81 ;      nabeh    := true;                //aktivace nabehu
+ LD   bool -1       ; true
+ WRX  nabeh
+#debug_left bool nabeh
+#srcline 82 ;      STARTout := Cfg.MinOut;          //zacatek nabehove rampy
+ LDX  Cfg~MinOut
+#debug real Cfg.MinOut
+ WRX  STARTout
+#debug_left real STARTout
+#srcline 83 ;      RQout    := LastOut;             //konec nabehove rampy
+ LDX  LastOut
+#debug real LastOut
+ WRX  RQout
+#debug_left real RQout
+#srcline 84 ;    ELSE                               //zhasnout - podle rampy
+ JMP  DMA1_L10
+DMA1_L9:
+#srcline 85 ;      svit     := false;               //deaktivace sviceni
+ LD   bool 0       ; false
+ WRX  svit
+#debug_left bool svit
+#srcline 86 ;      odchod   := true;                //aktivace dobehu
+ LD   bool -1       ; true
+ WRX  odchod
+#debug_left bool odchod
+#srcline 87 ;      STARTout := Out;                 //zacatek dobehove rampy
+ LDX  Out
+#debug real Out
+ WRX  STARTout
+#debug_left real STARTout
+#srcline 88 ;      RQout    := Cfg.MinOut;          //konec dobehove rampy
+ LDX  Cfg~MinOut
+#debug real Cfg.MinOut
+ WRX  RQout
+#debug_left real RQout
+#srcline 89 ;    END_IF;
+DMA1_L10:
+#srcline 90 ;  END_IF;
+DMA1_L7:
+#srcline 91 ;  //
+#srcline 92 ;  // Zpracovani dlouheho stisku
+#srcline 93 ;  //
+#srcline 94 ;  IF (longPUSH AND not sig) THEN       //rozsvitit na predchozi vykon - podle rampy
+ LDX  longPUSH
+#debug bool longPUSH
+ LDX  sig
+#debug bool sig
+ NEG
+ AND
+ JMC  DMA1_L11
+#srcline 95 ;      nabeh    := true;
+ LD   bool -1       ; true
+ WRX  nabeh
+#debug_left bool nabeh
+#srcline 96 ;      STARTout := Cfg.MinOut;          //zacatek nabehove rampy
+ LDX  Cfg~MinOut
+#debug real Cfg.MinOut
+ WRX  STARTout
+#debug_left real STARTout
+#srcline 97 ;      RQout    := LastOut;             //konec nabehove rampy
+ LDX  LastOut
+#debug real LastOut
+ WRX  RQout
+#debug_left real RQout
+#srcline 98 ;      STARTchng:= LastOut;             //zacatek pro zmenu jasu po nabehu
+ LDX  LastOut
+#debug real LastOut
+ WRX  STARTchng
+#debug_left real STARTchng
+#srcline 99 ;  END_IF;
+DMA1_L11:
+#srcline 100 ;  hranaLONG(CLK := (longPUSH AND svit));
+ LDX  longPUSH
+#debug bool longPUSH
+ LDX  svit
+#debug bool svit
+ AND
+ WRX  hranaLONG~CLK
+#debug_left bool hranaLONG~CLK
+ LEAX hranaLONG
+ CAL  R_TRIG_L0
+#srcline 101 ;  IF (hranaLONG.Q) THEN
+ LDX  hranaLONG~Q
+#debug bool hranaLONG.Q
+ JMC  DMA1_L13
+#srcline 102 ;    STARTchng := Out;                  //zacatek pro zmenu jasu pri sviceni
+ LDX  Out
+#debug real Out
+ WRX  STARTchng
+#debug_left real STARTchng
+#srcline 103 ;  END_IF;
+DMA1_L13:
+#srcline 104 ;  //
+#srcline 105 ;  // Zmena jasu pri dlouhem stisku
+#srcline 106 ;  //
+#srcline 107 ;  OUTtimer(IN := (longPUSH AND svit), PT:=Cfg.Tch); //casovac zmeny jasu
+ LDX  longPUSH
+#debug bool longPUSH
+ LDX  svit
+#debug bool svit
+ AND
+ WRX  OUTtimer~IN
+#debug_left bool OUTtimer~IN
+ LDX  Cfg~Tch
+#debug time Cfg.Tch
+ WRX  OUTtimer~PT
+#debug_left time OUTtimer~PT
+ LEAX OUTtimer
+ CAL  TON_L0
+#srcline 108 ;  IF (longPUSH AND svit) THEN            //aktivovat zmenu jasu
+ LDX  longPUSH
+#debug bool longPUSH
+ LDX  svit
+#debug bool svit
+ AND
+ JMC  DMA1_L15
+#srcline 109 ;    IF smer THEN                         //okamzite pridavat na vystupu
+ LDX  smer
+#debug bool smer
+ JMC  DMA1_L17
+#srcline 110 ;      Out := STARTchng + ((Cfg.MaxOut - Cfg.MinOut) * time_to_real(OUTtimer.ET) / time_to_real(OUTtimer.PT));
+ LDX  STARTchng
+#debug real STARTchng
+ LDX  Cfg~MaxOut
+#debug real Cfg.MaxOut
+ LDX  Cfg~MinOut
+#debug real Cfg.MinOut
+ SUF
+ LDX  OUTtimer~ET
+#debug time OUTtimer.ET
+ ILF
+ MUF
+ LDX  OUTtimer~PT
+#debug time OUTtimer.PT
+ ILF
+ DIF
+ ADF
+ WRX  Out
+#debug_left real Out
+#srcline 111 ;      IF ((Out>Cfg.MaxOut) OR OUTtimer.Q) THEN //osetreni maxima
+ LDX  Out
+#debug real Out
+ LDX  Cfg~MaxOut
+#debug real Cfg.MaxOut
+ GTF
+ LDX  OUTtimer~Q
+#debug bool OUTtimer.Q
+ OR  
+ JMC  DMA1_L19
+#srcline 112 ;        Out      :=  Cfg.MaxOut;
+ LDX  Cfg~MaxOut
+#debug real Cfg.MaxOut
+ WRX  Out
+#debug_left real Out
+#srcline 113 ;        longPUSH := false;               //zastavit pridavani
+ LD   bool 0       ; false
+ WRX  longPUSH
+#debug_left bool longPUSH
+#srcline 114 ;        smer     := false;               //a novym dlouhym stiskem zacit stmivat
+ LD   bool 0       ; false
+ WRX  smer
+#debug_left bool smer
+#srcline 115 ;      END_IF;
+DMA1_L19:
+#srcline 116 ;    ELSE                                 //okamzite stmivat na vystupu
+ JMP  DMA1_L18
+DMA1_L17:
+#srcline 117 ;      Out := STARTchng - ((Cfg.MaxOut - Cfg.MinOut) * time_to_real(OUTtimer.ET) / time_to_real(OUTtimer.PT));
+ LDX  STARTchng
+#debug real STARTchng
+ LDX  Cfg~MaxOut
+#debug real Cfg.MaxOut
+ LDX  Cfg~MinOut
+#debug real Cfg.MinOut
+ SUF
+ LDX  OUTtimer~ET
+#debug time OUTtimer.ET
+ ILF
+ MUF
+ LDX  OUTtimer~PT
+#debug time OUTtimer.PT
+ ILF
+ DIF
+ SUF
+ WRX  Out
+#debug_left real Out
+#srcline 118 ;      IF ((Out<Cfg.MinOut) OR OUTtimer.Q) THEN //osetreni minima
+ LDX  Out
+#debug real Out
+ LDX  Cfg~MinOut
+#debug real Cfg.MinOut
+ LTF
+ LDX  OUTtimer~Q
+#debug bool OUTtimer.Q
+ OR  
+ JMC  DMA1_L21
+#srcline 119 ;        Out      := Cfg.MinOut;
+ LDX  Cfg~MinOut
+#debug real Cfg.MinOut
+ WRX  Out
+#debug_left real Out
+#srcline 120 ;        longPUSH := false;               //zastavit stmivani
+ LD   bool 0       ; false
+ WRX  longPUSH
+#debug_left bool longPUSH
+#srcline 121 ;        smer     := true;                //a novym dlouhym stiskem zacit pridavat
+ LD   bool -1       ; true
+ WRX  smer
+#debug_left bool smer
+#srcline 122 ;      END_IF;
+DMA1_L21:
+#srcline 123 ;    END_IF;
+DMA1_L18:
+#srcline 124 ;    LastOut := Out;                      //odlozeni noveho jasu pro pripad vypnuti
+ LDX  Out
+#debug real Out
+ WRX  LastOut
+#debug_left real LastOut
+#srcline 125 ;  END_IF;
+DMA1_L15:
+#srcline 126 ;  //
+#srcline 127 ;  // Casovani nabehove rampy
+#srcline 128 ;  //
+#srcline 129 ;  timerUP( IN := nabeh, PT := Cfg.Tup);//casovac nabehu
+ LDX  nabeh
+#debug bool nabeh
+ WRX  timerUP~IN
+#debug_left bool timerUP~IN
+ LDX  Cfg~Tup
+#debug time Cfg.Tup
+ WRX  timerUP~PT
+#debug_left time timerUP~PT
+ LEAX timerUP
+ CAL  TON_L0
+#srcline 130 ;  IF nabeh THEN
+ LDX  nabeh
+#debug bool nabeh
+ JMC  DMA1_L23
+#srcline 131 ;    Out := STARTOut + ((Cfg.MaxOut - Cfg.MinOut) * time_to_real(timerUP.ET) / time_to_real(timerUP.PT));
+ LDX  STARTOut
+#debug real STARTOut
+ LDX  Cfg~MaxOut
+#debug real Cfg.MaxOut
+ LDX  Cfg~MinOut
+#debug real Cfg.MinOut
+ SUF
+ LDX  timerUP~ET
+#debug time timerUP.ET
+ ILF
+ MUF
+ LDX  timerUP~PT
+#debug time timerUP.PT
+ ILF
+ DIF
+ ADF
+ WRX  Out
+#debug_left real Out
+#srcline 132 ;    IF ((Out>=RQout) OR timerUP.Q) THEN//osetreni preteceni
+ LDX  Out
+#debug real Out
+ LDX  RQout
+#debug real RQout
+ LTF
+ NEG
+ LDX  timerUP~Q
+#debug bool timerUP.Q
+ OR  
+ JMC  DMA1_L25
+#srcline 133 ;      nabeh := false;                  //ukoncit nabihani
+ LD   bool 0       ; false
+ WRX  nabeh
+#debug_left bool nabeh
+#srcline 134 ;      svit  := true;                   //svitit
+ LD   bool -1       ; true
+ WRX  svit
+#debug_left bool svit
+#srcline 135 ;      Out   := RQout;
+ LDX  RQout
+#debug real RQout
+ WRX  Out
+#debug_left real Out
+#srcline 136 ;    END_IF;
+DMA1_L25:
+#srcline 137 ;  END_IF;
+DMA1_L23:
+#srcline 138 ;  //
+#srcline 139 ;  // Casovani doby svitu
+#srcline 140 ;  //
+#srcline 141 ;  IF Cfg.Tac THEN                         //nastavena doba svitu ?
+ LDX  Cfg~Tac
+#debug time Cfg.Tac
+ JMC  DMA1_L27
+#srcline 142 ;    timerSvit( IN := svit, PT := Cfg.Tac);//casovani doby svitu
+ LDX  svit
+#debug bool svit
+ WRX  timerSvit~IN
+#debug_left bool timerSvit~IN
+ LDX  Cfg~Tac
+#debug time Cfg.Tac
+ WRX  timerSvit~PT
+#debug_left time timerSvit~PT
+ LEAX timerSvit
+ CAL  TON_L0
+#srcline 143 ;    IF (timerSvit.Q) THEN
+ LDX  timerSvit~Q
+#debug bool timerSvit.Q
+ JMC  DMA1_L29
+#srcline 144 ;      svit     := false;               //deaktivace sviceni
+ LD   bool 0       ; false
+ WRX  svit
+#debug_left bool svit
+#srcline 145 ;      odchod   := true;                //aktivace dobehu
+ LD   bool -1       ; true
+ WRX  odchod
+#debug_left bool odchod
+#srcline 146 ;      STARTout := Out;                 //zacatek dobehove rampy
+ LDX  Out
+#debug real Out
+ WRX  STARTout
+#debug_left real STARTout
+#srcline 147 ;      RQout    := Cfg.MinOut;          //konec dobehove rampy
+ LDX  Cfg~MinOut
+#debug real Cfg.MinOut
+ WRX  RQout
+#debug_left real RQout
+#srcline 148 ;    END_IF;
+DMA1_L29:
+#srcline 149 ;  END_IF;
+DMA1_L27:
+#srcline 150 ;  //
+#srcline 151 ;  // Casovani odchodoveho zpozdeni pri vypinani
+#srcline 152 ;  //
+#srcline 153 ;  timerOdchod( IN := odchod, PT := Cfg.Twt);//casovani odchodoveho zpozdeni
+ LDX  odchod
+#debug bool odchod
+ WRX  timerOdchod~IN
+#debug_left bool timerOdchod~IN
+ LDX  Cfg~Twt
+#debug time Cfg.Twt
+ WRX  timerOdchod~PT
+#debug_left time timerOdchod~PT
+ LEAX timerOdchod
+ CAL  TON_L0
+#srcline 154 ;  IF (timerOdchod.Q) THEN
+ LDX  timerOdchod~Q
+#debug bool timerOdchod.Q
+ JMC  DMA1_L31
+#srcline 155 ;    odchod := false;                   //ukoncit casovani dobehu
+ LD   bool 0       ; false
+ WRX  odchod
+#debug_left bool odchod
+#srcline 156 ;    dobeh  := true;                    //aktivace dobehu
+ LD   bool -1       ; true
+ WRX  dobeh
+#debug_left bool dobeh
+#srcline 157 ;  END_IF;
+DMA1_L31:
+#srcline 158 ;  //
+#srcline 159 ;  // Casovani dobehove rampy
+#srcline 160 ;  //
+#srcline 161 ;  timerDW( IN := dobeh, PT := Cfg.Tdw);//casovac dobehu
+ LDX  dobeh
+#debug bool dobeh
+ WRX  timerDW~IN
+#debug_left bool timerDW~IN
+ LDX  Cfg~Tdw
+#debug time Cfg.Tdw
+ WRX  timerDW~PT
+#debug_left time timerDW~PT
+ LEAX timerDW
+ CAL  TON_L0
+#srcline 162 ;  IF dobeh THEN
+ LDX  dobeh
+#debug bool dobeh
+ JMC  DMA1_L33
+#srcline 163 ;    Out := STARTOut - ((Cfg.MaxOut - Cfg.MinOut) * time_to_real(timerDW.ET) / time_to_real(timerDW.PT));
+ LDX  STARTOut
+#debug real STARTOut
+ LDX  Cfg~MaxOut
+#debug real Cfg.MaxOut
+ LDX  Cfg~MinOut
+#debug real Cfg.MinOut
+ SUF
+ LDX  timerDW~ET
+#debug time timerDW.ET
+ ILF
+ MUF
+ LDX  timerDW~PT
+#debug time timerDW.PT
+ ILF
+ DIF
+ SUF
+ WRX  Out
+#debug_left real Out
+#srcline 164 ;    IF ((Out<=RQout) OR timerDW.Q) THEN//osetreni podteceni
+ LDX  Out
+#debug real Out
+ LDX  RQout
+#debug real RQout
+ GTF
+ NEG
+ LDX  timerDW~Q
+#debug bool timerDW.Q
+ OR  
+ JMC  DMA1_L35
+#srcline 165 ;      dobeh := false;                  //ukoncit dobeh
+ LD   bool 0       ; false
+ WRX  dobeh
+#debug_left bool dobeh
+#srcline 166 ;    END_IF;
+DMA1_L35:
+#srcline 167 ;  END_IF;
+DMA1_L33:
+#srcline 168 ;  //
+#srcline 169 ;  // Kontrola mezi
+#srcline 170 ;  //
+#srcline 171 ;  IF Out > Cfg.MaxOut THEN
+ LDX  Out
+#debug real Out
+ LDX  Cfg~MaxOut
+#debug real Cfg.MaxOut
+ GTF
+ JMC  DMA1_L37
+#srcline 172 ;    Out := Cfg.MaxOut;                 //osetreni maxima
+ LDX  Cfg~MaxOut
+#debug real Cfg.MaxOut
+ WRX  Out
+#debug_left real Out
+#srcline 173 ;  END_IF;
+DMA1_L37:
+#srcline 174 ;  IF ((Out < Cfg.MinOut) AND Sig) THEN //minimum kontrolovat jen pri chodu
+ LDX  Out
+#debug real Out
+ LDX  Cfg~MinOut
+#debug real Cfg.MinOut
+ LTF
+ LDX  Sig
+#debug bool Sig
+ AND
+ JMC  DMA1_L39
+#srcline 175 ;    Out :=  Cfg.MinOut;                //osetreni minima
+ LDX  Cfg~MinOut
+#debug real Cfg.MinOut
+ WRX  Out
+#debug_left real Out
+#srcline 176 ;  END_IF;
+DMA1_L39:
+#srcline 177 ;  //
+#srcline 178 ;  //  Obsluha signalizacniho vystupu
+#srcline 179 ;  //
+#srcline 180 ;  IF nabeh OR svit OR odchod OR dobeh THEN
+ LDX  nabeh
+#debug bool nabeh
+ LDX  svit
+#debug bool svit
+ OR  
+ LDX  odchod
+#debug bool odchod
+ OR  
+ LDX  dobeh
+#debug bool dobeh
+ OR  
+ JMC  DMA1_L41
+#srcline 181 ;    Sig := true;                       //stmivac v provozu
+ LD   bool -1       ; true
+ WRX  Sig
+#debug_left bool Sig
+#srcline 182 ;  ELSE
+ JMP  DMA1_L42
+DMA1_L41:
+#srcline 183 ;    Sig := false;                      //stmivac neni v provozu
+ LD   bool 0       ; false
+ WRX  Sig
+#debug_left bool Sig
+#srcline 184 ;    Out := 0.0;                        //nulovat vystup
+ LD   real 0.0
+ WRX  Out
+#debug_left real Out
+#srcline 185 ;  END_IF;
+DMA1_L42:
+#srcline 186 ;  //
+#srcline 187 ;  // Obsluha pomocneho vystupniho kontaktu (spina pri vystupu Out > 10% MaxOut)
+#srcline 188 ;  //
+#srcline 189 ;  IF ((Out >= (Cfg.MaxOut*0.1)) AND Sig) THEN
+ LDX  Out
+#debug real Out
+ LDX  Cfg~MaxOut
+#debug real Cfg.MaxOut
+ LD   real 0.1
+ MUF
+ LTF
+ NEG
+ LDX  Sig
+#debug bool Sig
+ AND
+ JMC  DMA1_L43
+#srcline 190 ;    Sup := true;                       //sepnout pomocny kontakt
+ LD   bool -1       ; true
+ WRX  Sup
+#debug_left bool Sup
+#srcline 191 ;  ELSE
+ JMP  DMA1_L44
+DMA1_L43:
+#srcline 192 ;    Sup := false;                      //rozepnout pomocny kontakt
+ LD   bool 0       ; false
+ WRX  Sup
+#debug_left bool Sup
+#srcline 193 ;  END_IF;
+DMA1_L44:
+#srcline 194 ;  //
+#srcline 195 ;  // Uvolneni tlacitka
+#srcline 196 ;  //
+#srcline 197 ;  IF (not In) THEN                     //tlacitko uvolneno
+ LDX  In
+#debug bool In
+ NEG
+ JMC  DMA1_L45
+#srcline 198 ;    shortPUSH := false;                //neni kratky stisk
+ LD   bool 0       ; false
+ WRX  shortPUSH
+#debug_left bool shortPUSH
+#srcline 199 ;    longPUSH  := false;                //neni dlouhy stisk
+ LD   bool 0       ; false
+ WRX  longPUSH
+#debug_left bool longPUSH
+#srcline 200 ;  END_IF;
+DMA1_L45:
+#srcline 202 ;END_FUNCTION_BLOCK
+ ULNK
+RET
+E     61
+
+; Initialize - variables
+P     61
+DMA1__InstanceInit__:
+ LINK 0
+ LD   0
+ SRC  byte __Init___DMA1_Cfg
+ LEAX byte Cfg
+ LD   32
+ MOV  %X0
+ LEAX hranaDW
+ CAL  F_TRIG__InstanceInit__
+ ULNK
+RET
+E     61
+; End initialize - variables
+#endpou 
+
+
+
+ 
+
+#srcfile ''
+#srcfile 'D:\TECOAPP\KNIHOVNY\BUILDINGLIB\SCA1.ST'
+#pou SCA1
+#srcline 1 ;FUNCTION_BLOCK SCA1
+
+#struct SCA1__temp__
+  udint P0__st__
+P     61
+SCA1_L0:
+ LINK __SizeOf(SCA1__temp__)
+; Initialize - dynamic variables
+; End initialize - dynamic variables
+#srcline 29 ;  CASE FCE OF
+ LDX  FCE
+#debug usint FCE
+ WRY  P0__st__
+ LDY  P0__st__
+ LD   1
+ GT  
+ JMD SCA1_L2
+ LDY  P0__st__
+ LD   0
+ LT  
+ JMD SCA1_L2
+#srcline 30 ;    //
+#srcline 31 ;    // 0 - Rezim AUTO - bez moznosti prodlouzeni casu svitu (prodlouzeni mozne az po varovnem probliknuti)
+#srcline 32 ;    // 1 - Rezim PROG - delka svitu se nastavuje poctem stisku
+#srcline 33 ;    //
+#srcline 34 ;    0..1 :
+#srcline 35 ;       OUTtimer(IN := svitit, PT := OUTpt);
+ LDX  svitit
+#debug bool svitit
+ WRX  OUTtimer~IN
+#debug_left bool OUTtimer~IN
+ LDX  OUTpt
+#debug time OUTpt
+ WRX  OUTtimer~PT
+#debug_left time OUTtimer~PT
+ LEAX OUTtimer
+ CAL  TON_L0
+#srcline 36 ;       IF OUTtimer.Q THEN
+ LDX  OUTtimer~Q
+#debug bool OUTtimer.Q
+ JMC  SCA1_L3
+#srcline 37 ;         svitit := false;                      //zhasnout
+ LD   bool 0       ; false
+ WRX  svitit
+#debug_left bool svitit
+#srcline 38 ;       END_IF;
+SCA1_L3:
+#srcline 40 ;       hranaUP(CLK := In);
+ LDX  In
+#debug bool In
+ WRX  hranaUP~CLK
+#debug_left bool hranaUP~CLK
+ LEAX hranaUP
+ CAL  R_TRIG_L0
+#srcline 41 ;       IF hranaUP.Q THEN
+ LDX  hranaUP~Q
+#debug bool hranaUP.Q
+ JMC  SCA1_L5
+#srcline 42 ;         svitit := true;                       //rozsvitit
+ LD   bool -1       ; true
+ WRX  svitit
+#debug_left bool svitit
+#srcline 43 ;         IF FCE = 0 THEN                        //rezim AUTO
+ LDX  FCE
+#debug usint FCE
+ LD   usint 0
+ EQ
+ JMC  SCA1_L7
+#srcline 44 ;           IF ((OUTpt-OUTtimer.ET) < T#40s) THEN //jsem mene nez 40s pred zhasnutim ?
+ LDX  OUTpt
+#debug time OUTpt
+ LDX  OUTtimer~ET
+#debug time OUTtimer.ET
+ SUB
+ LD   time 40000
+ LTS
+ JMC  SCA1_L9
+#srcline 45 ;             OUTtimer(IN := false);           //zresetovat casovac
+ LD   bool 0       ; false
+ WRX  OUTtimer~IN
+#debug_left bool OUTtimer~IN
+ LEAX OUTtimer
+ CAL  TON_L0
+#srcline 46 ;             OUTpt := Tac;                    //nastavit dobu svitu
+ LDX  Tac
+#debug time Tac
+ WRX  OUTpt
+#debug_left time OUTpt
+#srcline 47 ;           END_IF;
+SCA1_L9:
+#srcline 48 ;         ELSE                                 //rezim PROG
+ JMP  SCA1_L8
+SCA1_L7:
+#srcline 49 ;           OUTpt := OUTpt + Tac;              //pridat cas sviceni
+ LDX  OUTpt
+#debug time OUTpt
+ LDX  Tac
+#debug time Tac
+ ADD
+ WRX  OUTpt
+#debug_left time OUTpt
+#srcline 50 ;         END_IF;
+SCA1_L8:
+#srcline 51 ;       END_IF;
+SCA1_L5:
+#srcline 53 ;       PUSHtimer(IN := In, PT := T#2s);    //casovac delky stisku tlacitka
+ LDX  In
+#debug bool In
+ WRX  PUSHtimer~IN
+#debug_left bool PUSHtimer~IN
+ LD   time 2000
+ WRX  PUSHtimer~PT
+#debug_left time PUSHtimer~PT
+ LEAX PUSHtimer
+ CAL  TON_L0
+#srcline 54 ;       IF PUSHtimer.Q THEN                 //dlouhy stisk tlacitka
+ LDX  PUSHtimer~Q
+#debug bool PUSHtimer.Q
+ JMC  SCA1_L11
+#srcline 55 ;         svitit := false;                  //zhasnout
+ LD   bool 0       ; false
+ WRX  svitit
+#debug_left bool svitit
+#srcline 56 ;       END_IF;
+SCA1_L11:
+#srcline 58 ;       IF svitit THEN                      //pozadavek na sviceni
+ LDX  svitit
+#debug bool svitit
+ JMC  SCA1_L13
+#srcline 59 ;         OUT := true;                      //svitit
+ LD   bool -1       ; true
+ WRX  OUT
+#debug_left bool OUT
+#srcline 60 ;         IF ( ((OUTtimer.ET > OUTpt - T#40s000ms) AND (OUTtimer.ET < OUTpt - T#39s900ms)) OR    //1.varovani
+ LDX  OUTtimer~ET
+#debug time OUTtimer.ET
+ LDX  OUTpt
+#debug time OUTpt
+ LD   time 40000
+ SUB
+ GTS
+ LDX  OUTtimer~ET
+#debug time OUTtimer.ET
+ LDX  OUTpt
+#debug time OUTpt
+ LD   time 39900
+ SUB
+ LTS
+ AND
+#srcline 61 ;              ((OUTtimer.ET > OUTpt - T#39s800ms) AND (OUTtimer.ET < OUTpt - T#39s700ms)) OR
+ LDX  OUTtimer~ET
+#debug time OUTtimer.ET
+ LDX  OUTpt
+#debug time OUTpt
+ LD   time 39800
+ SUB
+ GTS
+ LDX  OUTtimer~ET
+#debug time OUTtimer.ET
+ LDX  OUTpt
+#debug time OUTpt
+ LD   time 39700
+ SUB
+ LTS
+ AND
+ OR  
+#srcline 62 ;              ((OUTtimer.ET > OUTpt - T#30s000ms) AND (OUTtimer.ET < OUTpt - T#29s900ms)) OR    //2.varovani
+ LDX  OUTtimer~ET
+#debug time OUTtimer.ET
+ LDX  OUTpt
+#debug time OUTpt
+ LD   time 30000
+ SUB
+ GTS
+ LDX  OUTtimer~ET
+#debug time OUTtimer.ET
+ LDX  OUTpt
+#debug time OUTpt
+ LD   time 29900
+ SUB
+ LTS
+ AND
+ OR  
+#srcline 63 ;              ((OUTtimer.ET > OUTpt - T#29s800ms) AND (OUTtimer.ET < OUTpt - T#29s700ms)) ) THEN
+ LDX  OUTtimer~ET
+#debug time OUTtimer.ET
+ LDX  OUTpt
+#debug time OUTpt
+ LD   time 29800
+ SUB
+ GTS
+ LDX  OUTtimer~ET
+#debug time OUTtimer.ET
+ LDX  OUTpt
+#debug time OUTpt
+ LD   time 29700
+ SUB
+ LTS
+ AND
+ OR  
+ JMC  SCA1_L15
+#srcline 64 ;           OUT := false;                   //varovne probliknuti pred vypnutim
+ LD   bool 0       ; false
+ WRX  OUT
+#debug_left bool OUT
+#srcline 65 ;         END_IF;
+SCA1_L15:
+#srcline 66 ;       ELSE                                //neni pozadavek na sviceni
+ JMP  SCA1_L14
+SCA1_L13:
+#srcline 67 ;         OUT   := false;                   //zhasnout
+ LD   bool 0       ; false
+ WRX  OUT
+#debug_left bool OUT
+#srcline 68 ;         OUTpt := T#0s;                    //vynulovat casovou predvolbu sviceni
+ LD   time 0
+ WRX  OUTpt
+#debug_left time OUTpt
+#srcline 69 ;       END_IF;
+SCA1_L14:
+ JMP  SCA1_L1
+SCA1_L2:
+ LD   2
+ LDY  P0__st__
+ EQ  
+ JMC  SCA1_L17
+#srcline 70 ;    //
+#srcline 71 ;    // 2 - Rezim ON
+#srcline 72 ;    //
+#srcline 73 ;    2 :
+#srcline 74 ;       Out := true;                  //svitit trvale
+ LD   bool -1       ; true
+ WRX  Out
+#debug_left bool Out
+ JMP  SCA1_L1
+SCA1_L17:
+#srcline 75 ;    //
+#srcline 76 ;    // Nepodporovany rezim
+#srcline 77 ;    //
+#srcline 78 ;    ELSE
+#srcline 79 ;       Out := false;                 //vystup rozepnout
+ LD   bool 0       ; false
+ WRX  Out
+#debug_left bool Out
+#srcline 80 ;  END_CASE;
+SCA1_L1:
+#srcline 82 ;END_FUNCTION_BLOCK
+ ULNK
+RET
+E     61
+#endpou 
+
+
+
+ 
+
+#srcfile ''
+#srcfile 'D:\TECOAPP\KNIHOVNY\BUILDINGLIB\SCA2.ST'
+#pou SCA2
+#srcline 12 ;FUNCTION_BLOCK SCA2
+P     61
+SCA2_L0:
+ LINK 0
+#srcline 43 ;  hranaUP1(CLK := In1);                //nabezna hrana tlacitka
+ LDX  In1
+#debug bool In1
+ WRX  hranaUP1~CLK
+#debug_left bool hranaUP1~CLK
+ LEAX hranaUP1
+ CAL  R_TRIG_L0
+#srcline 44 ;  hranaUP2(CLK := In2);                //nabezna hrana spinace
+ LDX  In2
+#debug bool In2
+ WRX  hranaUP2~CLK
+#debug_left bool hranaUP2~CLK
+ LEAX hranaUP2
+ CAL  R_TRIG_L0
+#srcline 45 ;  IF (hranaUP1.Q OR hranaUP2.Q) THEN
+ LDX  hranaUP1~Q
+#debug bool hranaUP1.Q
+ LDX  hranaUP2~Q
+#debug bool hranaUP2.Q
+ OR  
+ JMC  SCA2_L1
+#srcline 46 ;    IF Sig = false THEN                //schodistovy automat v klidu ?
+ LDX  Sig
+#debug bool Sig
+ LD   bool 0       ; false
+ XOR
+ NEG
+ JMC  SCA2_L3
+#srcline 47 ;      nabeh    := true;                //spustit nabeh
+ LD   bool -1       ; true
+ WRX  nabeh
+#debug_left bool nabeh
+#srcline 48 ;      startOut := Cfg.MinOut;          //pocatecni stav vystupu pri nabehu
+ LDX  Cfg~MinOut
+#debug real Cfg.MinOut
+ WRX  startOut
+#debug_left real startOut
+#srcline 49 ;    END_IF;
+SCA2_L3:
+#srcline 50 ;    IF svit THEN                       //prave se sviti
+ LDX  svit
+#debug bool svit
+ JMC  SCA2_L5
+#srcline 51 ;      timerACT( IN := 0);              //zresetovat casovac svitu
+ LD   bool 0       ; false
+ WRX  timerACT~IN
+#debug_left bool timerACT~IN
+ LEAX timerACT
+ CAL  TON_L0
+#srcline 52 ;    END_IF;
+SCA2_L5:
+#srcline 53 ;    IF dobeh THEN
+ LDX  dobeh
+#debug bool dobeh
+ JMC  SCA2_L7
+#srcline 54 ;      dobeh    := false;               //ukoncit dobeh
+ LD   bool 0       ; false
+ WRX  dobeh
+#debug_left bool dobeh
+#srcline 55 ;      nabeh    := true;                //znovu spustit nabeh (znovu spustit cely cyklus)
+ LD   bool -1       ; true
+ WRX  nabeh
+#debug_left bool nabeh
+#srcline 56 ;      startOut := Out;                 //pocatecni stav vystupu pri nabehu
+ LDX  Out
+#debug real Out
+ WRX  startOut
+#debug_left real startOut
+#srcline 57 ;    END_IF;
+SCA2_L7:
+#srcline 58 ;  END_IF;
+SCA2_L1:
+#srcline 59 ;  //
+#srcline 60 ;  // Casovani nabehove rampy
+#srcline 61 ;  //
+#srcline 62 ;  timerUP( IN := nabeh, PT := Cfg.Tup);//casovac nabehu
+ LDX  nabeh
+#debug bool nabeh
+ WRX  timerUP~IN
+#debug_left bool timerUP~IN
+ LDX  Cfg~Tup
+#debug time Cfg.Tup
+ WRX  timerUP~PT
+#debug_left time timerUP~PT
+ LEAX timerUP
+ CAL  TON_L0
+#srcline 63 ;  IF timerUP.Q THEN
+ LDX  timerUP~Q
+#debug bool timerUP.Q
+ JMC  SCA2_L9
+#srcline 64 ;    nabeh := false;                    //ukoncit nabihani
+ LD   bool 0       ; false
+ WRX  nabeh
+#debug_left bool nabeh
+#srcline 65 ;    svit  := true;                     //spustit casovac svitu
+ LD   bool -1       ; true
+ WRX  svit
+#debug_left bool svit
+#srcline 66 ;  END_IF;
+SCA2_L9:
+#srcline 67 ;  IF nabeh THEN
+ LDX  nabeh
+#debug bool nabeh
+ JMC  SCA2_L11
+#srcline 68 ;    Out := startOut + ((Cfg.MaxOut - Cfg.MinOut) * time_to_real(timerUP.ET) / time_to_real(timerUP.PT));
+ LDX  startOut
+#debug real startOut
+ LDX  Cfg~MaxOut
+#debug real Cfg.MaxOut
+ LDX  Cfg~MinOut
+#debug real Cfg.MinOut
+ SUF
+ LDX  timerUP~ET
+#debug time timerUP.ET
+ ILF
+ MUF
+ LDX  timerUP~PT
+#debug time timerUP.PT
+ ILF
+ DIF
+ ADF
+ WRX  Out
+#debug_left real Out
+#srcline 69 ;    IF (Out >= Cfg.MaxOut) THEN        //osetreni maxima pri nabehu
+ LDX  Out
+#debug real Out
+ LDX  Cfg~MaxOut
+#debug real Cfg.MaxOut
+ LTF
+ NEG
+ JMC  SCA2_L13
+#srcline 70 ;      nabeh := false;                  //ukoncit nabihani
+ LD   bool 0       ; false
+ WRX  nabeh
+#debug_left bool nabeh
+#srcline 71 ;      svit  := true;                   //spustit casovac svitu
+ LD   bool -1       ; true
+ WRX  svit
+#debug_left bool svit
+#srcline 72 ;    END_IF;
+SCA2_L13:
+#srcline 73 ;  END_IF;
+SCA2_L11:
+#srcline 74 ;  //
+#srcline 75 ;  // Casovani svitu
+#srcline 76 ;  //
+#srcline 77 ;  timerACT( IN := (svit AND not In2), PT := Cfg.Tac);  //casovac svitu (pri zapnutem spinaci In2 necasovat a trvale svitit)
+ LDX  svit
+#debug bool svit
+ LDX  In2
+#debug bool In2
+ NEG
+ AND
+ WRX  timerACT~IN
+#debug_left bool timerACT~IN
+ LDX  Cfg~Tac
+#debug time Cfg.Tac
+ WRX  timerACT~PT
+#debug_left time timerACT~PT
+ LEAX timerACT
+ CAL  TON_L0
+#srcline 78 ;  IF timerACT.Q THEN
+ LDX  timerACT~Q
+#debug bool timerACT.Q
+ JMC  SCA2_L15
+#srcline 79 ;    svit  := false;                    //ukoncit svit
+ LD   bool 0       ; false
+ WRX  svit
+#debug_left bool svit
+#srcline 80 ;    dobeh := true;                     //spustit casovac dobehu
+ LD   bool -1       ; true
+ WRX  dobeh
+#debug_left bool dobeh
+#srcline 81 ;  END_IF;
+SCA2_L15:
+#srcline 82 ;  IF svit THEN
+ LDX  svit
+#debug bool svit
+ JMC  SCA2_L17
+#srcline 83 ;    Out := Cfg.MaxOut;
+ LDX  Cfg~MaxOut
+#debug real Cfg.MaxOut
+ WRX  Out
+#debug_left real Out
+#srcline 84 ;  END_IF;
+SCA2_L17:
+#srcline 85 ;  //
+#srcline 86 ;  // Casovani dobehove rampy
+#srcline 87 ;  //
+#srcline 88 ;  timerDW( IN := dobeh, PT := Cfg.Tdw);//casovac dobehu
+ LDX  dobeh
+#debug bool dobeh
+ WRX  timerDW~IN
+#debug_left bool timerDW~IN
+ LDX  Cfg~Tdw
+#debug time Cfg.Tdw
+ WRX  timerDW~PT
+#debug_left time timerDW~PT
+ LEAX timerDW
+ CAL  TON_L0
+#srcline 89 ;  IF timerDW.Q THEN
+ LDX  timerDW~Q
+#debug bool timerDW.Q
+ JMC  SCA2_L19
+#srcline 90 ;    dobeh := false;                    //ukoncit dobeh
+ LD   bool 0       ; false
+ WRX  dobeh
+#debug_left bool dobeh
+#srcline 91 ;  END_IF;
+SCA2_L19:
+#srcline 92 ;  IF dobeh THEN
+ LDX  dobeh
+#debug bool dobeh
+ JMC  SCA2_L21
+#srcline 93 ;    Out := Cfg.MaxOut - ((Cfg.MaxOut - Cfg.MinOut) * time_to_real(timerDW.ET) / time_to_real(timerDW.PT));
+ LDX  Cfg~MaxOut
+#debug real Cfg.MaxOut
+ LDX  Cfg~MaxOut
+#debug real Cfg.MaxOut
+ LDX  Cfg~MinOut
+#debug real Cfg.MinOut
+ SUF
+ LDX  timerDW~ET
+#debug time timerDW.ET
+ ILF
+ MUF
+ LDX  timerDW~PT
+#debug time timerDW.PT
+ ILF
+ DIF
+ SUF
+ WRX  Out
+#debug_left real Out
+#srcline 94 ;  END_IF;
+SCA2_L21:
+#srcline 95 ;  //
+#srcline 96 ;  //  Obsluha signalizacniho vystupu
+#srcline 97 ;  //
+#srcline 98 ;  IF nabeh OR svit OR dobeh THEN
+ LDX  nabeh
+#debug bool nabeh
+ LDX  svit
+#debug bool svit
+ OR  
+ LDX  dobeh
+#debug bool dobeh
+ OR  
+ JMC  SCA2_L23
+#srcline 99 ;    Sig := true;                       //schodistovy automat v provozu
+ LD   bool -1       ; true
+ WRX  Sig
+#debug_left bool Sig
+#srcline 100 ;  ELSE
+ JMP  SCA2_L24
+SCA2_L23:
+#srcline 101 ;    Sig := false;                      //schodistovy automat neni v provozu
+ LD   bool 0       ; false
+ WRX  Sig
+#debug_left bool Sig
+#srcline 102 ;    Out := 0.0;                        //nulovat vystup
+ LD   real 0.0
+ WRX  Out
+#debug_left real Out
+#srcline 103 ;  END_IF;
+SCA2_L24:
+#srcline 104 ;  //
+#srcline 105 ;  // Obsluha pomocneho vystupniho kontaktu (spina pri vystupu Out > 10% MaxOut)
+#srcline 106 ;  //
+#srcline 107 ;  IF ((Out >= (Cfg.MaxOut * 0.1)) AND Sig) THEN
+ LDX  Out
+#debug real Out
+ LDX  Cfg~MaxOut
+#debug real Cfg.MaxOut
+ LD   real 0.1
+ MUF
+ LTF
+ NEG
+ LDX  Sig
+#debug bool Sig
+ AND
+ JMC  SCA2_L25
+#srcline 108 ;    Sup := true;                       //sepnout pomocny kontakt
+ LD   bool -1       ; true
+ WRX  Sup
+#debug_left bool Sup
+#srcline 109 ;  ELSE
+ JMP  SCA2_L26
+SCA2_L25:
+#srcline 110 ;    Sup := false;                      //rozepnout pomocny kontakt
+ LD   bool 0       ; false
+ WRX  Sup
+#debug_left bool Sup
+#srcline 111 ;  END_IF;
+SCA2_L26:
+#srcline 112 ;  
+#srcline 113 ;END_FUNCTION_BLOCK
+ ULNK
+RET
+E     61
+#endpou 
+
+
+
+ 
+
+#srcfile ''
+#srcfile 'D:\TECOAPP\KNIHOVNY\BUILDINGLIB\SBC1.ST'
+#pou SBC1
+#srcline 9 ;FUNCTION_BLOCK SBC1
+P     61
+SBC1_L0:
+ LINK 0
+; R_EDGE, F_EDGE 
+ LDX  IUp
+ LETX __EDGE_R__IUp
+ WRX  IUp
+ LDX  IDown
+ LETX __EDGE_R__IDown
+ WRX  IDown
+#srcline 35 ;  if (IUp) then
+ LDX  IUp
+#debug bool IUp
+ JMC  SBC1_L1
+#srcline 36 ;    if (Up OR Down) then       //motor v pohybu
+ LDX  Up
+#debug bool Up
+ LDX  Down
+#debug bool Down
+ OR  
+ JMC  SBC1_L3
+#srcline 37 ;      RqUp   := false;         //zastavit
+ LD   bool 0       ; false
+ WRX  RqUp
+#debug_left bool RqUp
+#srcline 38 ;      RQDown := false;
+ LD   bool 0       ; false
+ WRX  RQDown
+#debug_left bool RQDown
+#srcline 39 ;      RqWait := true;          //aktivace prodlevy reverzace chodu motoru
+ LD   bool -1       ; true
+ WRX  RqWait
+#debug_left bool RqWait
+#srcline 40 ;    else                       //motor v klidu
+ JMP  SBC1_L4
+SBC1_L3:
+#srcline 41 ;      RqUp   := true;          //zadost smeru nahoru
+ LD   bool -1       ; true
+ WRX  RqUp
+#debug_left bool RqUp
+#srcline 42 ;      RQDown := false;
+ LD   bool 0       ; false
+ WRX  RQDown
+#debug_left bool RQDown
+#srcline 43 ;      if (smer) then           //stejny smer ?
+ LDX  smer
+#debug bool smer
+ JMC  SBC1_L5
+#srcline 44 ;        RqWait := 0;           //deaktivovat prodlevu reverzace chodu motoru
+ LD   bool 0       ; false
+ WRX  RqWait
+#debug_left bool RqWait
+#srcline 45 ;      end_if;
+SBC1_L5:
+#srcline 46 ;      smer := 1;               //aktualni smer pohybu nahoru
+ LD   bool -1      ; true
+ WRX  smer
+#debug_left bool smer
+#srcline 47 ;    end_if;
+SBC1_L4:
+#srcline 48 ;  end_if;
+SBC1_L1:
+#srcline 49 ;  //
+#srcline 50 ;  //  Zpracovani tlacitka IDown
+#srcline 51 ;  //
+#srcline 52 ;  if (IDown) then
+ LDX  IDown
+#debug bool IDown
+ JMC  SBC1_L7
+#srcline 53 ;    if (Up OR Down) then       //motor v pohybu
+ LDX  Up
+#debug bool Up
+ LDX  Down
+#debug bool Down
+ OR  
+ JMC  SBC1_L9
+#srcline 54 ;      RqUp   := false;         //zastavit
+ LD   bool 0       ; false
+ WRX  RqUp
+#debug_left bool RqUp
+#srcline 55 ;      RQDown := false;
+ LD   bool 0       ; false
+ WRX  RQDown
+#debug_left bool RQDown
+#srcline 56 ;      RqWait := true;          //aktivace prodlevy reverzace chodu motoru
+ LD   bool -1       ; true
+ WRX  RqWait
+#debug_left bool RqWait
+#srcline 57 ;    else                       //motor v klidu
+ JMP  SBC1_L10
+SBC1_L9:
+#srcline 58 ;      RqUp   := false;
+ LD   bool 0       ; false
+ WRX  RqUp
+#debug_left bool RqUp
+#srcline 59 ;      RQDown := true;          //zadost smeru dolu
+ LD   bool -1       ; true
+ WRX  RQDown
+#debug_left bool RQDown
+#srcline 60 ;      if (not smer) then       //stejny smer ?
+ LDX  smer
+#debug bool smer
+ NEG
+ JMC  SBC1_L11
+#srcline 61 ;        RqWait := 0;           //deaktivovat prodlevu reverzace chodu motoru
+ LD   bool 0       ; false
+ WRX  RqWait
+#debug_left bool RqWait
+#srcline 62 ;      end_if;
+SBC1_L11:
+#srcline 63 ;      smer := 0;               //aktualni smer pohybu dolu
+ LD   bool 0       ; false
+ WRX  smer
+#debug_left bool smer
+#srcline 64 ;    end_if;
+SBC1_L10:
+#srcline 65 ;  end_if;
+SBC1_L7:
+#srcline 66 ;  //
+#srcline 67 ;  // Casovani doby chodu motoru
+#srcline 68 ;  //
+#srcline 69 ;  ACTtimer (IN := (Up OR Down), PT := Cfg.Tac);
+ LDX  Up
+#debug bool Up
+ LDX  Down
+#debug bool Down
+ OR  
+ WRX  ACTtimer~IN
+#debug_left bool ACTtimer~IN
+ LDX  Cfg~Tac
+#debug time Cfg.Tac
+ WRX  ACTtimer~PT
+#debug_left time ACTtimer~PT
+ LEAX ACTtimer
+ CAL  TON_L0
+#srcline 70 ;  if (ACTtimer.Q) then
+ LDX  ACTtimer~Q
+#debug bool ACTtimer.Q
+ JMC  SBC1_L13
+#srcline 71 ;    RqUp   := false;            //zastavit
+ LD   bool 0       ; false
+ WRX  RqUp
+#debug_left bool RqUp
+#srcline 72 ;    RQDown := false;
+ LD   bool 0       ; false
+ WRX  RQDown
+#debug_left bool RQDown
+#srcline 73 ;    RqWait := true;             //aktivace prodlevy reverzace chodu motoru
+ LD   bool -1       ; true
+ WRX  RqWait
+#debug_left bool RqWait
+#srcline 74 ;  end_if;
+SBC1_L13:
+#srcline 75 ;  
+#srcline 76 ;  //
+#srcline 77 ;  //  Casovani prodlevy pri zmene smeru pohybu
+#srcline 78 ;  //
+#srcline 79 ;  WAITtimer (IN := RqWait, PT := Cfg.Twt);
+ LDX  RqWait
+#debug bool RqWait
+ WRX  WAITtimer~IN
+#debug_left bool WAITtimer~IN
+ LDX  Cfg~Twt
+#debug time Cfg.Twt
+ WRX  WAITtimer~PT
+#debug_left time WAITtimer~PT
+ LEAX WAITtimer
+ CAL  TON_L0
+#srcline 80 ;  if (WAITtimer.Q) then
+ LDX  WAITtimer~Q
+#debug bool WAITtimer.Q
+ JMC  SBC1_L15
+#srcline 81 ;    RqWait := 0;
+ LD   bool 0       ; false
+ WRX  RqWait
+#debug_left bool RqWait
+#srcline 82 ;  end_if;
+SBC1_L15:
+#srcline 83 ;  //
+#srcline 84 ;  //  Ovladani vystupu
+#srcline 85 ;  //
+#srcline 86 ;  Up   := RqUp   AND not RqWait;
+ LDX  RqUp
+#debug bool RqUp
+ LDX  RqWait
+#debug bool RqWait
+ NEG
+ AND
+ WRX  Up
+#debug_left bool Up
+#srcline 87 ;  Down := RqDown AND not RqWait;
+ LDX  RqDown
+#debug bool RqDown
+ LDX  RqWait
+#debug bool RqWait
+ NEG
+ AND
+ WRX  Down
+#debug_left bool Down
+#srcline 88 ;  //
+#srcline 90 ;END_FUNCTION_BLOCK
+ ULNK
+RET
+E     61
+#endpou 
+
+
+
+ 
+
+#srcfile ''
+#srcfile 'D:\TECOAPP\KNIHOVNY\BUILDINGLIB\MFT1.ST'
+#pou MFT1
+#srcline 10 ;FUNCTION_BLOCK MFT1
+P     61
+MFT1_L0:
+ LINK 0
+#srcline 28 ;  timerUP (IN := (In <= Rq - Cfg.Hyst), PT := Cfg.Tup); //nizka teplota
+ LDX  In
+#debug real In
+ LDX  Rq
+#debug real Rq
+ LDX  Cfg~Hyst
+#debug real Cfg.Hyst
+ SUF
+ GTF
+ NEG
+ WRX  timerUP~IN
+#debug_left bool timerUP~IN
+ LDX  Cfg~Tup
+#debug time Cfg.Tup
+ WRX  timerUP~PT
+#debug_left time timerUP~PT
+ LEAX timerUP
+ CAL  TON_L0
+#srcline 29 ;  IF timerUP.Q THEN
+ LDX  timerUP~Q
+#debug bool timerUP.Q
+ JMC  MFT1_L1
+#srcline 30 ;    Out := true;                                        //sepnout vystup
+ LD   bool -1       ; true
+ WRX  Out
+#debug_left bool Out
+#srcline 31 ;  END_IF;
+MFT1_L1:
+#srcline 32 ;  
+#srcline 33 ;  timerDW (IN := (In >= Rq + Cfg.Hyst), PT := Cfg.Tdw); //vysoka teplota
+ LDX  In
+#debug real In
+ LDX  Rq
+#debug real Rq
+ LDX  Cfg~Hyst
+#debug real Cfg.Hyst
+ ADF
+ LTF
+ NEG
+ WRX  timerDW~IN
+#debug_left bool timerDW~IN
+ LDX  Cfg~Tdw
+#debug time Cfg.Tdw
+ WRX  timerDW~PT
+#debug_left time timerDW~PT
+ LEAX timerDW
+ CAL  TON_L0
+#srcline 34 ;  IF timerDW.Q THEN
+ LDX  timerDW~Q
+#debug bool timerDW.Q
+ JMC  MFT1_L3
+#srcline 35 ;    Out := false;                                       //rozepnout vystup
+ LD   bool 0       ; false
+ WRX  Out
+#debug_left bool Out
+#srcline 36 ;  END_IF;
+MFT1_L3:
+#srcline 38 ;END_FUNCTION_BLOCK
+ ULNK
+RET
+E     61
+#endpou 
+
+
+
+ 
+
+#srcfile ''
+#srcfile 'D:\TECOAPP\KNIHOVNY\BUILDINGLIB\MFT2.ST'
+#pou MFT2
+#srcline 12 ;FUNCTION_BLOCK MFT2
+P     61
+MFT2_L0:
+ LINK 0
+#srcline 32 ;    timer1UP (IN := (In <= Rq - Cfg.Hyst1), PT := Cfg.Tup);   //nizka teplota
+ LDX  In
+#debug real In
+ LDX  Rq
+#debug real Rq
+ LDX  Cfg~Hyst1
+#debug real Cfg.Hyst1
+ SUF
+ GTF
+ NEG
+ WRX  timer1UP~IN
+#debug_left bool timer1UP~IN
+ LDX  Cfg~Tup
+#debug time Cfg.Tup
+ WRX  timer1UP~PT
+#debug_left time timer1UP~PT
+ LEAX timer1UP
+ CAL  TON_L0
+#srcline 33 ;    IF timer1UP.Q THEN
+ LDX  timer1UP~Q
+#debug bool timer1UP.Q
+ JMC  MFT2_L1
+#srcline 34 ;      Out1 := true;                                           //sepnout vystup 1
+ LD   bool -1       ; true
+ WRX  Out1
+#debug_left bool Out1
+#srcline 35 ;    END_IF;
+MFT2_L1:
+#srcline 36 ;    
+#srcline 37 ;    timer2UP (IN := (In <= Rq - Cfg.Diff - Cfg.Hyst2), PT := Cfg.Tup); //velmi nizka teplota
+ LDX  In
+#debug real In
+ LDX  Rq
+#debug real Rq
+ LDX  Cfg~Diff
+#debug real Cfg.Diff
+ SUF
+ LDX  Cfg~Hyst2
+#debug real Cfg.Hyst2
+ SUF
+ GTF
+ NEG
+ WRX  timer2UP~IN
+#debug_left bool timer2UP~IN
+ LDX  Cfg~Tup
+#debug time Cfg.Tup
+ WRX  timer2UP~PT
+#debug_left time timer2UP~PT
+ LEAX timer2UP
+ CAL  TON_L0
+#srcline 38 ;    IF timer2UP.Q THEN
+ LDX  timer2UP~Q
+#debug bool timer2UP.Q
+ JMC  MFT2_L3
+#srcline 39 ;      Out2 := true;                                                    //sepnout vystup 2
+ LD   bool -1       ; true
+ WRX  Out2
+#debug_left bool Out2
+#srcline 40 ;    END_IF;
+MFT2_L3:
+#srcline 42 ;    timer1DW (IN := (In >= Rq + Cfg.Hyst1), PT := Cfg.Tdw); //vysoka teplota
+ LDX  In
+#debug real In
+ LDX  Rq
+#debug real Rq
+ LDX  Cfg~Hyst1
+#debug real Cfg.Hyst1
+ ADF
+ LTF
+ NEG
+ WRX  timer1DW~IN
+#debug_left bool timer1DW~IN
+ LDX  Cfg~Tdw
+#debug time Cfg.Tdw
+ WRX  timer1DW~PT
+#debug_left time timer1DW~PT
+ LEAX timer1DW
+ CAL  TON_L0
+#srcline 43 ;    IF timer1DW.Q THEN
+ LDX  timer1DW~Q
+#debug bool timer1DW.Q
+ JMC  MFT2_L5
+#srcline 44 ;      Out1 := false;                                        //rozepnout vystup 1
+ LD   bool 0       ; false
+ WRX  Out1
+#debug_left bool Out1
+#srcline 45 ;      Out2 := false;                                        //rozepnout vystup 2
+ LD   bool 0       ; false
+ WRX  Out2
+#debug_left bool Out2
+#srcline 46 ;    END_IF;
+MFT2_L5:
+#srcline 48 ;END_FUNCTION_BLOCK
+ ULNK
+RET
+E     61
+#endpou 
+
+
+
+ 
+
+#srcfile ''
+#srcfile 'D:\TECOAPP\KNIHOVNY\BUILDINGLIB\MFT3.ST'
+#pou MFT3
+#srcline 12 ;FUNCTION_BLOCK MFT3
+P     61
+MFT3_L0:
+ LINK 0
+#srcline 33 ;  timer1UP (IN := ((In2-In1) >= Cfg.Diff) , PT := Cfg.Tup);
+ LDX  In2
+#debug real In2
+ LDX  In1
+#debug real In1
+ SUF
+ LDX  Cfg~Diff
+#debug real Cfg.Diff
+ LTF
+ NEG
+ WRX  timer1UP~IN
+#debug_left bool timer1UP~IN
+ LDX  Cfg~Tup
+#debug time Cfg.Tup
+ WRX  timer1UP~PT
+#debug_left time timer1UP~PT
+ LEAX timer1UP
+ CAL  TON_L0
+#srcline 34 ;  IF timer1UP.Q THEN
+ LDX  timer1UP~Q
+#debug bool timer1UP.Q
+ JMC  MFT3_L1
+#srcline 35 ;    Out1 := true;                 //sepnout vystup 1
+ LD   bool -1       ; true
+ WRX  Out1
+#debug_left bool Out1
+#srcline 36 ;  END_IF;
+MFT3_L1:
+#srcline 37 ;      
+#srcline 38 ;  timer1DW (IN := ((In2-In1) <= (Cfg.Diff - Cfg.Hyst1)) , PT := Cfg.Tdw);
+ LDX  In2
+#debug real In2
+ LDX  In1
+#debug real In1
+ SUF
+ LDX  Cfg~Diff
+#debug real Cfg.Diff
+ LDX  Cfg~Hyst1
+#debug real Cfg.Hyst1
+ SUF
+ GTF
+ NEG
+ WRX  timer1DW~IN
+#debug_left bool timer1DW~IN
+ LDX  Cfg~Tdw
+#debug time Cfg.Tdw
+ WRX  timer1DW~PT
+#debug_left time timer1DW~PT
+ LEAX timer1DW
+ CAL  TON_L0
+#srcline 39 ;  IF timer1DW.Q THEN
+ LDX  timer1DW~Q
+#debug bool timer1DW.Q
+ JMC  MFT3_L3
+#srcline 40 ;    Out1 := false;                //vypnout vystup 1
+ LD   bool 0       ; false
+ WRX  Out1
+#debug_left bool Out1
+#srcline 41 ;  END_IF;
+MFT3_L3:
+#srcline 42 ;      
+#srcline 43 ;  timer2UP (IN := ((In1-In2) >= Cfg.Diff) , PT := Cfg.Tup);
+ LDX  In1
+#debug real In1
+ LDX  In2
+#debug real In2
+ SUF
+ LDX  Cfg~Diff
+#debug real Cfg.Diff
+ LTF
+ NEG
+ WRX  timer2UP~IN
+#debug_left bool timer2UP~IN
+ LDX  Cfg~Tup
+#debug time Cfg.Tup
+ WRX  timer2UP~PT
+#debug_left time timer2UP~PT
+ LEAX timer2UP
+ CAL  TON_L0
+#srcline 44 ;  IF timer2UP.Q THEN
+ LDX  timer2UP~Q
+#debug bool timer2UP.Q
+ JMC  MFT3_L5
+#srcline 45 ;    Out2 := true;                 //sepnout vystup 2
+ LD   bool -1       ; true
+ WRX  Out2
+#debug_left bool Out2
+#srcline 46 ;  END_IF;
+MFT3_L5:
+#srcline 47 ;      
+#srcline 48 ;  timer2DW (IN := ((In1-In2) <= (Cfg.Diff - Cfg.Hyst2)) , PT := Cfg.Tdw);
+ LDX  In1
+#debug real In1
+ LDX  In2
+#debug real In2
+ SUF
+ LDX  Cfg~Diff
+#debug real Cfg.Diff
+ LDX  Cfg~Hyst2
+#debug real Cfg.Hyst2
+ SUF
+ GTF
+ NEG
+ WRX  timer2DW~IN
+#debug_left bool timer2DW~IN
+ LDX  Cfg~Tdw
+#debug time Cfg.Tdw
+ WRX  timer2DW~PT
+#debug_left time timer2DW~PT
+ LEAX timer2DW
+ CAL  TON_L0
+#srcline 49 ;  IF timer2DW.Q THEN
+ LDX  timer2DW~Q
+#debug bool timer2DW.Q
+ JMC  MFT3_L7
+#srcline 50 ;    Out2 := false;                //vypnout vystup 2
+ LD   bool 0       ; false
+ WRX  Out2
+#debug_left bool Out2
+#srcline 51 ;  END_IF;
+MFT3_L7:
+#srcline 53 ;END_FUNCTION_BLOCK
+ ULNK
+RET
+E     61
+#endpou 
+
+
+
+ 
+
+#srcfile ''
+#srcfile 'D:\TECOAPP\KNIHOVNY\BUILDINGLIB\MFT4.ST'
+#pou MFT4
+#srcline 11 ;FUNCTION_BLOCK MFT4
+P     61
+MFT4_L0:
+ LINK 0
+#srcline 33 ;  timer1UP (IN := (In <= Rq1 - Cfg.Hyst1), PT := Cfg.Tup);
+ LDX  In
+#debug real In
+ LDX  Rq1
+#debug real Rq1
+ LDX  Cfg~Hyst1
+#debug real Cfg.Hyst1
+ SUF
+ GTF
+ NEG
+ WRX  timer1UP~IN
+#debug_left bool timer1UP~IN
+ LDX  Cfg~Tup
+#debug time Cfg.Tup
+ WRX  timer1UP~PT
+#debug_left time timer1UP~PT
+ LEAX timer1UP
+ CAL  TON_L0
+#srcline 34 ;  IF timer1UP.Q THEN                            //nizka teplota
+ LDX  timer1UP~Q
+#debug bool timer1UP.Q
+ JMC  MFT4_L1
+#srcline 35 ;    Out1 := true;                               //sepnout topeni
+ LD   bool -1       ; true
+ WRX  Out1
+#debug_left bool Out1
+#srcline 36 ;  END_IF;
+MFT4_L1:
+#srcline 37 ;  
+#srcline 38 ;  timer1DW (IN := (In >= Rq1 + Cfg.Hyst1), PT := Cfg.Tdw);
+ LDX  In
+#debug real In
+ LDX  Rq1
+#debug real Rq1
+ LDX  Cfg~Hyst1
+#debug real Cfg.Hyst1
+ ADF
+ LTF
+ NEG
+ WRX  timer1DW~IN
+#debug_left bool timer1DW~IN
+ LDX  Cfg~Tdw
+#debug time Cfg.Tdw
+ WRX  timer1DW~PT
+#debug_left time timer1DW~PT
+ LEAX timer1DW
+ CAL  TON_L0
+#srcline 39 ;  IF timer1DW.Q THEN                            //teplota v mezich
+ LDX  timer1DW~Q
+#debug bool timer1DW.Q
+ JMC  MFT4_L3
+#srcline 40 ;    Out1 := false;                              //vypnout topeni
+ LD   bool 0       ; false
+ WRX  Out1
+#debug_left bool Out1
+#srcline 41 ;  END_IF;
+MFT4_L3:
+#srcline 42 ;      
+#srcline 43 ;  timer2UP (IN := (In >= Rq2 + Cfg.Hyst2), PT := Cfg.Tup);
+ LDX  In
+#debug real In
+ LDX  Rq2
+#debug real Rq2
+ LDX  Cfg~Hyst2
+#debug real Cfg.Hyst2
+ ADF
+ LTF
+ NEG
+ WRX  timer2UP~IN
+#debug_left bool timer2UP~IN
+ LDX  Cfg~Tup
+#debug time Cfg.Tup
+ WRX  timer2UP~PT
+#debug_left time timer2UP~PT
+ LEAX timer2UP
+ CAL  TON_L0
+#srcline 44 ;  IF timer2UP.Q THEN                            //vysoka teplota
+ LDX  timer2UP~Q
+#debug bool timer2UP.Q
+ JMC  MFT4_L5
+#srcline 45 ;    Out2 := true;                               //sepnout chlazeni
+ LD   bool -1       ; true
+ WRX  Out2
+#debug_left bool Out2
+#srcline 46 ;  END_IF;
+MFT4_L5:
+#srcline 47 ;  
+#srcline 48 ;  timer2DW (IN := (In <= Rq2 - Cfg.Hyst2), PT := Cfg.Tdw);
+ LDX  In
+#debug real In
+ LDX  Rq2
+#debug real Rq2
+ LDX  Cfg~Hyst2
+#debug real Cfg.Hyst2
+ SUF
+ GTF
+ NEG
+ WRX  timer2DW~IN
+#debug_left bool timer2DW~IN
+ LDX  Cfg~Tdw
+#debug time Cfg.Tdw
+ WRX  timer2DW~PT
+#debug_left time timer2DW~PT
+ LEAX timer2DW
+ CAL  TON_L0
+#srcline 49 ;  IF timer2DW.Q THEN                            //teplota v mezich
+ LDX  timer2DW~Q
+#debug bool timer2DW.Q
+ JMC  MFT4_L7
+#srcline 50 ;    Out2 := false;                              //vypnout chlazeni
+ LD   bool 0       ; false
+ WRX  Out2
+#debug_left bool Out2
+#srcline 51 ;  END_IF;
+MFT4_L7:
+#srcline 53 ;END_FUNCTION_BLOCK
+ ULNK
+RET
+E     61
+#endpou 
+
+
+
+ 
+
+#srcfile ''
+#srcfile 'D:\TECOAPP\KNIHOVNY\BUILDINGLIB\PWM.ST'
+#pou PWM
+#srcline 2 ;FUNCTION_BLOCK PWM
+P     61
+PWM_L0:
+ LINK 0
+#srcline 23 ;  timerPeriod (IN := not timerPeriod.Q, PT := Per);
+ LDX  timerPeriod~Q
+#debug bool timerPeriod.Q
+ NEG
+ WRX  timerPeriod~IN
+#debug_left bool timerPeriod~IN
+ LDX  Per
+#debug time Per
+ WRX  timerPeriod~PT
+#debug_left time timerPeriod~PT
+ LEAX timerPeriod
+ CAL  TOF_L0
+#srcline 24 ;  
+#srcline 25 ;  if ((not timerPeriod.Q) OR (start = false)) then      // pri docasovani periody a pri startu
+ LDX  timerPeriod~Q
+#debug bool timerPeriod.Q
+ NEG
+ LDX  start
+#debug bool start
+ LD   bool 0       ; false
+ XOR
+ NEG
+ OR  
+ JMC  PWM_L1
+#srcline 26 ;    ptPulse := MULTIME (IN1 := Per, IN2 := Pls/100.0);  // vypocet nove delky pulsu
+ LDX  Per
+#debug time Per
+ ILF
+ LDX  Pls
+#debug real Pls
+ LD   real 100.0
+ DIF
+ MUF
+ RND
+ IFL
+ WRX  ptPulse
+#debug_left time ptPulse
+#srcline 27 ;    start := true;
+ LD   bool -1       ; true
+ WRX  start
+#debug_left bool start
+#srcline 28 ;  end_if;
+PWM_L1:
+#srcline 30 ;  //casovani pulsu
+#srcline 31 ;  timerPulse  (IN := timerPeriod.Q, PT := ptPulse);
+ LDX  timerPeriod~Q
+#debug bool timerPeriod.Q
+ WRX  timerPulse~IN
+#debug_left bool timerPulse~IN
+ LDX  ptPulse
+#debug time ptPulse
+ WRX  timerPulse~PT
+#debug_left time timerPulse~PT
+ LEAX timerPulse
+ CAL  TON_L0
+#srcline 33 ;  //ovladani vystupu
+#srcline 34 ;  if (Enb AND (Pls>0.0)) then
+ LDX  Enb
+#debug bool Enb
+ LDX  Pls
+#debug real Pls
+ LD   real 0.0
+ GTF
+ AND
+ JMC  PWM_L3
+#srcline 35 ;    Out := not timerPulse.Q;      //ovladat vystup
+ LDX  timerPulse~Q
+#debug bool timerPulse.Q
+ NEG
+ WRX  Out
+#debug_left bool Out
+#srcline 36 ;  else
+ JMP  PWM_L4
+PWM_L3:
+#srcline 37 ;    Out := 0;                     //neovladat vystup
+ LD   bool 0       ; false
+ WRX  Out
+#debug_left bool Out
+#srcline 38 ;  end_if;
+PWM_L4:
+#srcline 41 ;END_FUNCTION_BLOCK
+ ULNK
+RET
+E     61
+
+; Initialize - variables
+P     61
+PWM__InstanceInit__:
+ LINK 0
+ LEAX timerPeriod
+ CAL  TOF__InstanceInit__
+ ULNK
+RET
+E     61
+; End initialize - variables
+#endpou 
+
+
+
+ 
+
+#srcfile ''
+Ö,  ©  È

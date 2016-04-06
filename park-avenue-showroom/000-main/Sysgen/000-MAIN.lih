@@ -264,3 +264,1799 @@ END_FUNCTION
 
 
 
+{LIBFILE="LOCALLIB\SYSLIB_V35_20150416.MLB"}
+(* Mosaic IDE library *)
+(* File name : C:\TecoLib\SysLib_V35_20150416.mlb *)
+(* Library : SysLib 3.5 *)
+(* Author : Teco a.s. Kolin *)
+(* Copyright : (c) 2004..2015 Teco a.s. *)
+(* IEC compiler version : 3.10.3.2 *)
+(* Assembler version : 4.3.00 *)
+
+//{Knihovna : SysLib 3.5  }
+(* History: *)
+(*
+v1.0 2004-09-01 Nem First edition
+v1.1 2004-09-16 Nem New funtions : memcpy(),
+                    SetSummerTime(), IsSummerTime(), SetWinterTime(), IsWinterTime()
+v1.2 2005-05-16 Nem New funtions : GetDate(), GetTime(), GetDateTime(), GetRTC(), 
+                    SetRTC()
+                    System registers declared as a structure
+v1.3 2005-11-10 Nem New funtions : TecoDT_TO_DT() and DT_TO_TecoDT()
+v1.4 2007-11-17 Nem New funtion : Memset()
+v1.5 2008-01-17 Nem New funtions : IncreaseMaxCycleTime()
+v1.6 2008-08-18 Nem Change parameters order VAR_INPUT and VAR_IN_OUT
+                    in functions Memset() and Memcpy() - it is better for LD 
+                    language
+v1.7 2009-02-20 Nem New functions : Get_IP_address() and Set_IP_address() for Eth1
+v1.8 2009-03-10 Nem Funtion Get_IP_address() replaced by function GetIPaddress() and 
+                    moved to ComLib
+                    Funtion Set_IP_address() replaced by function SetIPaddress() and 
+                    moved to ComLib
+v1.9 2009-10-22 Nem New funtions : CIBunitInfo() and SetCIBunitAddress()
+                    and new data types TCIBunitState a TCIBunitInfo
+v2.0 2009-11-20 Nem New funtion : ProgramLock()
+v2.1 2009-12-16 Nem New funtions : function block fbTick() and function Memcmp()
+v2.2 2010-01-18 Nem Corrected coding of CIB master and new code for master 0 
+                   (MI0_CIB1 a MI0_CIB2)
+v2.3 2010-05-06 Nem New funtions : SetWebPSW() and VerifyWebPSW()
+v2.4 2010-08-16 Nem New funtions : SystemDisplayBacklightOn() and 
+                    SystemDisplayBacklightOff()
+v2.5 2010-09-02 Nem Dependency on the libraries added
+     2010-09-15 Nem Function SetRTC returns TRUE when date and time is succesfully 
+                    written to RTC device
+v2.6 2011-01-19 Nem New funtions : RFunitInfo() and SetRFunitAddress()
+v2.7 2011-06-30 Nem New funtion block : fbBondRFunit()
+v2.8 2011-11-02 Nem New funtion blocks : memcpyEx(), memsetEx() and memcmpEx()
+v2.9 2011-12-02 Nem New funtions : SetWebMAC() and VerifyWebMAC()
+v3.0 2012-04-27 Nem New funtion block TPR() and completed declaration of SystemS
+v3.1 2012-06-21 Nem Block TPR replaced by block fbTPR() - RESET input has high 
+priority
+                    Corrected declaration of structure SystemS 
+                    (added CPU_DI and CPU_DO)
+v3.2 2013-03-22 Nem Restored block TPR from version 3.0 (backward compatibility)
+                    New funtion : ProgramIsChanged()
+v3.3 2013-06-21 Nem Fixed bug in ProgramIsChanged() in case of on-line change
+                    New funtions :  ReInitPLC_hotRestart(), ReInitPLC_coldRestart()
+                    and ReInitPLC_noRestart() - it requires Foxtrot FW v7.8 
+                    minimally
+v3.4 2014-10-03 Nem New function : GetModuleID() and type T_RGB_COLOR
+v3.5 2015-04-16 Nem New function : MemcpyPtr()
+*)
+
+(*----------------------------------------------------------------------------*)
+
+TYPE T_RGB_COLOR :
+  STRUCT
+    red              : usint;  (*red color <0..255>*)
+    green            : usint;  (*green color <0..255>*)
+    blue             : usint;  (*blue color <0..255>*)
+    opacity          : usint;  (*opacity (0 = opaque, 255 = transparent)*)
+  END_STRUCT;
+END_TYPE
+
+TYPE TSYSTEM_S :
+  STRUCT
+    S0               : byte;  (*flags of the results of arithmetic operations *)
+    S1               : byte;  (*flags of the results of logical operations *)
+    S2_0             : bool;
+    S2_1             : bool;
+    S2_2             : bool;  (*PLC is running*)
+    S2_3             : bool;  (*HOT restart*)
+    S2_4             : bool;  (*COLD restart*)
+    OUTPUTS_ARE_ENABLED : bool;  (*PLC outputs are enabled*)
+    S2_6             : bool;  (*RUN without restart*)
+    CYCLE_TIME_WARNING : bool;  (*Cycle time warning*)
+    LAST_CYCLE_TIME_10MS : usint;  (*Last cycle time [x10 milisecond]*)
+    CYCLE_COUNTER    : usint;  (*Cycle counter*)
+    COUNTER_10MS     : usint;  (*10 miliseconds counter*)
+    COUNTER_SECONDS  : usint;  (*second counter*)
+    COUNTER_MINUTES  : usint;  (*minute counter*)
+    COUNTER_HOURS    : usint;  (*hour counter*)
+    COUNTER_DAYS_OF_WEEK : usint;  (*day of week*)
+    COUNTER_DAYS_OF_MONTH : usint;  (*day*)
+    COUNTER_MONTHS   : usint;  (*month*)
+    COUNTER_YEARS    : usint;  (*year*)
+    PERIOD_PULSE_100MS : bool;  (*100 ms periodic pulse*)
+    PERIOD_PULSE_500MS : bool;  (*500 ms periodic pulse*)
+    PERIOD_PULSE_1SEC : bool;  (*1 s periodic pulse*)
+    PERIOD_PULSE_10SEC : bool;  (*10 s periodic pulse*)
+    PERIOD_PULSE_1MIN : bool;  (*1 min periodic pulse*)
+    PERIOD_PULSE_10MIN : bool;  (*10 min periodic pulse*)
+    PERIOD_PULSE_1HOUR : bool;  (*1 hour periodic pulse*)
+    PERIOD_PULSE_1DAY : bool;  (*1 day periodic pulse*)
+    COUNTER_100MS    : uint;  (**)
+    COUNTER_1SEC     : uint;  (**)
+    COUNTER_10SEC    : uint;  (**)
+    R_EDGE_100MS     : bool;  (**)
+    R_EDGE_500MS     : bool;  (**)
+    R_EDGE_1SEC      : bool;  (**)
+    R_EDGE_10SEC     : bool;  (**)
+    R_EDGE_1MIN      : bool;  (**)
+    R_EDGE_10MIN     : bool;  (**)
+    R_EDGE_1HOUR     : bool;  (**)
+    R_EDGE_1DAY      : bool;  (**)
+    F_EDGE_100MS     : bool;  (**)
+    F_EDGE_500MS     : bool;  (**)
+    F_EDGE_1SEC      : bool;  (**)
+    F_EDGE_10SEC     : bool;  (**)
+    F_EDGE_1MIN      : bool;  (**)
+    F_EDGE_10MIN     : bool;  (**)
+    F_EDGE_1HOUR     : bool;  (**)
+    F_EDGE_1DAY      : bool;  (**)
+    LAST_CYCLE_TIME_100US : uint;  (*Last cycle time [x100 microsecond]*)
+    S24              : byte;  (*control masks for PLC processes*)
+    S25              : byte;  (*control masks for PLC processes*)
+    S26              : byte;  (*control masks for PLC processes*)
+    S27              : byte;  (*control masks for PLC processes*)
+    S28              : byte;  (*control masks for PLC processes*)
+    S29              : byte;  (*control masks for PLC processes*)
+    S30              : byte;  (*reserved*)
+    S31              : byte;  (*reserved*)
+    S32              : byte;  (*reserved*)
+    S33              : byte;  (*reserved*)
+    S34              : byte;  (*main code of PLC error*)
+    BAT_ERR          : bool;  (*Backup baterry error*)
+    S35_1            : bool;  (*reserved*)
+    S35_2            : bool;  (*reserved*)
+    S35_3            : bool;  (*reserved*)
+    S35_4            : bool;  (*reserved*)
+    S35_5            : bool;  (*reserved*)
+    IS_SUMMER_TIME   : bool;  (*Summer time indication*)
+    SUMMER_TIME_REQUEST : bool;  (**)
+    CPU_TEMPERATURE  : usint;  (*CPU temperature [Celsius degree]*)
+    S37              : byte;
+    S38              : byte;
+    S39              : byte;
+    S40              : byte;
+    S41              : byte;
+    S42              : byte;
+    S43              : byte;
+    S44              : byte;
+    S45              : byte;
+    S46              : byte;
+    S47              : byte;
+    S48              : byte;
+    S49              : byte;
+    S50              : byte;
+    S51              : byte;
+    COUNTER_1MS      : udint;  (*1 ms counter*)
+    S56              : byte;
+    S57              : byte;
+    CPU_DI           : byte;  (*inputs serviced by CPU*)
+    CPU_DO           : byte;  (*outputs serviced by CPU*)
+    INDEX_OF_RETAIN_ZONE : udint;  (*address of retain zone (index of %R)*)
+    SIZE_OF_RETAIN_ZONE : udint;  (*size of retain zone (number of bytes)*)
+    INDEX_SOFT_PLC_STRUCT : uint;  (*reserved for SoftPLC*)
+    CRC_OF_USER_PROGRAM : word;  (*CRC of user program*)
+    CRC_OF_HEADER_PROGRAM : word;  (*CRC of header of user program*)
+  END_STRUCT;
+END_TYPE
+
+VAR_GLOBAL
+ System_S AT %S0 : TSYSTEM_S;
+ IS_HOT_RESTART_PLC AT System_S.S2_3 : bool;  (*HOT restart*)
+ IS_COLD_RESTART_PLC AT System_S.S2_4 : bool;  (*COLD restart*)
+ IS_RESTART_PLC AT System_S.S2_6 : bool;  (*RUN without restart*)
+ CRC_OF_APLIC_PROGRAM AT System_S.CRC_OF_USER_PROGRAM : dword;  (*CRC of aplic program*)
+
+END_VAR
+
+TYPE TModuleInfo :
+  STRUCT
+    ECOM             : bool;  (*communication module <=> CPU : 0 ... communication is OK, 1 ... ERROR*)
+    DATA             : bool;  (*data validity                : 0 ... module data are not valid, 1 ... OK*)
+    DUMMY1           : bool;  (*not used*)
+    DUMMY2           : bool;  (*not used*)
+    ERR              : bool;  (*I/O module error             : 0 ... module is OK, 1 ... module has a problem*)
+    DEC              : bool;  (*module declaration           : 0 ... module is not declared in user program*)
+    OTH              : bool;  (*check module type            : 0 ... declared and exist module is the same*)
+    POS              : bool;  (*position                     : 0 ... position is free, 1 ... module is present*)
+    STAT             : usint;  (*collection all previous bits*)
+  END_STRUCT;
+END_TYPE
+
+TYPE TIOSystemInfo :
+  STRUCT
+    err              : bool;  (*0 ... all I/O modules are OK, 1 ... any module has error*)
+    rackNumber       : usint;  (*if err=1 then rack number where module is plugged*)
+    position         : usint;  (*if err=1 then position number where module is plugged*)
+  END_STRUCT;
+END_TYPE
+
+VAR_GLOBAL CONSTANT
+ MODULE_AND_DATA_OK : usint :=  16#A2;
+
+END_VAR
+
+__DECL FUNCTION ModuleInfo : TModuleInfo
+(*Get information about IO module
+   Function returns info about one I/O module.
+   You can use this function if module can be removed on time*)
+  VAR_INPUT
+    rackNumber       : usint;  (*rack number where module is plugged*)
+    position         : usint;  (*position number where module is plugged*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION IOSystemInfo : TIOSystemInfo
+(*Get state of PLC IO system
+
+   Function returns info about IO system of PLC (all I/O modules)
+   You can use this function if any module can be removed on time
+
+   If any module has an error,
+   err flag is true and position and rack number are set*)
+END_FUNCTION
+
+__DECL FUNCTION Memcpy : uint
+(*Copy memory
+  Function copies a block of n bytes from source to dest
+  Function returns number of copied bytes*)
+  VAR_INPUT
+    length           : uint;  (*number of bytes*)
+  END_VAR
+  VAR_IN_OUT
+    source           : usint;  (*source*)
+    dest             : usint;  (*destination*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION MemcpyEx : uint
+(*Copy memory
+  Function copies a block of n bytes from source+offsetSource to dest+offsetDest
+  Function returns number of copied bytes*)
+  VAR_INPUT
+    length           : udint;  (*number of bytes*)
+    offSource        : udint;  (*offset in source*)
+    offDest          : udint;  (*offset in destination*)
+  END_VAR
+  VAR_IN_OUT
+    source           : usint;  (*source*)
+    dest             : usint;  (*destination*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION MemcpyPtr : udint
+(*Function memcpy copies a block of n bytes from source to dest.
+  Function returns number of copied bytes.*)
+  VAR_INPUT
+    source           : PTR_TO usint;  (*pointer to source*)
+    dest             : PTR_TO usint;  (*pointer to  destination*)
+    length           : udint;  (*number of bytes*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION Memset : bool
+(*Set memory
+  This function fills the first length bytes of the array pointed to by dest to the value
+  Function returns true if succesfull*)
+  VAR_INPUT
+    val              : udint;  (*filling value*)
+    length           : uint;  (*number of bytes to be filled*)
+  END_VAR
+  VAR_IN_OUT
+    dest             : usint;  (*destination*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION MemsetEx : bool
+(*Set memory
+  This function fills the first length bytes of the array pointed to by dest+offDest to the value
+  Function returns true if succesfull*)
+  VAR_INPUT
+    val              : udint;  (*filling value*)
+    length           : udint;  (*number of bytes to be filled*)
+    offDest          : udint;  (*offset in destination*)
+  END_VAR
+  VAR_IN_OUT
+    dest             : usint;  (*destination*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION Memcmp : bool
+(*Compare memory
+  Function compares a block of n bytes between in1 and in2
+  Function returns TRUE if in1 is equal in2*)
+  VAR_INPUT
+    length           : uint;  (*number of bytes*)
+  END_VAR
+  VAR_IN_OUT
+    in1              : usint;  (*first data block*)
+    in2              : usint;  (*second data block*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION MemcmpEx : bool
+(*Compare memory
+  Function compares a block of n bytes between in1+offIn1 and in2+offIn2
+  Function returns TRUE if blocks are equal*)
+  VAR_INPUT
+    length           : udint;  (*number of bytes*)
+    offIn1           : udint;  (*offset in first data block*)
+    offIn2           : udint;  (*offset in second data block*)
+  END_VAR
+  VAR_IN_OUT
+    in1              : usint;  (*first data block*)
+    in2              : usint;  (*second data block*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION IncreaseMaxCycleTime : bool
+(*Increase max limit for PLC scan time
+
+   Use IncreaseMaxCycleTime to increase max limit for PLC scan time in current scan*)
+  VAR_INPUT
+    addTime          : uint;  (*milisec*)
+  END_VAR
+END_FUNCTION
+
+TYPE TTecoDateTime :
+  STRUCT
+    year             : usint;  (*last two numbers*)
+    month            : usint;  (*1 .. 12*)
+    day              : usint;  (*1 .. 28/29/30/31*)
+    hour             : usint;  (*0 .. 23*)
+    min              : usint;  (*0 .. 59*)
+    sec              : usint;  (*0 .. 59*)
+    dayOfWeek        : usint;  (*1 = Monday .. 7 = Sunday*)
+    milisec          : uint;  (*0 .. 999*)
+  END_STRUCT;
+END_TYPE
+
+__DECL FUNCTION SetSummerTime : bool
+(*Set Automatic Daylight Saving Time
+  Set request for automatic changing between summer and winter time*)
+END_FUNCTION
+
+__DECL FUNCTION IsSummerTime : bool
+(*Test of summer time
+  Test if is summer time now*)
+END_FUNCTION
+
+__DECL FUNCTION SetWinterTime : bool
+(*Disable Automatic Daylight Saving Time
+  Reset request for automatic changing between summer and winter time*)
+END_FUNCTION
+
+__DECL FUNCTION IsWinterTime : bool
+(*Test of winter time
+  Test if is winter time now*)
+END_FUNCTION
+
+__DECL FUNCTION GetDate : date
+(*Get actual system date*)
+  VAR
+    tmp              : TTecoDateTime;
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION GetTime : time
+(*Get actual system time*)
+  VAR
+    milisec          : uint;
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION GetDateTime : dt
+(*Get actual system date and time*)
+  VAR
+    tmp              : TTecoDateTime;
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION GetRTC : dt
+(*Get actual date and time from RTC device directly*)
+  VAR
+    tmp              : TTecoDateTime;
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION SetRTC : bool
+(*Set new date and time of PLC
+  Function sets new actual date and time to RTC device*)
+  VAR_INPUT
+    PDT              : dt;  (*new date and time*)
+  END_VAR
+  VAR
+    tmp              : TTecoDateTime;
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION TecoDT_TO_DT : dt
+(*Convert structure TTecoDateTime to type DATE_AND_TIME*)
+  VAR_INPUT
+    Teco_DT          : TTecoDateTime;  (*date and time*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION DT_TO_TecoDT : TTecoDateTime
+(*Convert DATE_AND_TIME to structure TTecoDateTime*)
+  VAR_INPUT
+    IEC_DT           : dt;  (*date and time*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION memory_for_ProgramIsChanged {HIDDEN} : bool
+  VAR_INPUT
+    saveSL70         : bool;
+    memSL70          : udint;
+    memS4            : usint;
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION ProgramIsChanged : bool
+(*Function returns TRUE in case of restart of PLC program or
+        when program is changed on-line*)
+  VAR
+    saveSL70         : bool;
+    memSL70          : udint;
+    memS4            : usint;
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION ReInitPLC_hotRestart : bool
+(*As a first step PLC goes to HALT mode. PLC outputs are blocked.
+  Processing of application program is stopped.
+  After that warm restart is executed and PLC goes to RUN mode.
+  IO system is completely reinitialized.
+  Values of RETAIN variables are unchanged,
+  all others variables are initialized*)
+  VAR_INPUT
+    rq               : bool;  (*1 = request for reinitialization of PLC*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION ReInitPLC_coldRestart : bool
+(*As a first step PLC goes to HALT mode. PLC outputs are blocked.
+  Processing of application program is stopped.
+  After that cold restart is executed and PLC goes to RUN mode.
+  IO system is completely reinitialized.
+  All variables are initialized.*)
+  VAR_INPUT
+    rq               : bool;  (*request for reinitialization of PLC*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION ReInitPLC_noRestart : bool
+(*As a first step PLC goes to HALT mode. PLC outputs are blocked.
+  Processing of application program is stopped.
+  After that PLC goes to RUN mode.
+  IO system is completely reinitialized.
+  All variables are unchanged.*)
+  VAR_INPUT
+    rq               : bool;  (*request for reinitialization of PLC*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION GetModuleID : string [40]
+(*Returns identification string from 32 to 36 characters according to module type*)
+  VAR_INPUT
+    rackNumber       : usint;  (*rack number where module is plugged*)
+    position         : usint;  (*position number where module is plugged*)
+  END_VAR
+END_FUNCTION
+
+VAR_GLOBAL CONSTANT
+ MI_CIB1 : usint :=  1;  (*internal Foxtrot CIB line*)
+ MI_CIB2 : usint :=  2;
+ MI0_CIB1 : usint :=  3;  (*external CIB master, address 0, CIB line 1*)
+ MI0_CIB2 : usint :=  4;  (*external CIB master, address 0, CIB line 2*)
+ MI2_CIB1 : usint :=  5;  (*external CIB master, address 2, CIB line 1*)
+ MI2_CIB2 : usint :=  6;  (*external CIB master, address 2, CIB line 2*)
+ MI4_CIB1 : usint :=  7;  (*external CIB master, address 4, CIB line 1*)
+ MI4_CIB2 : usint :=  8;  (*external CIB master, address 4, CIB line 2*)
+ MI6_CIB1 : usint :=  9;  (*external CIB master, address 6, CIB line 1*)
+ MI6_CIB2 : usint :=  10;  (*external CIB master, address 6, CIB line 2*)
+ MI_RF : usint :=  100;  (*internal Foxtrot RF line*)
+ RF0_RF : usint :=  101;  (*external RF master, address 0*)
+ RF2_RF : usint :=  102;  (*external RF master, address 2*)
+ RF4_RF : usint :=  103;  (*external RF master, address 4*)
+ RF6_RF : usint :=  104;  (*external RF master, address 6*)
+
+END_VAR
+
+TYPE TCIBunitState :
+  STRUCT
+    INI              : bool;  (*CIB unit is initialized*)
+    COM              : bool;  (*communication with CIB unit is OK*)
+    ADDR             : bool;  (*CIB unit address was accepted*)
+    DUMMY3 {HIDDEN}  : bool;
+    REI              : bool;  (*reinitialization of CIB unit*)
+    DUMMY5 {HIDDEN}  : bool;
+    DUMMY6 {HIDDEN}  : bool;
+    NET              : bool;  (*CIB unit is defined and served by CPU*)
+  END_STRUCT;
+END_TYPE
+
+TYPE TCIBunitInfo :
+  STRUCT
+    line_defined     : bool;  (*CIB line defined*)
+    unit_defined     : bool;  (*CIB unit defined*)
+    state            : TCIBunitState;  (*CIB unit state*)
+    address          : word;  (*CIB unit address*)
+    code             : word;  (*CIB unit code*)
+    unit_type        : string [17];  (*CIB unit type*)
+    description      : string [31];  (*CIB unit description*)
+  END_STRUCT;
+END_TYPE
+
+TYPE TRFunitState :
+  STRUCT
+    INI              : bool;  (*RF unit is initialized*)
+    COM              : bool;  (*communication with RF unit is OK*)
+    DUMMY2 {HIDDEN}  : bool;
+    DUMMY3 {HIDDEN}  : bool;
+    DUMMY4 {HIDDEN}  : bool;
+    SLP              : bool;  (*sleep mode is available*)
+    BND              : bool;  (*unit is paired*)
+    NET              : bool;  (*RF unit is defined and served by CPU*)
+  END_STRUCT;
+END_TYPE
+
+TYPE TRFunitInfo :
+  STRUCT
+    line_defined     : bool;  (*RF line defined*)
+    unit_defined     : bool;  (*RF unit defined*)
+    state            : TRFunitState;  (*RF unit state*)
+    address          : word;  (*RF unit address*)
+    code             : word;  (*RF unit code*)
+    unit_type        : string [17];  (*RF unit type*)
+    description      : string [31];  (*RF unit description*)
+  END_STRUCT;
+END_TYPE
+
+__DECL FUNCTION CIBunitInfo : bool
+(*Get state of CIB unit
+
+  Function returns information about CIB unit
+  When function is succesful, return value is TRUE*)
+  VAR_INPUT
+    CIB_line         : usint;  (*CIB line number (see constant MI_CIB1,...,MI6_CIB2)*)
+    CIB_unitID       : usint;  (*CIB position number (1,...,32)*)
+  END_VAR
+  VAR_IN_OUT
+    unitInfo         : TCIBunitInfo;  (*variable with information about CIB unit*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION RFunitInfo : bool
+(*Get state of RF unit
+
+  Function returns information about RF unit
+  When function is succesful, return value is TRUE*)
+  VAR_INPUT
+    RF_line          : usint;  (*RF line number (see constant MI_RF, RF0_RF,...,RF6_RF)*)
+    RF_unitID        : usint;  (*RF position number (1,...,64)*)
+  END_VAR
+  VAR_IN_OUT
+    unitInfo         : TRFunitInfo;  (*variable with information about RF unit*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION SetAddressCIBunit : bool
+(*Set new address of CIB unit
+  Function sets new address of CIB unit
+  When function is succesful, return value is TRUE*)
+  VAR_INPUT
+    CIB_line         : usint;  (*CIB line number (see constant MI_CIB1,...,MI6_CIB2)*)
+    CIB_unitID       : usint;  (*CIB position number (1,...,32)*)
+    CIB_addr         : word;  (*new address of CIB unit*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION SetAddressRFunit : bool
+(*Set new address of RF unit
+  Function sets new address of RF unit
+  When function is succesful, return value is TRUE*)
+  VAR_INPUT
+    RF_line          : usint;  (*RF line number (see constant MI_RF, RF0_RF,...,RF6_RF)*)
+    RF_unitID        : usint;  (*RF position number (1,...,64)*)
+    RF_addr          : word;  (*new address of RF unit*)
+  END_VAR
+END_FUNCTION
+
+TYPE TBondStat {HIDDEN} :
+  STRUCT  (*status bondovani*)
+    disconnect       : bool;  (*probiha odbondovani*)
+    connect          : bool;  (*probiha bondovani*)
+    bondMap          : bool;  (*probiha cteni bondovaci mapy*)
+    dummy3           : bool;
+    dummy4           : bool;
+    error            : bool;  (*doslo k chybe*)
+    done             : bool;  (*hotovo*)
+    busy             : bool;  (*master zaneprazdnen*)
+  END_STRUCT;
+END_TYPE
+
+TYPE TBondInfo {HIDDEN} :
+  STRUCT  (*informace, kterou vraci instrukce SYS 79*)
+    bondStat         : TBondStat;
+    bondID           : usint;  (*cislo pozice pribondovane jednotky (je-li bondovani uspesne)*)
+    bondType         : word;  (*typ pribondovane jednotky (je-li bondovani uspesne)*)
+  END_STRUCT;
+END_TYPE
+
+__DECL FUNCTION_BLOCK fbBondRFunit
+(*Bond RF unit with RF master
+  Function block establish relation between RF unit and RF master
+  This operation may take some time. During the action variable busy is set.
+  If you can pair RF unit output variable done has the value TRUE
+  and variable unitType contains string with type of unit and serial number.
+  In other case variable err has value TRUE and variable errID contains error number.*)
+  VAR_INPUT
+    exec             : bool R_EDGE;  (*request to initiate action (rising edge)*)
+    RF_line          : usint;  (*RF line number (see constant MI_RF, RF0_RF,...,RF6_RF)*)
+    RF_unitID        : usint;  (*RF position number (1,...,64)*)
+    bondRq           : bool;  (*0 = unbond unit only, 1 = bond new unit*)
+    useRouter        : bool;  (*1 = after bonding communicate with unit through router*)
+  END_VAR
+  VAR_OUTPUT
+    done             : bool;  (*action is done*)
+    busy             : bool;  (*action in progress*)
+    err              : bool;  (*error flag*)
+    errID            : udint;  (*error number*)
+    unitType         : string [40];  (*unit type when action is successful*)
+  END_VAR
+  VAR
+    result           : TBondInfo;
+    timIN            : bool;
+    timPT            : time :=  T#2s;
+    tim              : TON;  (*odbondovat 2+2 s, pribondovat 12+2 s*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+__DECL FUNCTION ProgramLock : bool
+(*Lock the application program
+  Lock the user program (it can not be decompiled)*)
+END_FUNCTION
+
+__DECL FUNCTION_BLOCK TPR
+(*Pulse Timer with RESET. Obsolete version! Please use fbTPR.*)
+  VAR_INPUT
+    IN               : bool;  (*input*)
+    R                : bool;  (*reset*)
+    PT               : time;  (*preset*)
+  END_VAR
+  VAR_OUTPUT
+    Q                : bool;  (*output*)
+    ET               : time;  (*value*)
+  END_VAR
+  VAR
+    IN_r_edge        : R_TRIG;
+    LT               : time;  (*last tick value ( 1ms resolution)*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+__DECL FUNCTION_BLOCK fbTPR
+(*Pulse Timer with RESET*)
+  VAR_INPUT
+    IN               : bool;  (*input*)
+    R                : bool;  (*reset*)
+    PT               : time;  (*preset*)
+  END_VAR
+  VAR_OUTPUT
+    Q                : bool;  (*output*)
+    ET               : time;  (*value*)
+  END_VAR
+  VAR
+    IN_r_edge        : R_TRIG;
+    LT               : time;  (*last tick value ( 1ms resolution)*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+__DECL FUNCTION SetWebPSW : bool
+(*Set password for web access
+   Function sets new username and password for PLC web pages*)
+  VAR_INPUT
+    user             : usint;  (*line number in table of users (0...9)*)
+  END_VAR
+  VAR_IN_OUT
+    name             : string [80];  (*new user name*)
+    password         : string [80];  (*new password*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION VerifyWebPSW : bool
+(*Verify password for the website PLC
+   Function verifies username and password for PLC web pages*)
+  VAR_INPUT
+    user             : usint;  (*line number in table of users (0...9)*)
+  END_VAR
+  VAR_IN_OUT
+    name             : string [80];  (*user name*)
+    password         : string [80];  (*password*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION SetWebMAC : bool
+(*Set MAC for web access
+   Function sets new MAC address for PLC web pages*)
+  VAR_INPUT
+    user             : usint;  (*line number in table of users (0...9)*)
+  END_VAR
+  VAR_IN_OUT
+    MAC              : string [80];  (*new MAC address ('00:11:22:33:44:55')*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION VerifyWebMAC : bool
+(*Verify MAC for the website PLC
+   Function verifies MAC address for PLC web pages access*)
+  VAR_INPUT
+    user             : usint;  (*line number in table of users (0...9)*)
+  END_VAR
+  VAR_IN_OUT
+    MAC              : string [80];  (*MAC address ('00:11:22:33:44:55')*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION SystemDisplayBacklightOn : bool
+(*Switch on the display backlight  system
+   Function switch ON backlight of system LCD display.
+   Function returns TRUE if LCD display is available.
+   In other cases function returns FALSE.*)
+  VAR
+    tmp              : udint;
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION SystemDisplayBacklightOff : bool
+(*Switch off the display backlight  system
+   Function switch OFF backlight of system LCD display.
+   Function returns TRUE if LCD display is available.
+   In other cases function returns FALSE.*)
+  VAR
+    tmp              : udint;
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION_BLOCK fbTick
+(*Periodic Timer*)
+  VAR_INPUT
+    IN               : bool;  (*ticks enabled*)
+    PT               : time;  (*period of ticks*)
+  END_VAR
+  VAR_OUTPUT
+    Q                : bool;  (*tick impulse*)
+    ET               : time;  (*elapsed time*)
+  END_VAR
+  VAR
+    WasRun           : bool;
+    RunTime          : time;
+  END_VAR
+END_FUNCTION_BLOCK
+
+
+
+{LIBFILE="LOCALLIB\COMLIB_V21_20130528.MLB"}
+(* Mosaic IDE library *)
+(* File name : C:\TecoLib\ComLib_V21_20130528.mlb *)
+(* Library : ComLib 2.1 *)
+(* Author : Teco a.s. *)
+(* Copyright : (c) 2013 Teco a.s. *)
+(* IEC compiler version : 3.8.18.5 *)
+(* Assembler version : 4.3.00 *)
+
+//{Knihovna : ComLib 2.1  }
+(* History: *)
+(*
+v1.0 2009-03-23 Nem first edition
+v1.1 2009-03-27 Nem corrected error when length of sending data is zero
+v1.2 2009-06-24 Nem fbSendTo() and fbReceivedFrom() extended for ETH2
+v1.3 2009-09-24 Nem function GetMACaddress is available for ETH2, added functions 
+                    SetDHCPsupport(), STRING_TO_IPADR() a IPADR_TO_STRING() 
+v1.4 2010-02-08 Nem added function GetChanStat() 18.02.2010 Nem added functions 
+                    GetChanSettings() and SetChanSettings()
+v1.5 2010-08-02 Nem all comments are in Czech and English version
+v1.6 2011-08-08 Nem corrected TCP buffer overflow in fbSenfTo() 
+v1.7 2012-01-23 Nem added functions SetDNS_IP(), GetDNS_IP() and fbRecvTxt()
+v1.8 2012-04-18 Nem error output added to function block fbRecvTxt()
+v1.9 2012-06-14 Nem added constants ETH3_uni0,...,ETH4_uni7 
+		Byd added function block fbRecvTxtChar()
+v2.0 2013-03-14 Nem added item link in structure TEthStat
+                    (network cable connected)
+v2.1 2013-05-28 Nem added global variables ETH3_STAT and ETH4_STAT
+                    added function GetWebServerAccess()
+                    and function block fbKeepAliveTCP() - required
+                    version of firmware CPU is 7.7 or higher
+     2013-08-22 Nem in block fb SendTo() max. length of sending data is checked correctly
+*)
+
+(*----------------------------------------------------------------------------*)
+
+TYPE TUniDesc :
+  STRUCT  (*description of channel in uni mode*)
+    modeChan         : byte;  (*channel mode*)
+    res              : byte;  (*reserved*)
+    adrUniStat       : udint;  (*address of status*)
+    lenUniStat       : uint;  (*length of status*)
+    adrUniCont       : udint;  (*address of control*)
+    lenUniCont       : uint;  (*length of control*)
+    adrUniIn         : udint;  (*address of receiving buffer*)
+    lenUniIn         : uint;  (*length of receiving buffer*)
+    adrUniOut        : udint;  (*address of sending buffer*)
+    lenUniOut        : uint;  (*length of sending buffer*)
+  END_STRUCT;
+END_TYPE
+
+TYPE  TIPadr : ARRAY [0..3] OF usint;  (*IP address*)
+END_TYPE
+
+TYPE TLocalEthAdr :
+  STRUCT  (*structure of local IP address*)
+    IP               : TIPadr;  (*IP address*)
+    IM               : TIPadr;  (*subnet mask*)
+    GW               : TIPadr;  (*gateway address*)
+  END_STRUCT;
+END_TYPE
+
+TYPE TRemoteEthAdr :
+  STRUCT  (*structure of remote IP address*)
+    remoteIP         : TIPadr;  (*remote IP address*)
+    remotePort       : uint;  (*remote port*)
+    localPort        : uint;  (*local port*)
+  END_STRUCT;
+END_TYPE
+
+TYPE  TMacAdr : ARRAY [0..5] OF byte;  (*MAC address*)
+END_TYPE
+
+TYPE TChanSettings :
+  STRUCT  (*structure of parameters for serial channel (uni mode only!)*)
+    modeChan         : usint;  (*channel mode*)
+    address          : usint;  (*address*)
+    speed            : usint;  (*speed*)
+    rxTimeout        : usint;  (*receiver timeout*)
+    txTimeout        : usint;  (*transmitter timeout*)
+    lineControl      : usint;  (*parity control*)
+    modemControl     : usint;  (*modem control*)
+    rez              : usint;  (*reserved*)
+  END_STRUCT;
+END_TYPE
+
+VAR_GLOBAL CONSTANT
+ MODE_OFF : usint :=  16#00;  (*channel is off*)
+ MODE_PC : usint :=  16#02;  (*EPSNET slave*)
+ MODE_UNI : usint :=  16#05;  (*universal mode*)
+ MODE_MPC : usint :=  16#06;  (*EPSNET multimaster*)
+ MODE_MDB : usint :=  16#07;  (*MODBUS slave*)
+ MODE_PFB : usint :=  16#08;  (*PROFIBUS DP master*)
+ BAUD_50 : usint :=  16#01;  (*50 Baud*)
+ BAUD_100 : usint :=  16#02;  (*100 Baud*)
+ BAUD_200 : usint :=  16#03;  (*200 Baud*)
+ BAUD_300 : usint :=  16#04;  (*300 Baud*)
+ BAUD_600 : usint :=  16#05;  (*600 Baud*)
+ BAUD_1200 : usint :=  16#06;  (*1200 Baud*)
+ BAUD_2400 : usint :=  16#07;  (*2400 Baud*)
+ BAUD_4800 : usint :=  16#08;  (*4800 Baud*)
+ BAUD_9600 : usint :=  16#0A;  (*9600 Baud*)
+ BAUD_14400 : usint :=  16#0B;  (*14400 Baud*)
+ BAUD_19200 : usint :=  16#0C;  (*19200 Baud*)
+ BAUD_28800 : usint :=  16#0D;  (*28800 Baud*)
+ BAUD_38400 : usint :=  16#0E;  (*38400 Baud*)
+ BAUD_57600 : usint :=  16#10;  (*57600 Baud*)
+ BAUD_76800 : usint :=  16#12;  (*76800 Baud*)
+ BAUD_93750 : usint :=  16#13;  (*937500 Baud*)
+ BAUD_115200 : usint :=  16#14;  (*115200 Baud*)
+ NO_PARITY : usint :=  16#00;  (*no parity (lineControl code)*)
+ PARITY_ODD : usint :=  16#08;  (*odd parity (lineControl code)*)
+ PARITY_EVEN : usint :=  16#18;  (*even parity (lineControl code)*)
+ PARITY_0 : usint :=  16#28;  (*fixed parity 0 (lineControl code)*)
+ PARITY_1 : usint :=  16#38;  (*fixed parity 1 (lineControl code)*)
+ SEVEN_BITS : usint :=  16#40;  (*7 bits in byte (lineControl code)*)
+ EIGHT_BITS : usint :=  16#00;  (*8 bits in byte (lineControl code)*)
+ ONE_STOP_BIT : usint :=  16#00;  (*1 stop bit (lineControl code)*)
+ TWO_STOP_BITS : usint :=  16#80;  (*2 stop bits (lineControl code)*)
+ RTS_0 : usint :=  16#00;  (*RTS fixed 0 (modemControl code)*)
+ RTS_1 : usint :=  16#02;  (*RTS fixed 1 (modemControl code)*)
+ RTS_MAN : usint :=  16#40;  (*RTS manual from user program (modemControl code)*)
+ RTS_AUTO : usint :=  16#80;  (*RTS auto (modemControl code)*)
+ RTS_CTS_AUTO : usint :=  16#C0;  (*RTS auto + condition CTS (modemControl code)*)
+ HALF_DUPLEX : usint :=  16#08;  (*receiver is disabled during transmitting (modemControl code)*)
+
+END_VAR
+
+TYPE TCHxStatistic {HIDDEN} :
+  STRUCT
+    STAT             : usint;
+    ERR              : usint;
+    trueMes          : udint;
+    falseMes         : udint;
+  END_STRUCT;
+END_TYPE
+
+TYPE TCHxControl {HIDDEN} :
+  STRUCT
+    CONTROL          : uint;
+  END_STRUCT;
+END_TYPE
+
+TYPE TUni_STAT :
+  STRUCT
+    DSR              : bool;
+    CTS              : bool;
+    dummy1           : bool;
+    TRO              : bool;
+    RCF              : bool;
+    ROV              : bool;
+    TRF              : bool;
+    ARC              : bool;
+  END_STRUCT;
+END_TYPE
+
+TYPE TUni_CONT {HIDDEN} :
+  STRUCT
+    dummy0           : bool;
+    dummy1           : bool;
+    dummy2           : bool;
+    dummy3           : bool;
+    dummy4           : bool;
+    TRG              : bool;
+    CLR              : bool;
+    ACN              : bool;
+  END_STRUCT;
+END_TYPE
+
+TYPE TUni_SIGN {HIDDEN} :
+  STRUCT
+    DTR              : bool;
+    RTS              : bool;
+  END_STRUCT;
+END_TYPE
+
+TYPE  TUni_BUFF : ARRAY [0..1400] OF usint;
+END_TYPE
+
+TYPE TUni_IN {HIDDEN} :
+  STRUCT  (*receiving data structure of channel in uni mode*)
+    STAT             : TUni_STAT;  (*status of receving*)
+    ERR              : usint;  (*error code*)
+    NUMR             : uint;  (*number of received bytes*)
+    DATA             : TUni_BUFF;  (*received data*)
+  END_STRUCT;
+END_TYPE
+
+TYPE TUni_OUT {HIDDEN} :
+  STRUCT  (*sending data structure of channel in uni mode*)
+    CONT             : TUni_CONT;  (*control of transmitting*)
+    SIGN             : TUni_SIGN;  (*control of modem signals*)
+    NUMT             : uint;  (*mumber of transmitted bytes*)
+    DATA             : TUni_BUFF;  (*transmitted data*)
+  END_STRUCT;
+END_TYPE
+
+TYPE TEthStat :
+  STRUCT  (*status of Ethernet channel*)
+    chan_present     : bool;  (*channel is present*)
+    DHCP_enabled     : bool;  (*DHCP on*)
+    IP_obtained      : bool;  (*IP address obtained from DHCP server*)
+    IP_expired       : bool;  (*IP address expired*)
+    link             : bool;  (*network cable connected*)
+    reserved         : usint;  (*reserved*)
+    trueMes          : udint;  (*suma of good messages*)
+    falseMes         : udint;  (*suma of bad messages*)
+  END_STRUCT;
+END_TYPE
+
+VAR_GLOBAL
+ ETH1_STAT AT %S356 : TEthStat;  (*status of Ethernet channel ETH1*)
+ ETH2_STAT AT %S368 : TEthStat;  (*status of Ethernet channel ETH2*)
+ ETH3_STAT AT %S380 : TEthStat;  (*status of Ethernet channel ETH3*)
+ ETH4_STAT AT %S392 : TEthStat;  (*status of Ethernet channel ETH4*)
+
+END_VAR
+
+VAR_GLOBAL CONSTANT
+ ANY_IP : TIPadr :=  [0];  (*IP address 0.0.0.0*)
+ ETH1_uni0 : uint :=  16#07E1;  (*Ethernet ETH1, mode uni, connection uni0*)
+ ETH1_uni1 : uint :=  16#17E1;  (*Ethernet ETH1, mode uni, connection uni1*)
+ ETH1_uni2 : uint :=  16#27E1;  (*Ethernet ETH1, mode uni, connection uni2*)
+ ETH1_uni3 : uint :=  16#37E1;  (*Ethernet ETH1, mode uni, connection uni3*)
+ ETH1_uni4 : uint :=  16#47E1;  (*Ethernet ETH1, mode uni, connection uni4*)
+ ETH1_uni5 : uint :=  16#57E1;  (*Ethernet ETH1, mode uni, connection uni5*)
+ ETH1_uni6 : uint :=  16#67E1;  (*Ethernet ETH1, mode uni, connection uni6*)
+ ETH1_uni7 : uint :=  16#77E1;  (*Ethernet ETH1, mode uni, connection uni7*)
+ ETH2_uni0 : uint :=  16#07E2;  (*Ethernet ETH2, mode uni, connection uni0*)
+ ETH2_uni1 : uint :=  16#17E2;  (*Ethernet ETH2, mode uni, connection uni1*)
+ ETH2_uni2 : uint :=  16#27E2;  (*Ethernet ETH2, mode uni, connection uni2*)
+ ETH2_uni3 : uint :=  16#37E2;  (*Ethernet ETH2, mode uni, connection uni3*)
+ ETH2_uni4 : uint :=  16#47E2;  (*Ethernet ETH2, mode uni, connection uni4*)
+ ETH2_uni5 : uint :=  16#57E2;  (*Ethernet ETH2, mode uni, connection uni5*)
+ ETH2_uni6 : uint :=  16#67E2;  (*Ethernet ETH2, mode uni, connection uni6*)
+ ETH2_uni7 : uint :=  16#77E2;  (*Ethernet ETH2, mode uni, connection uni7*)
+ ETH3_uni0 : uint :=  16#07E3;  (*Ethernet ETH3, mode uni, connection uni0*)
+ ETH3_uni1 : uint :=  16#17E3;  (*Ethernet ETH3, mode uni, connection uni1*)
+ ETH3_uni2 : uint :=  16#27E3;  (*Ethernet ETH3, mode uni, connection uni2*)
+ ETH3_uni3 : uint :=  16#37E3;  (*Ethernet ETH3, mode uni, connection uni3*)
+ ETH3_uni4 : uint :=  16#47E3;  (*Ethernet ETH3, mode uni, connection uni4*)
+ ETH3_uni5 : uint :=  16#57E3;  (*Ethernet ETH3, mode uni, connection uni5*)
+ ETH3_uni6 : uint :=  16#67E3;  (*Ethernet ETH3, mode uni, connection uni6*)
+ ETH3_uni7 : uint :=  16#77E3;  (*Ethernet ETH3, mode uni, connection uni7*)
+ ETH4_uni0 : uint :=  16#07E4;  (*Ethernet ETH4, mode uni, connection uni0*)
+ ETH4_uni1 : uint :=  16#17E4;  (*Ethernet ETH4, mode uni, connection uni1*)
+ ETH4_uni2 : uint :=  16#27E4;  (*Ethernet ETH4, mode uni, connection uni2*)
+ ETH4_uni3 : uint :=  16#37E4;  (*Ethernet ETH4, mode uni, connection uni3*)
+ ETH4_uni4 : uint :=  16#47E4;  (*Ethernet ETH4, mode uni, connection uni4*)
+ ETH4_uni5 : uint :=  16#57E4;  (*Ethernet ETH4, mode uni, connection uni5*)
+ ETH4_uni6 : uint :=  16#67E4;  (*Ethernet ETH4, mode uni, connection uni6*)
+ ETH4_uni7 : uint :=  16#77E4;  (*Ethernet ETH4, mode uni, connection uni7*)
+ CH1_uni : uint :=  16#0101;  (*Serial channel CH1, mode uni*)
+ CH2_uni : uint :=  16#0202;  (*Serial channel CH2, mode uni*)
+ CH3_uni : uint :=  16#0103;  (*Serial channel CH3, mode uni*)
+ CH4_uni : uint :=  16#0204;  (*Serial channel CH4, mode uni*)
+ CH5_uni : uint :=  16#0105;  (*Serial channel CH5, mode uni*)
+ CH6_uni : uint :=  16#0206;  (*Serial channel CH6, mode uni*)
+ CH7_uni : uint :=  16#0107;  (*Serial channel CH7, mode uni*)
+ CH8_uni : uint :=  16#0208;  (*Serial channel CH8, mode uni*)
+ CH9_uni : uint :=  16#0109;  (*Serial channel CH9, mode uni*)
+ CH10_uni : uint :=  16#020A;  (*Serial channel CH10, mode uni*)
+ ETH1 : usint :=  16#E1;  (*Ethernet ETH1*)
+ ETH2 : usint :=  16#E2;  (*Ethernet ETH2*)
+ ETH3 : usint :=  16#E3;  (*Ethernet ETH3*)
+ ETH4 : usint :=  16#E4;  (*Ethernet ETH4*)
+ SCH1 : usint :=  16#01;  (*serial channel CH1*)
+ SCH2 : usint :=  16#02;  (*serial channel CH2*)
+ SCH3 : usint :=  16#03;  (*serial channel CH3*)
+ SCH4 : usint :=  16#04;  (*serial channel CH4*)
+ SCH5 : usint :=  16#05;  (*serial channel CH5*)
+ SCH6 : usint :=  16#06;  (*serial channel CH6*)
+ SCH7 : usint :=  16#07;  (*serial channel CH7*)
+ SCH8 : usint :=  16#08;  (*serial channel CH8*)
+ SCH9 : usint :=  16#09;  (*serial channel CH9*)
+ SCH10 : usint :=  16#0A;  (*serial channel CH10*)
+ COM_OK : usint :=  0;  (*no error*)
+ COM_ERR1 : usint :=  1;  (*channel is not in uni mode*)
+ COM_ERR2 : usint :=  2;  (*sending data are too long*)
+ COM_ERR3 : usint :=  3;  (*received data are too long*)
+ COM_ERR4 : usint :=  4;  (*channel is not supported (wrong channel code)*)
+ COM_ERR5 : usint :=  5;  (*previous message is not sent yet*)
+ COM_ERR6 : usint :=  6;  (*no data for sending*)
+ COM_ERR7 : usint :=  7;  (*invalid communication speed*)
+ COM_ERR8 : usint :=  8;  (*channel is disabled*)
+ COM_ERR16 : usint :=  16#10;  (*Invalid start delimiter*)
+ COM_ERR17 : usint :=  16#11;  (*Parity error*)
+ COM_ERR18 : usint :=  16#12;  (*Maximum message length exceeded*)
+ COM_ERR19 : usint :=  16#13;  (*Invalid second byte of acknowledgment*)
+ COM_ERR20 : usint :=  16#14;  (*Invalid second byte of end delimiter*)
+ COM_ERR24 : usint :=  16#18;  (*Check sum error*)
+ COM_ERR25 : usint :=  16#19;  (*Invalid end delimiter*)
+ COM_ERR49 : usint :=  16#31;  (*Invalid length of sent data*)
+ COM_ERR50 : usint :=  16#32;  (*Sent data zero length*)
+ COM_ERR64 : usint :=  16#40;  (*Timeout not held*)
+ COM_ERRc6 : usint :=  16#C6;  (*Invalid channel mode*)
+
+END_VAR
+
+__DECL FUNCTION GetChanDesc : TUniDesc
+(*Get a descriptor of the serial channel
+
+     Function tests memory mapping of com channel.
+     This function is for internal using in library.
+
+     Function returns channel descriptor (TUniDesc).*)
+  VAR_INPUT
+    chanCode         : uint;  (*channel code (ETH1_uni0, ..., ETH1_uni7, ETH2_uni0, ..., ETH2_uni7)*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION GetChanIndex : int
+(*Test the existence of a communication channel
+
+   Function checks validity of chanCode.
+   This function is for internal using in library.
+
+   Function returns positive channel index
+   when chanCode is valid, otherwise result is -1.*)
+  VAR_INPUT
+    chanCode         : uint;  (*channel code*)
+  END_VAR
+END_FUNCTION
+
+VAR_GLOBAL CONSTANT
+ ComErrorString : ARRAY [0..20] OF string [40] :=  [
+       'No error                                ',
+       'Channel is not in uni mode              ',
+       'Sending data are too long               ',
+       'Received data are too long              ',
+       'Wrong channel code                      ',
+       'Previous message is not sent yet        ',
+       'Zero message length                     ',
+       'Invalid communication speed             ',
+       'Channel is disabled                     ',
+       'Invalid start delimiter                 ',
+       'Parity error                            ',
+       'Maximum message length exceeded         ',
+       'Invalid second byte of acknowledgment   ',
+       'Invalid second byte of end delimiter    ',
+       'Check sum error                         ',
+       'Invalid end delimiter                   ',
+       'Invalid length of sent data             ',
+       'Sent data zero length                   ',
+       'Timeout not held                        ',
+       'Invalid channel mode                    ',
+       'Unknown error                           '];
+
+END_VAR
+
+__DECL FUNCTION GetLastComErrTxt : string
+(*errCode : USINT;         error code*)
+  VAR_INPUT
+    errCode          : usint;  (*error code*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION GetChanSettings : bool
+(*The test configuration of the serial channel
+
+   Function tests actual settings of serial channel
+   (channel must be in uni mode!).
+
+   Function returns TRUE when successful and
+   actual channels settings are set to variable chanSet.*)
+  VAR_INPUT
+    serChan          : usint;  (*number of serial channel (SCH1, ..., SCH10)*)
+  END_VAR
+  VAR_IN_OUT
+    chanSet          : TChanSettings;  (*actual settings for serial channel*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION SetChanSettings : usint
+(*Set serial port parameters
+
+   Function sets new parameters for serial channel
+   (communication speed, parity, ...).
+
+   Function returns 0 when successful,
+   in other case function returns error number.*)
+  VAR_INPUT
+    rq               : bool;  (*request for new settings*)
+    serChan          : usint;  (*number of serial channel (SCH1, ..., SCH10)*)
+  END_VAR
+  VAR_IN_OUT
+    chanSet          : TChanSettings;  (*new settings for serial channel*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION GetChanStat : TUni_STAT
+(*Test status of the communication channel
+
+   Function returns TUni_STAT structure.*)
+  VAR CONSTANT
+    initStat         : TUni_STAT :=  ( DSR := false,  CTS := false,  dummy1 := false,  TRO := false,
+                              RCF := false,  ROV := false,  TRF := false,  ARC := false);
+  END_VAR
+  VAR_INPUT
+    chanCode         : uint;  (*channel code (CH1_uni, ..., CH10_uni, ETH1_uni0, ..., ETH1_uni7, ETH2_uni0, ..., ETH2_uni7)*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION EstabTCPconnection : usint
+(*Establish a TCP connection
+
+   Function starts to establish TCP connection.
+   This operation takes some time.
+
+   Function returns 0 when successful.
+   If it is fails function returns error code.*)
+  VAR_INPUT
+    chanCode         : uint;  (*channel code (ETH1_uni0, ..., ETH1_uni7, ETH2_uni0, ..., ETH2_uni7)*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION CloseTCPconnection : usint
+(*Close TCP connection
+
+   Function starts to close TCP connection.
+   This operation takes some time.
+
+   Function returns 0 when successful.
+   If it is fails function returns error code.*)
+  VAR_INPUT
+    chanCode         : uint;  (*channel code (ETH1_uni0, ..., ETH1_uni7, ETH2_uni0, ..., ETH2_uni7)*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION IsEstabTCPconnection : bool
+(*Test the state of TCP connections
+
+   Function returns TRUE when TCP connection is established,
+   in other case function returns FALSE.*)
+  VAR_INPUT
+    chanCode         : uint;  (*channel code (ETH1_uni0, ..., ETH1_uni7, ETH2_uni0, ..., ETH2_uni7)*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION SetRemoteIPaddress : bool
+(*Set the destination IP address
+
+   Function sets new remote IP address,
+   remote port and local port of chanCode.
+
+   Function returns TRUE when successful,
+   in other case function returns FALSE.*)
+  VAR_INPUT
+    rq               : bool;  (*request for new settings*)
+    chanCode         : uint;  (*channel code (ETH1_uni0, ..., ETH1_uni7)*)
+  END_VAR
+  VAR_IN_OUT
+    ethAdr           : TRemoteEthAdr;  (*new settings*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION GetRemoteIPaddress : bool
+(*Test the destination IP address
+
+   Function tests actual remote IP address,
+   remote port and local port of chanCode.
+
+   Function returns TRUE when successful.
+   Actual remote IP address, remote port and
+   local port are set to variable ethAdr.*)
+  VAR_INPUT
+    chanCode         : uint;  (*channel code (ETH1_uni0, ..., ETH1_uni7)*)
+  END_VAR
+  VAR_IN_OUT
+    ethAdr           : TRemoteEthAdr;  (*actual settings*)
+  END_VAR
+END_FUNCTION
+
+VAR_GLOBAL CONSTANT
+ MAX_LENGHT_OF_WEB_USER_NAME : usint :=  10;
+ HTTP_URI_SIZE : usint :=  65;
+
+END_VAR
+
+TYPE T_SESSION_STATE : 
+  (SESSION_EMPTY,
+   SESSION_LOGIN,
+   SESSION_LOGIN_RUN,
+   SESSION_ACTIVE,
+   SESSION_LOGOUT 
+  );
+END_TYPE
+
+TYPE TWebServerAccess :
+  STRUCT
+    state            : T_SESSION_STATE;  (*session state*)
+    user             : string [10];  (*user name*)
+    level            : usint;  (*level of access*)
+    error            : usint;  (*error code*)
+    IP               : TIPadr;  (*IP address of user*)
+    lastFile         : string [65];  (*name of last requested file*)
+  END_STRUCT;
+END_TYPE
+
+TYPE  TWebServerAccessTable : ARRAY [0..7] OF TWebServerAccess;  (*access table of web server*)
+END_TYPE
+
+__DECL FUNCTION GetWebServerAccess : bool
+(*Get information about access to web server*)
+  VAR_IN_OUT
+    accessTable      : TWebServerAccessTable;
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION_BLOCK fbSendTo
+(*Transmit data over the communication channel
+
+   Function block sends array data[] to communication
+   channel specified by chanCode. Data length is specified
+   by variable lenTx.
+
+   Function block returns information about
+   sending message. If there is no error,
+   variable error is 0.*)
+  VAR_INPUT
+    rq               : bool;  (*request to send*)
+    chanCode         : uint;  (*channel code (CH1_uni, ..., CH10_uni, ETH1_uni0, ..., ETH1_uni7, ETH2_uni0, ..., ETH4_uni7)*)
+    lenTx            : uint;  (*message size (number of bytes)*)
+  END_VAR
+  VAR_IN_OUT
+    data             : TUni_BUFF;  (*buffer for send message*)
+  END_VAR
+  VAR_OUTPUT
+    mesSent          : bool;  (*sending of message was started*)
+    error            : usint;  (*error code*)
+    lenData          : uint;  (*size of sending message*)
+  END_VAR
+  VAR
+    pUniOut          : PTR_TO TUni_OUT;
+    pUniIn           : PTR_TO TUni_IN;
+    pUniOutData      : PTR_TO usint;
+  END_VAR
+END_FUNCTION_BLOCK
+
+__DECL FUNCTION_BLOCK fbRecvFrom
+(*Receiving data from the communication channel
+
+   Function block receives message from communication
+   channel specified by chanCode. Received data are
+   saved to array data[]. Length of received message
+   is specified by variable lenData.
+
+   Function block returns information about
+   received message. If there is no error,
+   variable error is 0.*)
+  VAR_INPUT
+    rq               : bool;  (*request to receive*)
+    chanCode         : uint;  (*channel code (CH1_uni, ..., CH10_uni, ETH1_uni0, ..., ETH1_uni7, ETH2_uni0, ..., ETH4_uni7)*)
+    lenRx            : uint;  (*max. data size (number of bytes)*)
+  END_VAR
+  VAR_IN_OUT
+    data             : TUni_BUFF;  (*buffer for received message*)
+  END_VAR
+  VAR_OUTPUT
+    mesRec           : bool;  (*new message flag*)
+    error            : usint;  (*error code*)
+    lenData          : uint;  (*number of received bytes*)
+  END_VAR
+  VAR
+    pUniIn           : PTR_TO TUni_IN;
+    pUniInData       : PTR_TO usint;
+    oldARC           : bool;  (*ARRAY[0..39] OF BOOL;*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+__DECL FUNCTION_BLOCK fbRecvTxt
+(*Receives data from communication channel delimited by CR LF*)
+  VAR_INPUT
+    getMes           : bool;  (*Gets message from buffer*)
+    reset            : bool;  (*Flushes buffer*)
+    chanCode         : uint;  (*Channel code (CH1_uni, ..., CH10_uni, ETH1_uni0, ..., ETH1_uni7, ETH2_uni0, ..., ETH4_uni7)*)
+    lenBuf           : uint;  (*Lenght of buffer*)
+    lenTxt           : uint;  (*Lenght of txtMes*)
+  END_VAR
+  VAR_OUTPUT
+    full             : bool;  (*Buffer is full, messages were not taken fast enought*)
+    lenMes           : uint;  (*Message length*)
+    error            : usint;  (*error code*)
+  END_VAR
+  VAR
+    actPos           : uint;
+    RecvFrom         : fbRecvFrom;
+  END_VAR
+  VAR_IN_OUT
+    buffer           : usint;  (*First byte of working buffer*)
+    txtMes           : usint;  (*First byte of received text*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+__DECL FUNCTION_BLOCK fbRecvTxtChar
+(*Receives data from communication channel delimited by charachter specified by input 'delimiter'*)
+  VAR_INPUT
+    getMes           : bool;  (*Gets message from buffer*)
+    reset            : bool;  (*Flushes buffer*)
+    chanCode         : uint;  (*Channel code (CH1_uni, ..., CH10_uni, ETH1_uni0, ..., ETH1_uni7, ETH2_uni0, ..., ETH4_uni7)*)
+    lenBuf           : uint;  (*Lenght of buffer*)
+    lenTxt           : uint;  (*Lenght of txtMes*)
+    delimiter        : byte;  (*delimiter*)
+  END_VAR
+  VAR_OUTPUT
+    full             : bool;  (*Buffer is full, messages were not taken fast enought*)
+    lenMes           : uint;  (*Message length*)
+    error            : usint;  (*error code*)
+  END_VAR
+  VAR
+    actPos           : uint;
+    RecvFrom         : fbRecvFrom;
+  END_VAR
+  VAR_IN_OUT
+    buffer           : usint;  (*First byte of working buffer*)
+    txtMes           : usint;  (*First byte of received text*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+__DECL FUNCTION GetIPaddress : bool
+(*Test current IP address
+
+   Function tests actual IP address, subnet mask
+   and gateway of EthChan.
+
+   Function returns TRUE when successful and
+   actual IP address, subnet mask and gateway address
+   are set to variable EthAdr.*)
+  VAR_INPUT
+    ethChan          : usint;  (*number of Ethernet channel (ETH1, ETH2, ETH3)*)
+  END_VAR
+  VAR_IN_OUT
+    ethAdr           : TLocalEthAdr;  (*actual IP address, subnet mask and gateway address*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION SetIPaddress : bool
+(*Setting up your own IP address
+
+   Function sets new IP address, subnet mask
+   and gateway of ethChan.
+
+   Function returns TRUE when successful,
+   in other case function returns FALSE.*)
+  VAR_INPUT
+    rq               : bool;  (*request for new settings*)
+    ethChan          : usint;  (*number of Ethernet channel (ETH1, ETH2, ETH3)*)
+  END_VAR
+  VAR_IN_OUT
+    ethAdr           : TLocalEthAdr;  (*new IP address, subnet mask and gateway address*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION GetMACaddress : bool
+(*Test MAC address
+
+   Function tests actual MAC address of ethChan.
+
+   Function returns TRUE when successful and
+   actual MAC address is set to variable MacAdr.*)
+  VAR_INPUT
+    ethChan          : usint;  (*number of Ethernet channel (ETH1, ETH2, ETH3)*)
+  END_VAR
+  VAR_IN_OUT
+    MacAdr           : TMacAdr;  (*actual MAC address*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION SetDHCPsupport : bool
+(*Turn on support for DHCP
+
+   Function sets DHCP support.
+   IP address will obtain from DHCP server automatically.
+
+   Function returns TRUE when successful,
+   in other case function returns FALSE.*)
+  VAR_INPUT
+    rq               : bool;  (*request for DHCP support*)
+    ethChan          : usint;  (*number of Ethernet channel (ETH1 only)*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION GetDNS_IP : TIPadr
+(*Function returns IP address of DNS server*)
+  VAR_INPUT
+    ethChan          : usint;  (*number of Ethernet channel (ETH1 only)*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION SetDNS_IP : bool
+(*Function sets Ip address of DNS server
+
+   Function returns TRUE when successful,
+   in other case function returns FALSE.*)
+  VAR_INPUT
+    rq               : bool;  (*request for new settings of DNS IP*)
+    ethChan          : usint;  (*number of Ethernet channel (ETH1 only)*)
+    DNS_IP           : TIPadr;  (*IP address of DNS server*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION STRING_TO_IPADR : TIPadr
+(*Convert text string to IP address*)
+  VAR_INPUT
+    IPAdr            : string [80];  (*IP address string*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION IPADR_TO_STRING : string
+  VAR_INPUT
+    IPAdr            : TIPadr;  (*IP address array*)
+  END_VAR
+END_FUNCTION
+
+__DECL FUNCTION_BLOCK fbKeepAliveTCP
+(*Keep alive TCP connection
+
+   In order to keep connection alive,
+   function block sends ACK packets
+   when TCP connection is established
+   and there are no data to transmit.
+
+   Function returns 0 when successful.
+   If it is fails function returns error code.*)
+  VAR_INPUT
+    rq               : bool;  (*request to keep alive*)
+    chanCode         : uint;  (*channel code (ETH1_uni0, ..., ETH1_uni7, ETH2_uni0, ..., ETH2_uni7)*)
+    PT               : time;  (*keep alive interval (T#5s...T#60s)*)
+  END_VAR
+  VAR_OUTPUT
+    error            : usint;  (*error code*)
+  END_VAR
+  VAR
+    tick             : fbTick;
+  END_VAR
+END_FUNCTION_BLOCK
+
+
+
+{LIBFILE="LOCALLIB\BUILDINGLIB_V13_20140707.MLB"}
+(* Mosaic IDE library *)
+(* File name : D:\TecoLib\BuildingLib_V13_20140707.mlb *)
+(* Library : BuildingLib 1.3 *)
+(* Author : Teco a.s. Kolin *)
+(* Copyright : (c) 2014 Teco a.s. *)
+(* IEC compiler version : 3.8.20.0 *)
+(* Assembler version : 4.3.00 *)
+
+//{Knihovna : BuildingLib 1.3  }
+(* History: *)
+(*
+**** BuildingLib knihovna ****
+
+v.1.3.	* 07.07.2014 *
+	- oprava bloku PWM (pri zmene delky pulsu se choval nekorektne)
+
+v.1.2.	* 18.04.2012 *
+	- doplneny anglicke nazvy funkcnich bloku
+	- doplneny anglicke nazvy funkcnich bloku
+
+v.1.1.	* 25.08.2011 *
+	- blok jednotlacitkoveho ovladace DMA1 doplnen o parametr vyhodnoceni 
+dlouheho stisku
+
+v.1.0.	* 21.08.2008 *
+	- vychozi verze
+*)
+
+(*----------------------------------------------------------------------------*)
+// {LIBRARY="LOCALLIB\STDLIB_V18_20060404.MLB"}
+
+TYPE _TDMA1_CFG_ :
+  STRUCT  (*konfiguracni struktura bloku*)
+    MinOut           : real;  (*minimum vystupu [%]*)
+    MaxOut           : real;  (*maximum vystupu [%]*)
+    Tup              : time;  (*doba nabehu pri zapnuti*)
+    Tdw              : time;  (*doba dobehu pri vypnuti*)
+    Tch              : time;  (*doba prebehu min<->max pri zmene jasu*)
+    Tac              : time;  (*doba svitu*)
+    Twt              : time;  (*odchodove zpozdeni pri vypnuti*)
+    Tlong            : time :=  T#500ms;  (*prodleva vyhodnoceni dlouheho stisku*)
+  END_STRUCT;
+END_TYPE
+
+__DECL FUNCTION_BLOCK DMA1
+(*One Button Dimmer Automat*)
+  VAR_INPUT
+    In               : bool;  (*ovladaci tlacitko*)
+    Cfg              : _TDMA1_CFG_;  (*konfiguracni struktura bloku*)
+  END_VAR
+  VAR_OUTPUT
+    Out              : real;  (*vystupni vykon [%]*)
+    Sig              : bool;  (*signalizaze chodu*)
+    Sup              : bool;  (*pomocny vystupni kontakt (spina pri Out>10% maxima)*)
+  END_VAR
+  VAR
+    PUSHtimer        : TON;  (*casovac stisku tlacitka*)
+    OUTtimer         : TON;  (*casovac rychlosti stmivani*)
+    timerUP          : TON;  (*casovac nabehove rampy*)
+    timerSvit        : TON;  (*casovac doby svitu*)
+    timerOdchod      : TON;  (*casovac odchodoveho zpozdeni*)
+    timerDW          : TON;  (*casovac dobehove rampy*)
+    LastOut          : real;  (*minuly stav vystupu (pred vypnutim)*)
+    smer             : bool;  (*smer stmivani - 0/1 = stmivat/pridavat*)
+    hranaUP          : R_TRIG;  (*nabezna hrana tlacitka*)
+    hranaDW          : F_TRIG;  (*sestupna hrana tlacitka*)
+    hranaLONG        : R_TRIG;  (*nabezna hrana vyhodnoceni dlouheho stisku*)
+    shortPUSH        : bool;  (*kratky stisk,  <0.5s*)
+    longPUSH         : bool;  (*dlouhy stisk, >=0.5s*)
+    RQout            : real;  (*pozadovany stav vystupu (pred nabehovou rampou)*)
+    STARTout         : real;  (*pocatecni stav vystupu pro rampu*)
+    STARTchng        : real;  (*pocatecni stav vystupu pro zmenu jasu*)
+    nabeh            : bool;  (*priznak nabehu*)
+    svit             : bool;  (*priznak svitu*)
+    odchod           : bool;  (*priznak odchodoveho zpozdeni*)
+    dobeh            : bool;  (*priznak dobehu*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+__DECL FUNCTION_BLOCK SCA1
+(*Staircase automat*)
+  VAR_INPUT
+    In               : bool;  (*ovladaci tlacitko*)
+    Tac              : time;  (*delka svitu*)
+    Fce              : usint;  (*funkce bloku - AUTO/PROG/ON = 0/1/2*)
+  END_VAR
+  VAR_OUTPUT
+    Out              : bool;  (*vystupni kontakt*)
+  END_VAR
+  VAR
+    OUTtimer         : TON;  (*casovac svitu*)
+    PUSHtimer        : TON;  (*casovac delky stisku tlacitka*)
+    OUTpt            : time;  (*delka svitu*)
+    hranaUP          : R_TRIG;  (*nabezna hrana*)
+    svitit           : bool;
+  END_VAR
+END_FUNCTION_BLOCK
+
+TYPE _TSCA2_CFG_ :
+  STRUCT  (*konfiguracni struktura bloku*)
+    Tup              : time;  (*delka nabehu*)
+    Tac              : time;  (*delka svitu*)
+    Tdw              : time;  (*delka dobehu*)
+    MinOut           : real;  (*minimum vystupu stmivace [%]*)
+    MaxOut           : real;  (*maximum vystupu stmivace [%]*)
+  END_STRUCT;
+END_TYPE
+
+__DECL FUNCTION_BLOCK SCA2
+(*Staircase automat with dimmer*)
+  VAR_INPUT
+    In1              : bool;  (*ovladaci tlacitko*)
+    In2              : bool;  (*ovladaci spinac*)
+    Cfg              : _TSCA2_CFG_;  (*konfiguracni struktura bloku*)
+  END_VAR
+  VAR_OUTPUT
+    Out              : real;  (*vystupni vykon [%]*)
+    Sig              : bool;  (*signalizaze chodu*)
+    Sup              : bool;  (*pomocny vystupni kontakt (spina pri Out>10% maxima)*)
+  END_VAR
+  VAR
+    timerUP          : TON;  (*casovac nabehu*)
+    timerACT         : TON;  (*casovac svitu*)
+    timerDW          : TON;  (*casovac dobehu*)
+    hranaUP1         : R_TRIG;  (*nabezna hrana tlacitka*)
+    hranaUP2         : R_TRIG;  (*nabezna hrana spinace*)
+    nabeh            : bool;  (*priznak nabehu*)
+    svit             : bool;  (*priznak svitu*)
+    dobeh            : bool;  (*priznak dobehu*)
+    startOut         : real;  (*pocatecni stav vystupu pri startu nabehu*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+TYPE _TSBC1_CFG_ :
+  STRUCT  (*konfiguracni struktura bloku*)
+    Tac              : time;  (*maximalni doba behu motoru*)
+    Twt              : time;  (*prodleva po zastaveni chodu motoru*)
+  END_STRUCT;
+END_TYPE
+
+__DECL FUNCTION_BLOCK SBC1
+(*Sunblind Control 1*)
+  VAR_INPUT
+    IUp              : bool R_EDGE;  (*ovladaci tlacitko nahoru*)
+    IDown            : bool R_EDGE;  (*ovladaci tlacitko dolu*)
+    Cfg              : _TSBC1_CFG_;  (*konfiguracni struktura bloku*)
+  END_VAR
+  VAR_OUTPUT
+    Up               : bool;  (*vystup nahoru*)
+    Down             : bool;  (*vystup dolu*)
+  END_VAR
+  VAR
+    RqUp             : bool;  (*zadost nahoru*)
+    RqDown           : bool;  (*zadost dolu*)
+    RqWait           : bool;  (*zadost o prodlevu (casovat prodlevu pri reverzaci chodu motoru)*)
+    smer             : bool;  (*posledni smer pohybu - 1/0 = nahoru/dolu*)
+    ACTtimer         : TON;  (*casovac doby behu*)
+    WAITtimer        : TON;  (*casovac prodlevy pri reverzaci chodu motoru*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+TYPE _TMFT1_CFG_ :
+  STRUCT  (*konfiguracni struktura bloku*)
+    Hyst             : real;  (*hystereze teploty 1*)
+    Tup              : time;  (*casove zpozdeni sepnuti vystupu*)
+    Tdw              : time;  (*casove zpozdeni rozepnuti vystupu*)
+  END_STRUCT;
+END_TYPE
+
+__DECL FUNCTION_BLOCK MFT1
+(*One Level Thermostat*)
+  VAR_INPUT
+    In               : real;  (*merena teplota*)
+    Rq               : real;  (*zadana teplota*)
+    Cfg              : _TMFT1_CFG_;  (*konfiguracni struktura bloku*)
+  END_VAR
+  VAR_OUTPUT
+    Out              : bool;  (*vystup*)
+  END_VAR
+  VAR
+    timerUP          : TON;  (*casovac sepnuti vystupu 1*)
+    timerDW          : TON;  (*casovac vypnuti vystupu 1*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+TYPE _TMFT2_CFG_ :
+  STRUCT  (*konfiguracni struktura bloku*)
+    Hyst1            : real;  (*hystereze teploty 1*)
+    Hyst2            : real;  (*hystereze teploty 2*)
+    Diff             : real;  (*diference teplot*)
+    Tup              : time;  (*casove zpozdeni sepnuti vystupu*)
+    Tdw              : time;  (*casove zpozdeni rozepnuti vystupu*)
+  END_STRUCT;
+END_TYPE
+
+__DECL FUNCTION_BLOCK MFT2
+(*Two Level Thermostat*)
+  VAR_INPUT
+    In               : real;  (*merena teplota*)
+    Rq               : real;  (*zadana teplota*)
+    Cfg              : _TMFT2_CFG_;  (*konfiguracni struktura bloku*)
+  END_VAR
+  VAR_OUTPUT
+    Out1             : bool;  (*vystup 1*)
+    Out2             : bool;  (*vystup 2*)
+  END_VAR
+  VAR
+    timer1UP         : TON;  (*casovac sepnuti vystupu 1*)
+    timer1DW         : TON;  (*casovac vypnuti vystupu 1*)
+    timer2UP         : TON;  (*casovac sepnuti vystupu 2*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+TYPE _TMFT3_CFG_ :
+  STRUCT  (*konfiguracni struktura bloku*)
+    Hyst1            : real;  (*hystereze teploty 1*)
+    Hyst2            : real;  (*hystereze teploty 2*)
+    Diff             : real;  (*diference teplot*)
+    Tup              : time;  (*casove zpozdeni sepnuti vystupu*)
+    Tdw              : time;  (*casove zpozdeni rozepnuti vystupu*)
+  END_STRUCT;
+END_TYPE
+
+__DECL FUNCTION_BLOCK MFT3
+(*Diferential Thermostat*)
+  VAR_INPUT
+    In1              : real;  (*merena teplota 1*)
+    In2              : real;  (*merena teplota 2*)
+    Cfg              : _TMFT3_CFG_;  (*konfiguracni struktura bloku*)
+  END_VAR
+  VAR_OUTPUT
+    Out1             : bool;  (*vystup 1*)
+    Out2             : bool;  (*vystup 2*)
+  END_VAR
+  VAR
+    timer1UP         : TON;  (*casovac sepnuti vystupu 1*)
+    timer1DW         : TON;  (*casovac vypnuti vystupu 1*)
+    timer2UP         : TON;  (*casovac sepnuti vystupu 2*)
+    timer2DW         : TON;  (*casovac vypnuti vystupu 2*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+TYPE _TMFT4_CFG_ :
+  STRUCT  (*konfiguracni struktura bloku*)
+    Hyst1            : real;  (*hystereze teploty 1*)
+    Hyst2            : real;  (*hystereze teploty 2*)
+    Tup              : time;  (*casove zpozdeni sepnuti vystupu*)
+    Tdw              : time;  (*casove zpozdeni rozepnuti vystupu*)
+  END_STRUCT;
+END_TYPE
+
+__DECL FUNCTION_BLOCK MFT4
+(*Thermostat With Dead Zone*)
+  VAR_INPUT
+    In               : real;  (*merena teplota*)
+    Rq1              : real;  (*zadana teplota 1*)
+    Rq2              : real;  (*zadana teplota 2*)
+    Cfg              : _TMFT4_CFG_;  (*konfiguracni struktura bloku*)
+  END_VAR
+  VAR_OUTPUT
+    Out1             : bool;  (*vystup 1*)
+    Out2             : bool;  (*vystup 2*)
+  END_VAR
+  VAR
+    timer1UP         : TON;  (*casovac sepnuti vystupu 1*)
+    timer1DW         : TON;  (*casovac vypnuti vystupu 1*)
+    timer2UP         : TON;  (*casovac sepnuti vystupu 2*)
+    timer2DW         : TON;  (*casovac vypnuti vystupu 2*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+__DECL FUNCTION_BLOCK PWM
+(*Pulse Width Modulation*)
+  VAR_INPUT
+    Enb              : bool;  (*povolovaci vstup*)
+    Per              : time;  (*perioda modulace*)
+    Pls              : real;  (*delka pulsu [%] (0-100%)*)
+  END_VAR
+  VAR_OUTPUT
+    Out              : bool;  (*vystup*)
+  END_VAR
+  VAR
+    timerPeriod      : TOF;  (*casovac periody*)
+    timerPulse       : TON;  (*casovac sirky pulsu*)
+    ptPulse          : time;  (*predvolba delky pulsu*)
+    start            : bool;  (*priznak prvniho pruchodu blokem*)
+  END_VAR
+END_FUNCTION_BLOCK
+
+
+

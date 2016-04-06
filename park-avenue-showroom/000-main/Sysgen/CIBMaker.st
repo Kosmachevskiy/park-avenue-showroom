@@ -1427,41 +1427,14 @@ TYPE
   end_struct;
 // ----------------------------------------
 
-  TMI_CIB1_ID1_IN  : struct	//MODULE1
-    // struct size 14 
-    STAT : TCIB_CHM0308_STAT;
-    AI : TCIB_AI3;
-    DI : TCIB_DI8;
-  END_STRUCT;
-
-  TMI_CIB1_ID1_OUT  : struct	//MODULE1
-    // struct size 10 
-    AO : TCIB_AO2;
-    DOs : TCIB_DO11;
-  END_STRUCT;
-
-  TMI_CIB1_ID2_IN  : struct	//DIMMER
-    // struct size 14 
-    ACT_LEVEL1 : REAL;
-    ACT_LEVEL2 : REAL;
-    STAT : TCIB_CDMRLC_STAT;
-    THERM : REAL;
-  END_STRUCT;
-
-  TMI_CIB1_ID2_OUT  : struct	//DIMMER
-    // struct size 24 
-    OUT1 : TCIB_CDMRLC_DIM;
-    OUT2 : TCIB_CDMRLC_DIM;
-  END_STRUCT;
-
-  TMI_CIB1_ID3_IN  : struct	//PANEL
+  TMI_CIB1_ID1_IN  : struct	//PANEL_
     // struct size 9 
     DI : TCIB_CIT09_DI;
     STAT : TCIB_CIT09_STAT;
     AI9 : REAL;
   END_STRUCT;
 
-  TMI_CIB1_ID3_OUT  : struct	//PANEL
+  TMI_CIB1_ID1_OUT  : struct	//PANEL_
     // struct size 1 
     DOs : TCIB_DO8;
   END_STRUCT;
@@ -1471,18 +1444,14 @@ END_TYPE
 // ------------------------------ 
 TYPE
   TMI_CIB1_IN  : struct
-    // struct size 41;
+    // struct size 13;
     intgr : REAL;
-    ID1_IN : TMI_CIB1_ID1_IN;	//MODULE1
-    ID2_IN : TMI_CIB1_ID2_IN;	//DIMMER
-    ID3_IN : TMI_CIB1_ID3_IN;	//PANEL
+    ID1_IN : TMI_CIB1_ID1_IN;	//PANEL_
   END_STRUCT;
 
   TMI_CIB1_OUT  : struct
-   // struct size 35;
-    ID1_OUT : TMI_CIB1_ID1_OUT;	//MODULE1
-    ID2_OUT : TMI_CIB1_ID2_OUT;	//DIMMER
-    ID3_OUT : TMI_CIB1_ID3_OUT;	//PANEL
+   // struct size 1;
+    ID1_OUT : TMI_CIB1_ID1_OUT;	//PANEL_
   END_STRUCT;
 
 END_TYPE

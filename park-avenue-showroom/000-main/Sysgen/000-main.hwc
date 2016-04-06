@@ -141,7 +141,7 @@
                                   $80,$00,$00,$00,
                                   $00,$00,$00,$00,
                                   $00,$00,$00,$00
-#module TModulE1 1, 1, 0, $0, 22, 15, __offset(r1_p0_DI), __offset(r1_p0_DO), __indx (_r1_p0_Table)
+;#module TModulE1 1, 1, 0, $0, 22, 15, __offset(r1_p0_DI), __offset(r1_p0_DO), __indx (_r1_p0_Table)
 ;----------------------------------------------------------------------
 ;Rack : 1 ; Position : 1 ; 	 Type of unit : IT-1602; TXN 116 02
 #struct _TTS_EnbCHAO_650
@@ -181,7 +181,7 @@
                                   $00,$00,$00,$00,
                                   $80,$00,0,$80,
                                   $00,0
-#module TModulE1 1, 1, 1, $0, 96, 20, __offset(r1_p1_AI0), __offset(r1_p1_AO0), __indx (_r1_p1_Table)
+;#module TModulE1 1, 1, 1, $0, 96, 20, __offset(r1_p1_AI0), __offset(r1_p1_AO0), __indx (_r1_p1_Table)
 
 ;......................................................................
 

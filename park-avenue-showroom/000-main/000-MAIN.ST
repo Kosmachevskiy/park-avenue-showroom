@@ -42,6 +42,9 @@ VAR_GLOBAL RETAIN
            
            generalPower                                     at %R4.2  : bool;
 
+(*Floor Heating control*)
+           floorHeatingState                                at %R4.4  : bool;
+
 (*Dimmed groups brightness level*)
            r2_3LivingroomLight02_07_08_level                at %R5    : real;
            r7_1Bathroom1Light17_18_19_level                 at %R9    : real;
@@ -50,6 +53,18 @@ VAR_GLOBAL RETAIN
            r2_1EatingroomBlindsPosition                     at %R13   : real;
            r4_1Bedroom1BlindsPosition                       at %R17   : real;
            r5_1Bedroom2BlindsPosition                       at %R21   : real;
+           
+(*Floor Heating control*)
+           floorHeatingLevel                                at %R25   : real;
+           
+(*AC set temperature*)
+           r4_Bedroom1ACSetTemperature                      at %R29   : real;
+           r5_Bedroom2ACSetTemperature                      at %R33   : real;
+           
+(*AC mode*)
+           r4_Bedroom1ACMode                                at %R37   : usint;
+           r5_Bedroom2ACMode                                at %R41   : usint;
+           
 END_VAR
 
 VAR_GLOBAL CONSTANT
