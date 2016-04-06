@@ -43,27 +43,44 @@ VAR_GLOBAL RETAIN
            generalPower                                     at %R4.2  : bool;
 
 (*Floor Heating control*)
-           floorHeatingState                                at %R4.4  : bool;
+           floorHeatingState                                at %R4.3  : bool;
+           
+           
+(*Water control*)
+           waterState                                       at %R4.4  : bool;
+           waterClose                                       at %R4.5  : bool;
+           waterOpen                                        at %R4.6  : bool;
+           waterAlarmReset                                  at %R4.7  : bool;
+           waterAlarm                                       at %R5.0  : bool;
+           
+           
+(*Security System*)
+           security_arm                                     at %R5.1  : bool;
+           security_disarm                                  at %R5.2  : bool;
+           security_alarm                                   at %R5.3  : bool;
+           security_alarm_reset                             at %R5.4  : bool;
+           security_led                                     at %R5.5  : bool;
+           security_state                                   at %R5.6  : bool;
 
 (*Dimmed groups brightness level*)
-           r2_3LivingroomLight02_07_08_level                at %R5    : real;
-           r7_1Bathroom1Light17_18_19_level                 at %R9    : real;
+           r2_3LivingroomLight02_07_08_level                at %R105    : real;
+           r7_1Bathroom1Light17_18_19_level                 at %R109    : real;
 
 (*Blinds position control*)
-           r2_1EatingroomBlindsPosition                     at %R13   : real;
-           r4_1Bedroom1BlindsPosition                       at %R17   : real;
-           r5_1Bedroom2BlindsPosition                       at %R21   : real;
+           r2_1EatingroomBlindsPosition                     at %R113   : real;
+           r4_1Bedroom1BlindsPosition                       at %R117   : real;
+           r5_1Bedroom2BlindsPosition                       at %R121   : real;
            
 (*Floor Heating control*)
-           floorHeatingLevel                                at %R25   : real;
+           floorHeatingLevel                                at %R125   : real;
            
 (*AC set temperature*)
-           r4_Bedroom1ACSetTemperature                      at %R29   : real;
-           r5_Bedroom2ACSetTemperature                      at %R33   : real;
+           r4_Bedroom1ACSetTemperature                      at %R129   : real;
+           r5_Bedroom2ACSetTemperature                      at %R133   : real;
            
 (*AC mode*)
-           r4_Bedroom1ACMode                                at %R37   : usint;
-           r5_Bedroom2ACMode                                at %R41   : usint;
+           r4_Bedroom1ACMode                                at %R137   : usint;
+           r5_Bedroom2ACMode                                at %R138   : usint;
            
 END_VAR
 

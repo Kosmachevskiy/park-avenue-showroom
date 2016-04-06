@@ -12,7 +12,7 @@
 ;</History>
 ;**************************************
 #useoption CPM = 9              ; CPM type: K
-#useoption RemZone = 42         ; the remanent zone length
+#useoption RemZone = 139        ; the remanent zone length
 #useoption AlarmTime = 500      ; first alarm [milisec]
 #useoption MaxCycleTime = 600   ; maximum cycle [milisec]
 #useoption PLCstart = 1         ; cold start
@@ -40,6 +40,7 @@
 #usefile "fbGlobalCacheSender.ST"
 #usefile "fbFloorHeatingSimple.ST"
 #usefile "prgWardrobeLight.ST"
+#usefile "fbSecuritySystem.ST"
 #usefile "prgMain.ST"
 #usefile "prgHallLight.ST"
 #usefile "prgKitchenLight.ST"
@@ -52,4 +53,5 @@
 #usefile "prgBedroom1Light.ST"
 #usefile "prgFloorHeating.ST"
 #usefile "prgWaterLeakegeControl.ST"
+#usefile "prgSecurity.ST"
 #usefile "000-main.mcf", 'auto'

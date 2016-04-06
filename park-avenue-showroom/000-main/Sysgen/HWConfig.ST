@@ -116,13 +116,6 @@ TYPE
     falseMes   : UDINT;
   END_STRUCT;
 
-  TETHStatistic_BACnet : STRUCT
-    STAT       : USINT;
-    ERR        : USINT;
-    trueMes    : UDINT;
-    falseMes   : UDINT;
-  END_STRUCT;
-
   TCHControl : STRUCT
     CONTROL  : UINT;
   END_STRUCT;
@@ -143,8 +136,8 @@ VAR_GLOBAL
   r0_p2_Statistic_MI_CIB2 AT %X10  : TCHStatistic;
   r0_p2_Control_MI_CIB2 AT %Y2   : TCHControl;
 (* alias *)
+  MODULE1_OUT          AT MI_CIB1_OUT.ID1_OUT;
   PANEL_IN             AT MI_CIB1_IN.ID1_IN;
-  PANEL_OUT            AT MI_CIB1_OUT.ID1_OUT;
 END_VAR
 (* ---------------------------------------------------------------------- *)
 (* IR-1061 *)
@@ -157,9 +150,6 @@ VAR_GLOBAL
   r0_p5_AI3            AT %X58  : TAI;
   r0_p5_AIPW           AT %X70  : TAIPW;
   r0_p5_DO             AT %Y4   : TBIN_2DO;
-(* alias *)
-  PLC_IN               AT r0_p5_DI;
-  PLC_OUT              AT r0_p5_DO;
 END_VAR
 (* ********************************************************************** *)
 (* ---------------------------------------------------------------------- *)

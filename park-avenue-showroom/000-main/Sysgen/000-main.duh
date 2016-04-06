@@ -190,6 +190,48 @@ FUNCTION_BLOCK fbRealObserver
   END_VAR
 END_FUNCTION_BLOCK 
 
+FUNCTION_BLOCK fbSecuritySystem
+(*
+Error codes description:
+1 - Can't Armed system because Sabotage alarm is on.
+2 - Can't Armed system because one or more zone is broken.
+3 - Keypad error.
+*)
+  VAR_INPUT
+    config : SecurityConfig;
+    Z1 : BOOL; (*Enter/Exit Door.*)
+    Z2 : BOOL; (*Enter/Exit Zone.*)
+    Z3 : BOOL; (*Doors, windows and PIR sensors.*)
+    Z4 : BOOL; (*Other sensors.*)
+    Z5 : BOOL; (*Tamper zone.*)
+    keyBoard : BOOL; (*relay keypad contact.*)
+    arm : BOOL R_EDGE; (*Security On flag.*)
+    disarm : BOOL R_EDGE; (*Security Off flag.*)
+    alarmReset : BOOL R_EDGE; (*Alarm reset flag.*)
+    sabotageReset : BOOL R_EDGE; (*Reset sabotege alarm.*)
+  END_VAR
+  VAR_OUTPUT
+    securityState : BOOL; (*TRUE when systen armed.*)
+    alarm : BOOL; (*Alarm flag.*)
+    siren : BOOL;
+    ledIndicator : BOOL;
+    sabotage : BOOL; (*TRUE when tamper zone was broken until reset by sabotageReset variable.*)
+    error : BOOL; (*TRUE when error until next cycle.*)
+    errorCode : USINT; (*Error descrintion code.*)
+  END_VAR
+  VAR
+    state : SecuritySystemState;
+    keyBoardImpulse : TP;
+    keyBoardEvent : f_trig;
+    keyBoardImpulseEnd : f_trig;
+    exitTimer : ton;
+    entranceTimer : ton;
+    ledPulse : PWM;
+    userEnterPassword : BOOL;
+    armWithoutDelay : BOOL;
+  END_VAR
+END_FUNCTION_BLOCK 
+
 FUNCTION_BLOCK fbTimer
 (**)
   VAR_INPUT

@@ -18,16 +18,20 @@ PROGRAM prgWaterLeakegeControl
      waterLeackegeControl.config.valveMode  := NO;
      waterLeackegeControl.config.timeTreshold := t#5s;
   end_if;
-                        (*
+
   waterLeackegeControl( //sensor := ,
-                        //openWater := ,
-                        //closeWater := ,
-                        //alarmReset := ,
+                        openWater := waterOpen,
+                        closeWater := waterClose,
+                        alarmReset := waterAlarmReset,
                         //autoControl := ,
                         //valve => ,
-                        //alarm => ,
-                        waterState := ;
+                        alarm => waterAlarm,
+                        waterState := waterState
                         );
-                          *)
+                        
+  waterOpen  := false;
+  waterClose := false;
+  waterAlarmReset := false;
+
 END_PROGRAM
 
