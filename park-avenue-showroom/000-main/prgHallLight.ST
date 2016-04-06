@@ -24,10 +24,10 @@ PROGRAM prgHallLight
   end_if;
 
   lamp1( trigButton := r1_1HallLight01,
-         //state      => out_Lamp1^
+         state      => MODULE1_OUT.DO0
          );
 
-  Auto( //Sensor_Motion.state   := in_MotionSensor^,
+  Auto( Sensor_Motion.state   := MODULE1_IN.DI0,
         autoMode              := r1_1HallLight01_auto
         );
 

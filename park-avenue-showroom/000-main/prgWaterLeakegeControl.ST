@@ -19,12 +19,12 @@ PROGRAM prgWaterLeakegeControl
      waterLeackegeControl.config.timeTreshold := t#5s;
   end_if;
 
-  waterLeackegeControl( //sensor := ,
+  waterLeackegeControl( sensor := MODULE6_IN.DI.DI7,
                         openWater := waterOpen,
                         closeWater := waterClose,
                         alarmReset := waterAlarmReset,
                         //autoControl := ,
-                        //valve => ,
+                        valve => MODULE4_OUT.DO7,
                         alarm => waterAlarm,
                         waterState := waterState
                         );

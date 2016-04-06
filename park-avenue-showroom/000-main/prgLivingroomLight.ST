@@ -5,7 +5,7 @@ PROGRAM prgLivingroomLight
   END_VAR
   VAR
       Lamp1     : fbManualDimm;
-      Auto            : fbAutoRelay;
+      Auto      : fbAutoRelay;
 
       init      : bool;
   END_VAR
@@ -28,10 +28,10 @@ PROGRAM prgLivingroomLight
   Lamp1( (*btn        := in_button^,*)
          slider     := r2_3LivingroomLight02_07_08_level,
          trigButton := r2_3LivingroomLight02_07_08,
-         //value      => out_Lamp1^
+         value      => MODULE3_OUT.OUT2.LEVEL
          );
 
-  Auto( //Sensor_Motion.state   := in_MotionSensor^,
+  Auto( Sensor_Motion.state   := MODULE2_IN.DI.DI1,
         autoMode              := r2_3LivingroomLight02_07_08_auto);
 
 

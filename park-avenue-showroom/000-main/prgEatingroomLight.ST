@@ -27,7 +27,7 @@ PROGRAM prgEatingroomLight
 
      blind.timeTo_up_down                   := t#38s;
 
-     //out_Blind_Open^                        := true; //Типа чтобы штора после старта была открыта
+     MODULE6_OUT.DOs.DO3                    := true; //Типа чтобы штора после старта была открыта
      initTimer( IN := true,
                 PT := blind.timeTo_up_down);
      if initTimer.Q then
@@ -40,8 +40,8 @@ PROGRAM prgEatingroomLight
          blind.setPosition := blindSetPositionObserber.value;
       end_if;
   
-      blind( //up            => out_Blind_Open^,
-             //down            => out_Blind_Close^,
+      blind( up            => MODULE6_OUT.DOs.DO3,
+             down          => MODULE6_OUT.DOs.DO4,
            currentPosition => r2_1EatingroomBlindsPosition,
 
            open            := r2_1EatingroomBlindsUp,
@@ -54,10 +54,10 @@ PROGRAM prgEatingroomLight
   end_if;
 
   lamp1( trigButton := r2_1EatingroomLight05_06_23,
-         //state      => out_Lamp1^
+         state      => MODULE2_OUT.DOs.DO11
          );
 
-  Auto( //Sensor_Motion.state   := in_MotionSensor^,
+  Auto( Sensor_Motion.state   := MODULE1_IN.DI2,
         autoMode              := r2_1EatingroomLight05_06_23_auto);
 
   if Auto.stateChanged then

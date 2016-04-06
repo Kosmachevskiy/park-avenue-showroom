@@ -15,7 +15,7 @@ PROGRAM prgFloorHeating
       termostat( period := T#30m,
                  state  := floorHeatingState,
                  power  := floorHeatingLevel,
-                 //out    =>
+                 out    => MODULE4_OUT.DO1
                  );
 
 

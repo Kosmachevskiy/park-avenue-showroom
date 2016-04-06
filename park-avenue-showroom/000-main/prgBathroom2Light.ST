@@ -24,10 +24,10 @@ PROGRAM prgBathroom2Light
   end_if;
 
   lamp1( trigButton := r8_1Bathroom2Light14_15_16,
-         //state      => out_Lamp1^ // TODO:
+         state      => MODULE4_OUT.DO0
          );
 
-  Auto( //Sensor_Motion.state   := in_MotionSensor^,
+  Auto( Sensor_Motion.state   := MODULE2_IN.DI.DI5,
         autoMode              := r8_1Bathroom2Light14_15_16_auto);
 
   if Auto.stateChanged then

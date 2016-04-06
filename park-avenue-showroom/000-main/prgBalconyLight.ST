@@ -16,7 +16,7 @@ PROGRAM prgBalconyLight
   end_if;
 
   lamp1( trigButton := r3_1BalconyLight,
-         //state      =>
+         state      => MODULE2_OUT.DOs.DO4
          );
 
 END_PROGRAM

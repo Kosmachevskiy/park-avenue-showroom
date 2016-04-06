@@ -6,7 +6,7 @@ PROGRAM prgWardrobeLight
   VAR
       Lamp1     : fbManualRelay;
 
-      Auto            : fbAutoRelay;
+      Auto      : fbAutoRelay;
 
       init      : bool;
   END_VAR
@@ -23,10 +23,10 @@ PROGRAM prgWardrobeLight
   end_if;
 
   lamp1( trigButton := r6_1WardrobeLight13_21,
-         //state      =>
+         state      =>  MODULE2_OUT.DOs.DO3
          );
 
-  Auto( //Sensor_Motion.state   := in_MotionSensor^,
+  Auto( Sensor_Motion.state   := MODULE2_IN.DI.DI3,
         autoMode              := r6_1WardrobeLight13_21_auto);
 
   if Auto.stateChanged then

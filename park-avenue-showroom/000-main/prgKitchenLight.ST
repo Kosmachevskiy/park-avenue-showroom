@@ -24,14 +24,14 @@ PROGRAM prgKitchenLight
   end_if;
 
   lamp1( trigButton := r2_2KitchenLight03,
-         //state      =>
+         state      => MODULE1_OUT.DO1
          );
          
   lamp2( trigButton := r2_2KitchenLight04_24,
-         //state      =>
+         state      =>  MODULE2_OUT.DOs.DO1
          );
 
-  Auto( //Sensor_Motion.state   := ,
+  Auto( Sensor_Motion.state   := MODULE1_IN.DI1,
         autoMode              := r2_2KitchenLight04_24_auto);
 
   if Auto.stateChanged then

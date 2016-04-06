@@ -136,8 +136,12 @@ VAR_GLOBAL
   r0_p2_Statistic_MI_CIB2 AT %X10  : TCHStatistic;
   r0_p2_Control_MI_CIB2 AT %Y2   : TCHControl;
 (* alias *)
-  MODULE1_OUT          AT MI_CIB1_OUT.ID1_OUT;
-  PANEL_IN             AT MI_CIB1_IN.ID1_IN;
+  MODULE2_IN           AT MI_CIB1_IN.ID1_IN;
+  MODULE2_OUT          AT MI_CIB1_OUT.ID1_OUT;
+  MODULE3_IN           AT MI_CIB1_IN.ID2_IN;
+  MODULE3_OUT          AT MI_CIB1_OUT.ID2_OUT;
+  MODULE6_IN           AT MI_CIB1_IN.ID3_IN;
+  MODULE6_OUT          AT MI_CIB1_OUT.ID3_OUT;
 END_VAR
 (* ---------------------------------------------------------------------- *)
 (* IR-1061 *)
@@ -150,6 +154,9 @@ VAR_GLOBAL
   r0_p5_AI3            AT %X58  : TAI;
   r0_p5_AIPW           AT %X70  : TAIPW;
   r0_p5_DO             AT %Y4   : TBIN_2DO;
+(* alias *)
+  MODULE1_IN           AT r0_p5_DI;
+  MODULE1_OUT          AT r0_p5_DO;
 END_VAR
 (* ********************************************************************** *)
 (* ---------------------------------------------------------------------- *)
@@ -164,8 +171,8 @@ VAR_GLOBAL
   r1_p0_CNT_OUT1       AT %Y7   : TCNTF_OUT;
   r1_p0_CNT_OUT2       AT %Y13  : TCNTF_OUT;
 (* alias *)
-  IR_15_01_IN          AT r1_p0_DI;
-  IR_15_01_OUT         AT r1_p0_DO;
+  MODULE4_IN           AT r1_p0_DI;
+  MODULE4_OUT          AT r1_p0_DO;
 END_VAR
 (* ---------------------------------------------------------------------- *)
 (* IT-1602 *)

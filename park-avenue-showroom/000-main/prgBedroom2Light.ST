@@ -8,7 +8,7 @@ PROGRAM prgBedroom2Light
       Lamp2     : fbManualRelay;
       Lamp3     : fbManualRelay;
 
-      Auto            : fbAutoRelay;
+      Auto      : fbAutoRelay;
 
       init      : bool;
   END_VAR
@@ -24,17 +24,17 @@ PROGRAM prgBedroom2Light
   end_if;
 
   lamp1( trigButton := r5_1Bedroom2Light11,
-         //state      => out_Lamp1^
+         state      => MODULE2_OUT.DOs.DO7
          );
   lamp2( trigButton := r5_1Bedroom2Light12,
-         //state      => out_Lamp2^
+         state      => MODULE2_OUT.DOs.DO8
          );
   lamp3( trigButton := r5_1Bedroom2Light10,
-         //state      => out_Lamp3^
+         state      => MODULE4_OUT.DO6
          );
 
 
-  Auto( //Sensor_Motion.state   := in_MotionSensor^,
+  Auto( Sensor_Motion.state   := MODULE2_IN.DI.DI2,
         autoMode              := r5_1Bedroom2Light10_auto);
 
   if Auto.stateChanged then

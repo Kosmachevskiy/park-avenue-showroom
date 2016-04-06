@@ -1,8 +1,8 @@
 [Pos0]
 ModulID=1501
-ModuleName=
+ModuleName=MODULE4
 ModuleFileName=panel_R1_P0
-RemUnit=1
+RemUnit=0
 Verze=
 ModulFormat=1
 ScriptFormat=1
@@ -13,9 +13,9 @@ Table=1501 , $00, $00, $80, $00, $00, $00, $00, $00, $00, $00, $80, $00, $00, $0
 
 [Pos1]
 ModulID=1602
-ModuleName=
+ModuleName=MODULE5
 ModuleFileName=panel_R1_P1
-RemUnit=1
+RemUnit=0
 Verze=
 ModulFormat=1
 ScriptFormat=1

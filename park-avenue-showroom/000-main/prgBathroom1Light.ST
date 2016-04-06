@@ -7,7 +7,7 @@ PROGRAM prgBathroom1Light
 
       Lamp1     : fbManualDimm;
 
-      Auto            : fbAutoRelay;
+      Auto      : fbAutoRelay;
       
       init      : bool;
   END_VAR
@@ -28,10 +28,10 @@ PROGRAM prgBathroom1Light
   Lamp1( (*btn        := in_button^,*)
          slider     := r7_1Bathroom1Light17_18_19_level,
          trigButton := r7_1Bathroom1Light17_18_19,
-         //value      => out_Lamp1^
+         value      => MODULE3_OUT.OUT1.LEVEL
          );
 
-  Auto( //Sensor_Motion.state   := in_MotionSensor^,
+  Auto( Sensor_Motion.state   := MODULE2_IN.DI.DI4,
         autoMode              := r7_1Bathroom1Light17_18_19_auto);
 
   if Auto.stateChanged then
