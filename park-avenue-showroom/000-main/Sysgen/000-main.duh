@@ -1,0 +1,282 @@
+FUNCTION_BLOCK fbAutoRelay
+(**)
+
+  VAR_INPUT
+    Sensor_Door : doorSensor;
+    Sensor_Motion : motionSensor;
+    autoMode : BOOL;
+    nightMode : BOOL;
+    forgetMode : BOOL := false;
+    anyLightOn : BOOL;
+    anyLightChanged : BOOL;
+    timeAfterDoorOpenClose : TIME := t#1m;
+    timeAfterMotionDetect : TIME := t#10m;
+    timeAfterLastAction : TIME := t#1m;
+    setState : BOOL;
+  END_VAR
+  VAR_OUTPUT
+    personLeft : BOOL;
+    forget : BOOL;
+    stateChanged : BOOL;
+    state : BOOL;
+  END_VAR
+  VAR
+    timerAfterDoorOpened : fbTimer;
+    timerAfterDoorClosed : fbTimer;
+    timerAfterMotionDetected : fbTimer;
+    timerAfterLastAction : fbTimer;
+    doorSensRise : r_trig;
+    doorSensFall : f_trig;
+    doorClosed : BOOL;
+    doorOpened : BOOL;
+    motionSensRise : r_trig;
+    motionSensFall : f_trig;
+    motionDetected : BOOL;
+    motionEnd : BOOL;
+    nightModeOff : f_trig;
+  END_VAR
+END_FUNCTION_BLOCK 
+
+FUNCTION_BLOCK fbBlindController
+(**)
+  VAR_INPUT
+    timeTo_up_down : TIME;
+    open : BOOL R_EDGE;
+    close : BOOL R_EDGE;
+    stop : BOOL R_EDGE;
+    setPosition : REAL;
+  END_VAR
+  VAR_OUTPUT
+    up : BOOL;
+    down : BOOL;
+    currentPosition : REAL := 100;
+  END_VAR
+
+  VAR
+    t1 : TIME;
+    timer : fbTimer;
+    direction : BOOL; (*True - UP, False - DOWN*)
+    position : REAL := 100;
+    stopTtigg : r_trig;
+    openTrigg : r_trig;
+    closeTrigg : r_trig;
+  END_VAR
+
+END_FUNCTION_BLOCK 
+
+FUNCTION_BLOCK fbButtonProcessor
+(**)
+  VAR_INPUT
+    btn : PTR_TO BOOL; (*Pointer to Button*)
+    longPressTime : TIME := t#1000ms; (*Long press time detect.*)
+  END_VAR
+
+  VAR_OUTPUT
+    longPress : BOOL; (*Long press flag.*)
+    shortPress : BOOL; (*Short press flag.*)
+    btnPressed : BOOL; (*Event flag on button pressed.*)
+    btnReleased : BOOL; (*Event flag on button released.*)
+    btnState : BOOL; (*Button state.*)
+    longPressAndHold : BOOL; (*Long press and hold flag.*)
+  END_VAR
+  VAR
+    btnPrevState : BOOL;
+    timer : fbTimer;
+  END_VAR
+
+END_FUNCTION_BLOCK 
+
+FUNCTION_BLOCK fbFloorHeatingSimple
+(**)
+  VAR_INPUT
+    period : TIME := t#1h;
+  END_VAR
+  VAR_OUTPUT
+    out : BOOL;
+  END_VAR
+  VAR_IN_OUT
+    state : BOOL;
+    power : REAL;
+  END_VAR
+  VAR
+    pwmGenerator : PWM;
+  END_VAR
+
+END_FUNCTION_BLOCK 
+
+FUNCTION_BLOCK fbGlobalCacheSender
+(**)
+  VAR_INPUT
+    sendCode : UINT;
+    channel : UINT;
+  END_VAR
+  VAR_IN_OUT
+    codes : irCodesString;
+  END_VAR
+  VAR
+    tcpSender : fbSendTo;
+    code : STRING[255];
+    send : BOOL;
+  END_VAR
+END_FUNCTION_BLOCK 
+
+FUNCTION_BLOCK fbManualDimm
+(**)
+  VAR_INPUT
+    btn : BOOL; (*Pointer to button processor.*)
+    minValue : REAL := 20.0; (*Minimum value of channel.*)
+    maxValue : REAL := 100.0; (*Maximum value of channel.*)
+    dimmSpeed : REAL := 25.0; (*Up/Down dimming speed, %/sec.*)
+    setValue : REAL;
+    setState : BOOL; (*Turn on/off channel like relay. Set to levels like short press.*)
+  END_VAR
+  VAR_IN_OUT
+    slider : REAL; (*Slider in % in range from minValue to maxValue.*)
+    trigButton : BOOL; (*Button for trigger contol.*)
+  END_VAR
+  VAR_OUTPUT
+    value : REAL;
+    valueChanged : BOOL;
+    state : BOOL;
+    stateChanged : BOOL;
+  END_VAR
+  VAR
+    direction : REAL := 1.0;
+    userValue : REAL;
+    dimming : BOOL;
+    timer : TON;
+    cycleTime : TIME;
+    prevTime : TIME;
+    step : REAL;
+    init : BOOL;
+    prevValue : REAL;
+    prevSetValue : REAL;
+    prevSlider : REAL;
+    buttonProcessor : fbButtonProcessor;
+  END_VAR
+
+END_FUNCTION_BLOCK 
+
+FUNCTION_BLOCK fbManualRelay
+(**)
+  VAR_IN_OUT
+    trigButton : BOOL; (*Button for trigger control.*)
+  END_VAR
+  VAR_INPUT
+    setState : BOOL; (*Turn on/off channel.*)
+  END_VAR
+  VAR
+    trigButtonOff : f_trig;
+    trigButtonOn : r_trig;
+  END_VAR
+  VAR_OUTPUT
+    stateChanged : BOOL; (*State changed flag.    *)
+    state : BOOL; (*Current state of relay.*)
+  END_VAR
+END_FUNCTION_BLOCK 
+
+FUNCTION_BLOCK fbRealObserver
+(**)
+  VAR_INPUT
+    value : REAL;
+  END_VAR
+  VAR
+    prevValue : REAL;
+  END_VAR
+  VAR_OUTPUT
+    valueChanged : BOOL;
+    rising : BOOL;
+    falling : BOOL;
+  END_VAR
+END_FUNCTION_BLOCK 
+
+FUNCTION_BLOCK fbSecuritySystem
+(*
+Error codes description:
+1 - Can't Armed system because Sabotage alarm is on.
+2 - Can't Armed system because one or more zone is broken.
+3 - Keypad error.
+*)
+  VAR_INPUT
+    config : SecurityConfig;
+    Z1 : BOOL; (*Enter/Exit Door.*)
+    Z2 : BOOL; (*Enter/Exit Zone.*)
+    Z3 : BOOL; (*Doors, windows and PIR sensors.*)
+    Z4 : BOOL; (*Other sensors.*)
+    Z5 : BOOL; (*Tamper zone.*)
+    keyBoard : BOOL; (*relay keypad contact.*)
+    arm : BOOL R_EDGE; (*Security On flag.*)
+    disarm : BOOL R_EDGE; (*Security Off flag.*)
+    alarmReset : BOOL R_EDGE; (*Alarm reset flag.*)
+    sabotageReset : BOOL R_EDGE; (*Reset sabotege alarm.*)
+  END_VAR
+  VAR_OUTPUT
+    securityState : BOOL; (*TRUE when systen armed.*)
+    alarm : BOOL; (*Alarm flag.*)
+    siren : BOOL;
+    ledIndicator : BOOL;
+    sabotage : BOOL; (*TRUE when tamper zone was broken until reset by sabotageReset variable.*)
+    error : BOOL; (*TRUE when error until next cycle.*)
+    errorCode : USINT; (*Error descrintion code.*)
+  END_VAR
+  VAR
+    state : SecuritySystemState;
+    keyBoardImpulse : TP;
+    keyBoardEvent : f_trig;
+    keyBoardImpulseEnd : f_trig;
+    exitTimer : ton;
+    entranceTimer : ton;
+    ledPulse : PWM;
+    userEnterPassword : BOOL;
+    armWithoutDelay : BOOL;
+  END_VAR
+END_FUNCTION_BLOCK 
+
+FUNCTION_BLOCK fbTimer
+(**)
+  VAR_INPUT
+    start : BOOL R_EDGE;
+    reset : BOOL R_EDGE;
+    timeToCount : TIME;
+  END_VAR
+  VAR_OUTPUT
+    isRun : BOOL;
+    isDone : BOOL;
+    currentTime : TIME;
+  END_VAR
+
+  VAR
+    timer : TON;
+  END_VAR
+
+END_FUNCTION_BLOCK 
+
+FUNCTION_BLOCK fbWaterLeakegeControl
+(**)
+  VAR_INPUT
+    sensor : BOOL; (*Water Leakege Sensor.*)
+    openWater : BOOL R_EDGE; (*Flag to open water if it possible.*)
+    closeWater : BOOL R_EDGE; (*Flag to close water.*)
+    alarmReset : BOOL R_EDGE; (*Flag to reset alarm.*)
+    config : WaterLeakegeControlConfig; (*Zone configuration.*)
+    autoControl : BOOL := true;
+  END_VAR
+  VAR_OUTPUT
+    valve : BOOL; (*Valve.*)
+    alarm : BOOL; (*True when water was closed by sensor until not reset.*)
+  END_VAR
+  VAR_IN_OUT
+    waterState : BOOL; (*TRUE = Water is open.*)
+  END_VAR
+  VAR
+    waterOnSensor : BOOL;
+    timeTreshold : ton;
+    waterOnSendorsTimeout : tp;
+    timeOut : f_trig;
+  END_VAR
+END_FUNCTION_BLOCK 
+
+
+
+
+

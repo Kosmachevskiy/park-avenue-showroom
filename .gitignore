@@ -1,5 +1,5 @@
+#.gitignore
 */*/SendRoot
-*/*/Sysgen
 *.DSK
 *.bak
 *._m_
@@ -7,5 +7,5 @@
 *.origin
 *.big
 *.webx
-*.orig
+*.bak.orig
 *.myBak
