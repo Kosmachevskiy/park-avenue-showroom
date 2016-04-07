@@ -1,4 +1,3 @@
-#.gitignore
 */*/SendRoot
 */*/Sysgen
 *.DSK
@@ -10,3 +9,6 @@
 *.webx
 *.orig
 *.myBak
+*.pch
+*.prg
+*.pub

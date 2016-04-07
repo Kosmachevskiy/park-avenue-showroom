@@ -9,7 +9,6 @@ PROGRAM prgEatingroomLight
       Auto            : fbAutoRelay;
       
       blind           : fbBlindController;
-      blindSetPositionObserber: fbRealObserver;
       
       initTimer : ton;
       init      : bool;
@@ -34,19 +33,16 @@ PROGRAM prgEatingroomLight
         init := true;
      end_if;
   else
-      blindSetPositionObserber(value := r2_1EatingroomBlindsPosition);
 
-      if blindSetPositionObserber.valueChanged then
-         blind.setPosition := blindSetPositionObserber.value;
-      end_if;
   
       blind( up            => MODULE6_OUT.DOs.DO3,
              down          => MODULE6_OUT.DOs.DO4,
-           currentPosition => r2_1EatingroomBlindsPosition,
 
-           open            := r2_1EatingroomBlindsUp,
-           close           := r2_1EatingroomBlindsDown,
-           stop            := r2_1EatingroomBlindsStop);
+             position      := r2_1EatingroomBlindsPosition,
+
+             open            := r2_1EatingroomBlindsUp,
+             close           := r2_1EatingroomBlindsDown,
+             stop            := r2_1EatingroomBlindsStop);
 
       r2_1EatingroomBlindsUp    := false;
       r2_1EatingroomBlindsDown  := false;

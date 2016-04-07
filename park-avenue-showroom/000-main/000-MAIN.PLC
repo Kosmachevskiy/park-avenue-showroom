@@ -169,7 +169,7 @@ initiallibtestpassed=1
 [weblc]
 lcifile=""
 maymod=""
-lastfile=""
+lastfile="NONAME1.txt"
 modlock=1
 listwidth=121
 findhistory=""
