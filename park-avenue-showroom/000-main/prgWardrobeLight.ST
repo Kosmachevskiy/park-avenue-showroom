@@ -5,7 +5,7 @@ PROGRAM prgWardrobeLight
   END_VAR
   VAR
       Lamp1     : fbManualRelay;
-
+      button    : fbButtonProcessor;
       Auto      : fbAutoRelay;
 
       init      : bool;
@@ -26,12 +26,18 @@ PROGRAM prgWardrobeLight
          state      =>  MODULE2_OUT.DOs.DO3
          );
 
+
+
   Auto( Sensor_Motion.state   := MODULE2_IN.DI.DI3,
         autoMode              := r6_1WardrobeLight13_21_auto);
 
-  if Auto.stateChanged then
+  button(btn :=adr(MODULE4_IN.DI2) );
+
+  if Auto.stateChanged OR button.shortPress then
      Lamp1.setState := Auto.state;
   end_if;
+
+
 
 END_PROGRAM
 

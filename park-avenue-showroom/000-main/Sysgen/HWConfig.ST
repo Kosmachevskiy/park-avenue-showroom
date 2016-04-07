@@ -116,6 +116,13 @@ TYPE
     falseMes   : UDINT;
   END_STRUCT;
 
+  TETHStatistic_BACnet : STRUCT
+    STAT       : USINT;
+    ERR        : USINT;
+    trueMes    : UDINT;
+    falseMes   : UDINT;
+  END_STRUCT;
+
   TCHControl : STRUCT
     CONTROL  : UINT;
   END_STRUCT;
@@ -160,33 +167,33 @@ VAR_GLOBAL
 END_VAR
 (* ********************************************************************** *)
 (* ---------------------------------------------------------------------- *)
-(* IR-1501 *)
-VAR_GLOBAL
-  r1_p0_DI             AT %X86  : TBIN_4DI;
-  r1_p0_DIP            AT %X87  : TBIN_4DIP;
-  r1_p0_CNT_IN1        AT %X88  : TCNTF_IN;
-  r1_p0_CNT_IN2        AT %X98  : TCNTF_IN;
-  r1_p0_DO             AT %Y5   : TBIN_8DO;
-  r1_p0_dummy          AT %Y6   : USINT;
-  r1_p0_CNT_OUT1       AT %Y7   : TCNTF_OUT;
-  r1_p0_CNT_OUT2       AT %Y13  : TCNTF_OUT;
-(* alias *)
-  MODULE4_IN           AT r1_p0_DI;
-  MODULE4_OUT          AT r1_p0_DO;
-END_VAR
-(* ---------------------------------------------------------------------- *)
 (* IT-1602 *)
 VAR_GLOBAL
-  r1_p1_AI0            AT %X108 : TAI;
-  r1_p1_AI1            AT %X120 : TAI;
-  r1_p1_AI2            AT %X132 : TAI;
-  r1_p1_AI3            AT %X144 : TAI;
-  r1_p1_AI4            AT %X156 : TAI;
-  r1_p1_AI5            AT %X168 : TAI;
-  r1_p1_AI6            AT %X180 : TAI;
-  r1_p1_AI7            AT %X192 : TAI;
-  r1_p1_AO0            AT %Y20  : TAO_TC6;
-  r1_p1_AO1            AT %Y30  : TAO_TC6;
+  r1_p0_AI0            AT %X108 : TAI;
+  r1_p0_AI1            AT %X120 : TAI;
+  r1_p0_AI2            AT %X132 : TAI;
+  r1_p0_AI3            AT %X144 : TAI;
+  r1_p0_AI4            AT %X156 : TAI;
+  r1_p0_AI5            AT %X168 : TAI;
+  r1_p0_AI6            AT %X180 : TAI;
+  r1_p0_AI7            AT %X192 : TAI;
+  r1_p0_AO0            AT %Y20  : TAO_TC6;
+  r1_p0_AO1            AT %Y30  : TAO_TC6;
+END_VAR
+(* ---------------------------------------------------------------------- *)
+(* IR-1501 *)
+VAR_GLOBAL
+  r1_p1_DI             AT %X86  : TBIN_4DI;
+  r1_p1_DIP            AT %X87  : TBIN_4DIP;
+  r1_p1_CNT_IN1        AT %X88  : TCNTF_IN;
+  r1_p1_CNT_IN2        AT %X98  : TCNTF_IN;
+  r1_p1_DO             AT %Y5   : TBIN_8DO;
+  r1_p1_dummy          AT %Y6   : USINT;
+  r1_p1_CNT_OUT1       AT %Y7   : TCNTF_OUT;
+  r1_p1_CNT_OUT2       AT %Y13  : TCNTF_OUT;
+(* alias *)
+  MODULE4_IN           AT r1_p1_DI;
+  MODULE4_OUT          AT r1_p1_DO;
 END_VAR
 (* -- *)
 (* -- *)

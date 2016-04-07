@@ -36,7 +36,7 @@ PROGRAM prgLivingroomLight
 
 
   if Auto.stateChanged then
-     Lamp1.setValue := 50.;
+     Lamp1.setValue := 100.;
   end_if;
 
 

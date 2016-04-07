@@ -47,7 +47,7 @@
 #table _TTS_SCH _Table_CH1 = $00C2,$0000,	; PC
                              $02,$00,$0E,$0A,$00,$00,$00,$00,	; 
                              0,0,0,0	; Modems
-;#module TModulE1 1, 0, 0, $0101, 10, 2, __offset(r0_p0_Statistic_CH1), __offset(r0_p0_Control_CH1), __indx (_Table_CH1)
+#module TModulE1 1, 0, 0, $0101, 10, 2, __offset(r0_p0_Statistic_CH1), __offset(r0_p0_Control_CH1), __indx (_Table_CH1)
 
 ;----------------------------------------------------------------------
 ;Rack : 0 ; Position : 2 ; 	 Type of unit : MI2-01M; TXN 131 27
@@ -55,13 +55,13 @@
   #ifndef _Table_CIB_MI_CIB1
     #error F'Configuration of CFox or RFox units is outdated. Please open the settings dialog of CFox, RFox units and click OK.'
   #endif
-  ;#module TModulE1 1, 0, 2, $110, 10, 2, __offset(r0_p2_Statistic_MI_CIB1), __offset(r0_p2_Control_MI_CIB1), __indx (_Table_CIB_MI_CIB1)
+  #module TModulE1 1, 0, 2, $110, 10, 2, __offset(r0_p2_Statistic_MI_CIB1), __offset(r0_p2_Control_MI_CIB1), __indx (_Table_CIB_MI_CIB1)
 #endif
 #ifdef _def_CanCIBModule_MI_CIB2
   #ifndef _Table_CIB_MI_CIB2
     #error F'Configuration of CFox or RFox units is outdated. Please open the settings dialog of CFox, RFox units and click OK.'
   #endif
-  ;#module TModulE1 1, 0, 3, $110, 10, 2, __offset(r0_p2_Statistic_MI_CIB2), __offset(r0_p2_Control_MI_CIB2), __indx (_Table_CIB_MI_CIB2)
+  #module TModulE1 1, 0, 3, $110, 10, 2, __offset(r0_p2_Statistic_MI_CIB2), __offset(r0_p2_Control_MI_CIB2), __indx (_Table_CIB_MI_CIB2)
 #endif
 ;----------------------------------------------------------------------
 ;Rack : 0 ; Position : 5 ; 	 Type of unit : IR-1061; TXN 110 61
@@ -105,13 +105,53 @@
                                   $2D,$0A,0.000000,1.000000,
                                   $2D,$0A,0.000000,1.000000,
                                   $2D,$0A,0.000000,1.000000
-;#module TModulE1 1, 0, 5, $0, 66, 1, __offset(r0_p5_DI), __offset(r0_p5_DO), __indx (_r0_p5_Table)
+#module TModulE1 1, 0, 5, $0, 66, 1, __offset(r0_p5_DI), __offset(r0_p5_DO), __indx (_r0_p5_Table)
 
 ;......................................................................
 
 ;**********************************************************************
 ;----------------------------------------------------------------------
-;Rack : 1 ; Position : 0 ; 	 Type of unit : IR-1501; TXN 115 01
+;Rack : 1 ; Position : 0 ; 	 Type of unit : IT-1602; TXN 116 02
+#struct _TTS_EnbCHAO_650
+        USINT  EFS,
+        USINT  EENG,
+        USINT  EPCT
+
+#struct _TTS_IniCHAI
+        USINT TypAI,
+        USINT TAU
+
+#struct _TTS_IniCHAO_650
+        USINT TypeAO,
+        USINT BlcCont,
+        REAL  BlcState
+
+#struct _TTS_IT1602
+        _TTS_Head           Head,
+        _TTS_EnbCHAI[8]     EAI,
+        _TTS_EnbCHAO_650[2] EAO,
+        _TTS_IniCHAI[8]     SETAI,
+        _TTS_IniCHAO_650[2] SETAO
+#table _TTS_IT1602 _r1_p0_Table = 1602,$00,$00,
+                                  $80,$80,$00,$00,
+                                  $80,$00,$80,$00,
+                                  $80,$00,$80,$00,
+                                  $80,$00,$80,$00,
+                                  $80,$80,$00,$00,
+                                  $80,$80,$00,$00,
+                                  $80,$80,$00,$00,
+                                  $80,$80,$00,$00,
+                                  $00,$80,$00,
+                                  $00,$80,$00,
+                                  $83,00,$83,00,
+                                  $83,00,$83,00,
+                                  $00,00,$00,00,
+                                  $00,00,$00,00,
+                                  $80,0,0,$80,
+                                  0,0
+#module TModulE1 1, 1, 0, $0, 96, 20, __offset(r1_p0_AI0), __offset(r1_p0_AO0), __indx (_r1_p0_Table)
+;----------------------------------------------------------------------
+;Rack : 1 ; Position : 1 ; 	 Type of unit : IR-1501; TXN 115 01
 #struct _TTS_IR1501
         _TTS_Head    Head,
         USINT EDI,
@@ -134,54 +174,14 @@
         USINT CFGCNT1,
         USINT MODCNT2,
         USINT CFGCNT2
-#table _TTS_IR1501 _r1_p0_Table = 1501,$00,$00,
+#table _TTS_IR1501 _r1_p1_Table = 1501,$00,$00,
                                   $80,$00,
                                   $00,$00,$00,
                                   $00,$00,$00,
                                   $80,$00,$00,$00,
                                   $00,$00,$00,$00,
                                   $00,$00,$00,$00
-;#module TModulE1 1, 1, 0, $0, 22, 15, __offset(r1_p0_DI), __offset(r1_p0_DO), __indx (_r1_p0_Table)
-;----------------------------------------------------------------------
-;Rack : 1 ; Position : 1 ; 	 Type of unit : IT-1602; TXN 116 02
-#struct _TTS_EnbCHAO_650
-        USINT  EFS,
-        USINT  EENG,
-        USINT  EPCT
-
-#struct _TTS_IniCHAI
-        USINT TypAI,
-        USINT TAU
-
-#struct _TTS_IniCHAO_650
-        USINT TypeAO,
-        USINT BlcCont,
-        REAL  BlcState
-
-#struct _TTS_IT1602
-        _TTS_Head           Head,
-        _TTS_EnbCHAI[8]     EAI,
-        _TTS_EnbCHAO_650[2] EAO,
-        _TTS_IniCHAI[8]     SETAI,
-        _TTS_IniCHAO_650[2] SETAO
-#table _TTS_IT1602 _r1_p1_Table = 1602,$00,$00,
-                                  $80,$80,$00,$00,
-                                  $00,$00,$00,$00,
-                                  $00,$00,$00,$00,
-                                  $00,$00,$00,$00,
-                                  $00,$00,$00,$00,
-                                  $00,$00,$00,$00,
-                                  $00,$00,$00,$00,
-                                  $00,$00,$00,$00,
-                                  $00,$80,$00,
-                                  $00,$80,$00,
-                                  $00,00,$00,$00,
-                                  $00,$00,$00,$00,
-                                  $00,$00,$00,$00,
-                                  $00,$00,$00,$00,
-                                  $80,$00,0,$80,
-                                  $00,0
-;#module TModulE1 1, 1, 1, $0, 96, 20, __offset(r1_p1_AI0), __offset(r1_p1_AO0), __indx (_r1_p1_Table)
+#module TModulE1 1, 1, 1, $0, 22, 15, __offset(r1_p1_DI), __offset(r1_p1_DO), __indx (_r1_p1_Table)
 
 ;......................................................................
 

@@ -5,8 +5,12 @@ contentversion=1
 
 [Watch2Bank0]
 bankname="Bank1"
-shortcut=-1
-watchcnt=0
+shortcut=1
+watchcnt=2
 bindfile=""
+watchobjEx0=0,"WardrobeLight.button.shortPress|"
+watchobj0="WardrobeLight.button.shortPress",1,0,0,""
+watchobjEx1=0,"MODULE1_IN.DI0|"
+watchobj1="MODULE1_IN.DI0",1,0,0,""
 [/Watch2Bank0]
 

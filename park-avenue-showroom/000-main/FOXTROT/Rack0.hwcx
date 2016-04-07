@@ -1,9 +1,9 @@
 [Pos0]
 ModulID=1000
 ModuleName=
-ModuleFileName=
-RemUnit=1
-Verze=
+ModuleFileName=panel_R0_P0
+RemUnit=0
+Verze= 95H0700
 ModulFormat=1
 ScriptFormat=1
 XPosE2=7500,0|7510,0|7520,0|7620,0|7630,0|7640,0|7650,0|
@@ -89,7 +89,7 @@ ETH0_DNS3=8
 ModulID=3127
 ModuleName=
 ModuleFileName=panel_R0_P2
-RemUnit=1
+RemUnit=0
 Verze=
 ModulFormat=1
 ScriptFormat=1
@@ -106,12 +106,13 @@ PGB4=0
 [Pos5]
 ModulID=1061
 ModuleName=
-ModuleFileName=
-RemUnit=1
+ModuleFileName=panel_R0_P5
+RemUnit=0
 Verze=
 ModulFormat=1
 ScriptFormat=1
-XPosE2=10,0|
-YPosE2=2,0|
+XPosE2=20,0|
+YPosE2=4,0|
 ExtendedSizeParam=0
+Table=1061 , $00, $00, $80, $80, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $80, $80, $80, $80, $80, $2D, $0A, 0.000000, 1.000000, $2D, $0A, 0.000000, 1.000000, $2D, $0A, 0.000000, 1.000000, $2D, $0A, 0.000000, 1.000000
 

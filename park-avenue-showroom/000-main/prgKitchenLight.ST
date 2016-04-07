@@ -5,7 +5,8 @@ PROGRAM prgKitchenLight
   END_VAR
   VAR
       Lamp1     : fbManualRelay;
-      
+      button1,
+      button2   : fbButtonProcessor;
       Lamp2     : fbManualRelay;
       
       Auto            : fbAutoRelay;
@@ -22,6 +23,9 @@ PROGRAM prgKitchenLight
      Auto.nightMode             := true;
      init := true;
   end_if;
+  
+  //button1(btn :=adr() );
+  //button2(btn :=adr() );
 
   lamp1( trigButton := r2_2KitchenLight03,
          state      => MODULE1_OUT.DO1
