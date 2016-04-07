@@ -25,7 +25,7 @@ PROGRAM prgBathroom1Light
  end_if;
 
 
-  Lamp1( (*btn        := in_button^,*)
+  Lamp1( btn        := MODULE5_AI6.STAT.OVR,
          slider     := r7_1Bathroom1Light17_18_19_level,
          trigButton := r7_1Bathroom1Light17_18_19,
          value      => MODULE3_OUT.OUT1.LEVEL

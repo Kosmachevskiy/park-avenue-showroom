@@ -21,6 +21,12 @@ PROGRAM prgWardrobeLight
 
      init := true;
   end_if;
+  
+  button(btn :=adr(MODULE4_IN.DI2 ));
+  
+  if button.shortPress then
+     Lamp1.setState:= not Lamp1.state;
+  end_if;
 
   lamp1( trigButton := r6_1WardrobeLight13_21,
          state      =>  MODULE2_OUT.DOs.DO3

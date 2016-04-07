@@ -5,12 +5,13 @@ PROGRAM prgKitchenLight
   END_VAR
   VAR
       Lamp1     : fbManualRelay;
-      button1,
-      button2   : fbButtonProcessor;
       Lamp2     : fbManualRelay;
       
-      Auto            : fbAutoRelay;
-
+      Auto      : fbAutoRelay;
+      
+      button1,
+      button2   : fbButtonProcessor;
+      
       init      : bool;
   END_VAR
   VAR_TEMP
@@ -26,6 +27,8 @@ PROGRAM prgKitchenLight
   
   //button1(btn :=adr() );
   //button2(btn :=adr() );
+
+  //TODO: найти куда подключать кнопки на кухне. сейчас оин подключены к несуществующим входам диммера (MODULE3)
 
   lamp1( trigButton := r2_2KitchenLight03,
          state      => MODULE1_OUT.DO1

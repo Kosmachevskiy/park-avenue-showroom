@@ -6,7 +6,9 @@ PROGRAM prgBathroom2Light
   VAR
       Lamp1     : fbManualRelay;
 
-      Auto            : fbAutoRelay;
+      Auto      : fbAutoRelay;
+      
+      button    : fbButtonProcessor;
 
       init      : bool;
   END_VAR
@@ -21,6 +23,11 @@ PROGRAM prgBathroom2Light
      Auto.nightMode             := true;
 
      init := true;
+  end_if;
+  
+  button(btn:= adr(MODULE5_AI4.STAT.OVR));
+  if button.shortPress then
+     lamp1.setState := not lamp1.state;
   end_if;
 
   lamp1( trigButton := r8_1Bathroom2Light14_15_16,

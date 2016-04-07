@@ -8,6 +8,10 @@ PROGRAM prgBedroom2Light
       Lamp2     : fbManualRelay;
       Lamp3     : fbManualRelay;
 
+      button1,
+      button2,
+      button3   :fbButtonProcessor;
+
       Auto      : fbAutoRelay;
 
       init      : bool;
@@ -22,7 +26,23 @@ PROGRAM prgBedroom2Light
      Auto.nightMode             := true;
      init := true;
   end_if;
+  
+  button1(btn:= adr(MODULE5_AI1.STAT.OVR));
+  button2(btn:= adr(MODULE5_AI2.STAT.OVR));
+  button3(btn:= adr(MODULE5_AI0.STAT.OVR));
+  
+  if button1.shortPress then
+     Lamp1.setState:= not Lamp1.state;
+  end_if;
 
+  if button2.shortPress then
+     Lamp2.setState:= not Lamp2.state;
+  end_if;
+  
+    if button3.shortPress then
+     Lamp3.setState:= not Lamp3.state;
+  end_if;
+  
   lamp1( trigButton := r5_1Bedroom2Light11,
          state      => MODULE2_OUT.DOs.DO7
          );

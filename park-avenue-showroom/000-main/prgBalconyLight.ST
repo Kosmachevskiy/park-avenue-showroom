@@ -6,6 +6,8 @@ PROGRAM prgBalconyLight
   VAR
       Lamp1     : fbManualRelay;
       
+      button    : fbButtonProcessor;
+      
       init      : bool;
   END_VAR
   VAR_TEMP
@@ -13,6 +15,12 @@ PROGRAM prgBalconyLight
 
   if not init then
      init := true;
+  end_if;
+  
+  button(btn :=adr(MODULE2_IN.DI.DI8 ));
+
+  if button.shortPress then
+     Lamp1.setState:= not Lamp1.state;
   end_if;
 
   lamp1( trigButton := r3_1BalconyLight,

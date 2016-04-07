@@ -8,6 +8,8 @@ PROGRAM prgHallLight
 
       Auto      : fbAutoRelay;
 
+      button    : fbButtonProcessor;
+      
       init      : bool;
   END_VAR
   VAR_TEMP
@@ -21,6 +23,11 @@ PROGRAM prgHallLight
      Auto.nightMode             := true;
 
      init := true;
+  end_if;
+  
+  button(btn:= adr(MODULE4_IN.DI0));
+  if button.shortPress then
+     lamp1.setState := not lamp1.state;
   end_if;
 
   lamp1( trigButton := r1_1HallLight01,

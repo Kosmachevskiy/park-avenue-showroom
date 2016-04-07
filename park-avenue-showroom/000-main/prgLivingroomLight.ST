@@ -7,6 +7,8 @@ PROGRAM prgLivingroomLight
       Lamp1     : fbManualDimm;
       Auto      : fbAutoRelay;
 
+      button    : fbButtonProcessor;
+
       init      : bool;
   END_VAR
   VAR_TEMP
@@ -25,7 +27,7 @@ PROGRAM prgLivingroomLight
  end_if;
 
 
-  Lamp1( (*btn        := in_button^,*)
+  Lamp1( btn        := MODULE6_IN.DI.DI1,
          slider     := r2_3LivingroomLight02_07_08_level,
          trigButton := r2_3LivingroomLight02_07_08,
          value      => MODULE3_OUT.OUT2.LEVEL

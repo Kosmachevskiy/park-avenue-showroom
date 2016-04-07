@@ -6,9 +6,11 @@ PROGRAM prgEatingroomLight
   VAR
       Lamp1     : fbManualRelay;
 
-      Auto            : fbAutoRelay;
+      Auto      : fbAutoRelay;
       
-      blind           : fbBlindController;
+      button    : fbButtonProcessor;
+      
+      blind     : fbBlindController;
       
       initTimer : ton;
       init      : bool;
@@ -40,14 +42,22 @@ PROGRAM prgEatingroomLight
 
              position      := r2_1EatingroomBlindsPosition,
 
-             open            := r2_1EatingroomBlindsUp,
-             close           := r2_1EatingroomBlindsDown,
-             stop            := r2_1EatingroomBlindsStop);
+             open          := r2_1EatingroomBlindsUp,
+             close         := r2_1EatingroomBlindsDown,
+             stop          := r2_1EatingroomBlindsStop);
 
       r2_1EatingroomBlindsUp    := false;
       r2_1EatingroomBlindsDown  := false;
       r2_1EatingroomBlindsStop  := false;
   end_if;
+(*
+  button(btn:= adr(MODULE5_AI4.STAT.OVR));
+  if button.shortPress then
+     lamp1.setState := not lamp1.state;
+  end_if;
+
+ TODO: найти куда подключать кнопки на кухне. сейчас оин подключены к несуществующим входам диммера (MODULE3)
+*)
 
   lamp1( trigButton := r2_1EatingroomLight05_06_23,
          state      => MODULE2_OUT.DOs.DO11
