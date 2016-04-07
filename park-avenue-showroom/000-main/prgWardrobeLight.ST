@@ -22,7 +22,7 @@ PROGRAM prgWardrobeLight
      init := true;
   end_if;
   
-  button(btn :=adr(MODULE4_IN.DI2 ));
+  button(btn :=MODULE4_IN.DI2 );
   
   if button.shortPress then
      Lamp1.setState:= not Lamp1.state;
@@ -37,7 +37,7 @@ PROGRAM prgWardrobeLight
   Auto( Sensor_Motion.state   := MODULE2_IN.DI.DI3,
         autoMode              := r6_1WardrobeLight13_21_auto);
 
-  button(btn :=adr(MODULE4_IN.DI2) );
+  button(btn :=MODULE4_IN.DI2 );
 
   if Auto.stateChanged OR button.shortPress then
      Lamp1.setState := Auto.state;

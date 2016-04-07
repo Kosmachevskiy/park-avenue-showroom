@@ -8,7 +8,7 @@ VAR_GLOBAL RETAIN
            r2_2KitchenLight04_24                            at %R0.4  : bool;
            r2_1EatingroomLight05_06_23                      at %R0.5  : bool;
            r4_1Bedroom1Light09                              at %R0.6  : bool;
-           r5_1Bedroom2Light10                              at %R0.7  : bool;
+           r5_1Bedroom2Light10_22                           at %R0.7  : bool;
            r5_1Bedroom2Light11                              at %R1.0  : bool;
            r5_1Bedroom2Light12                              at %R1.1  : bool;
            r6_1WardrobeLight13_21                           at %R1.2  : bool;
@@ -61,10 +61,14 @@ VAR_GLOBAL RETAIN
            security_alarm_reset                             at %R5.4  : bool;
            security_led                                     at %R5.5  : bool;
            security_state                                   at %R5.6  : bool;
+           
+(*TV on/off*)
+             r2_3_tvOnOff                                   at %R5.7  : bool;
+             r2_1_tvOnOff                                   at %R6.0  : bool;
 
 (*Dimmed groups brightness level*)
-           r2_3LivingroomLight02_07_08_level                at %R105    : real;
-           r7_1Bathroom1Light17_18_19_level                 at %R109    : real;
+           r2_3LivingroomLight02_07_08_level                at %R105  : real;
+           r7_1Bathroom1Light17_18_19_level                 at %R109   : real;
 
 (*Blinds position control*)
            r2_1EatingroomBlindsPosition                     at %R113   : real;

@@ -25,7 +25,7 @@ PROGRAM prgBathroom2Light
      init := true;
   end_if;
   
-  button(btn:= adr(MODULE5_AI4.STAT.OVR));
+  button(btn:= MODULE5_AI4.STAT.OVR);
   if button.shortPress then
      lamp1.setState := not lamp1.state;
   end_if;

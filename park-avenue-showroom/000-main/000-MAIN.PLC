@@ -59,7 +59,7 @@ slTRportnum=61682
 
 [plcwusb]
 type=17
-genrst=0
+genrst=1
 askrst=1
 genrunp=1
 genhltp=11
@@ -94,7 +94,7 @@ fifwhere=0
 fifsubdirs=0
 fif2ndmsg=1
 fif2ndmsg=1
-findhistory=""
+findhistory="btn^"
 replacehistory=""
 dirhistory=""
 maskhistory=""
@@ -209,7 +209,7 @@ aopts=1
 adsktp=1
 aedfiles=0
 compsnd=0
-docomp=1
+docomp=0
 hkshift=0
 disbaleundock=0
 godebugonrun=0

@@ -25,10 +25,11 @@ PROGRAM prgKitchenLight
      init := true;
   end_if;
   
-  //button1(btn :=adr() );
-  //button2(btn :=adr() );
+  button1(btn :=MODULE6_IN.DI.DI3 );
+  button2(btn := MODULE6_IN.DI.DI2);
+  
 
-  //TODO: найти куда подключать кнопки на кухне. сейчас оин подключены к несуществующим входам диммера (MODULE3)
+
 
   lamp1( trigButton := r2_2KitchenLight03,
          state      => MODULE1_OUT.DO1
@@ -39,11 +40,22 @@ PROGRAM prgKitchenLight
          );
 
   Auto( Sensor_Motion.state   := MODULE1_IN.DI1,
-        autoMode              := r2_2KitchenLight04_24_auto);
+        autoMode              := r2_2KitchenLight04_24_auto
+        );
 
   if Auto.stateChanged then
      Lamp2.setState := Auto.state;
   end_if;
 
+  if button1.shortPress then
+     lamp1.setState := not lamp1.state;
+  end_if;
+
+  if button2.shortPress then
+     Auto.setState := NOT Auto.state;
+  end_if;
+
+  MODULE6_OUT.DOs.DO3:= MODULE2_OUT.DOs.DO1;
+  MODULE6_OUT.DOs.DO4:= MODULE1_OUT.DO1;
 END_PROGRAM
 

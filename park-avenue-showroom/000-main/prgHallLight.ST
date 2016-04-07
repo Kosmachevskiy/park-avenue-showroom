@@ -25,7 +25,7 @@ PROGRAM prgHallLight
      init := true;
   end_if;
   
-  button(btn:= adr(MODULE4_IN.DI0));
+  button(btn:= MODULE4_IN.DI0);
   if button.shortPress then
      lamp1.setState := not lamp1.state;
   end_if;

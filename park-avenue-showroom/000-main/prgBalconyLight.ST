@@ -17,7 +17,7 @@ PROGRAM prgBalconyLight
      init := true;
   end_if;
   
-  button(btn :=adr(MODULE2_IN.DI.DI8 ));
+  button(btn :=MODULE2_IN.DI.DI8 );
 
   if button.shortPress then
      Lamp1.setState:= not Lamp1.state;

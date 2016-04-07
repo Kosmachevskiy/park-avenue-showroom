@@ -33,6 +33,7 @@ PROGRAM prgLivingroomLight
          value      => MODULE3_OUT.OUT2.LEVEL
          );
 
+
   Auto( Sensor_Motion.state   := MODULE2_IN.DI.DI1,
         autoMode              := r2_3LivingroomLight02_07_08_auto);
 
@@ -41,7 +42,7 @@ PROGRAM prgLivingroomLight
      Lamp1.setValue := 100.;
   end_if;
 
-
+  MODULE6_OUT.DOs.DO2:= (MODULE3_OUT.OUT2.LEVEL > 0.);
 
 END_PROGRAM
 

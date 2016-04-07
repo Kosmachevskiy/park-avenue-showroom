@@ -201,7 +201,7 @@ END_FUNCTION_BLOCK
 
 function_block fbButtonProcessor
     var_input
-        btn          : ptr_to bool; (*Pointer to Button*)
+        btn          :  bool; (*Pointer to Button*)
         longPressTime: time := t#1000ms;       (*Long press time detect.*)
     end_var
     var_in_out
@@ -225,13 +225,13 @@ function_block fbButtonProcessor
         shortPress :=false;
         btnPressed :=false;
         btnReleased:=false;
-        btnState   :=btn^;
+        btnState   :=btn;
         (*Button event detection.*)
         timer(timeToCount := longPressTime);
-        if btn^ <> btnPrevState then
+        if btn <> btnPrevState then
            (*Button status changed.*)
-           btnPrevState := btn^;
-           if btn^ then
+           btnPrevState := btn;
+           if btn then
               (*Button pressed.*)
               btnPressed:=true;
               if not timer.isRun then
@@ -307,7 +307,7 @@ function_block fbManualDimm
            userValue:=maxValue;
         end_if;
 
-        buttonProcessor(btn := adr(btn));
+        buttonProcessor(btn := btn);
 
         (*Calc 1% in current range.*)
         if minValue<20. then

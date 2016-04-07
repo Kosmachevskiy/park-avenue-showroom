@@ -25,13 +25,13 @@ PROGRAM prgBedroom1Light
      init := true;
   end_if;
   
-  button(btn:= adr(MODULE4_IN.DI1));
+  button(btn:= MODULE4_IN.DI1);
   if button.shortPress then
      lamp1.setState := not lamp1.state;
   end_if;
 
   lamp1( trigButton := r4_1Bedroom1Light09,
-         state      => MODULE4_OUT.DO2
+         state      =>  MODULE2_OUT.DOs.DO4
          );
 
   Auto( Sensor_Motion.state   := MODULE1_IN.DI3,

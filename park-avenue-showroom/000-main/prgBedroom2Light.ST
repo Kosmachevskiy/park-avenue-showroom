@@ -27,9 +27,9 @@ PROGRAM prgBedroom2Light
      init := true;
   end_if;
   
-  button1(btn:= adr(MODULE5_AI1.STAT.OVR));
-  button2(btn:= adr(MODULE5_AI2.STAT.OVR));
-  button3(btn:= adr(MODULE5_AI0.STAT.OVR));
+  button1(btn:= MODULE5_AI1.ENG > 0.6);
+  button2(btn:= MODULE5_AI2.ENG > 0.6);
+  button3(btn:= MODULE4_IN.DI3);
   
   if button1.shortPress then
      Lamp1.setState:= not Lamp1.state;
@@ -49,8 +49,8 @@ PROGRAM prgBedroom2Light
   lamp2( trigButton := r5_1Bedroom2Light12,
          state      => MODULE2_OUT.DOs.DO8
          );
-  lamp3( trigButton := r5_1Bedroom2Light10,
-         state      => MODULE4_OUT.DO6
+  lamp3( trigButton := r5_1Bedroom2Light10_22,
+         state      => MODULE2_OUT.DOs.DO7
          );
 
 
