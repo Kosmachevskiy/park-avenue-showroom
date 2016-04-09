@@ -14,10 +14,10 @@ PROGRAM prgWardrobeLight
   END_VAR
 
   if not init then
-     r1_1HallLight01_auto       := AUTO_MODE_DEFAULT_STATE;
-     Auto.timeAfterMotionDetect := AUTO_MODE_DEFAULT_TIME;
-     Auto.Sensor_Motion.mode    := NC;
-     Auto.nightMode             := true;
+     r6_1WardrobeLight13_21_auto       := AUTO_MODE_DEFAULT_STATE;
+     Auto.timeAfterMotionDetect        := AUTO_MODE_DEFAULT_TIME;
+     Auto.Sensor_Motion.mode           := NC;
+     Auto.nightMode                    := true;
 
      init := true;
   end_if;
@@ -36,8 +36,6 @@ PROGRAM prgWardrobeLight
 
   Auto( Sensor_Motion.state   := MODULE2_IN.DI.DI3,
         autoMode              := r6_1WardrobeLight13_21_auto);
-
-  button(btn :=MODULE4_IN.DI2 );
 
   if Auto.stateChanged OR button.shortPress then
      Lamp1.setState := Auto.state;

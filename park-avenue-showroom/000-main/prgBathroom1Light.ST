@@ -16,7 +16,7 @@ PROGRAM prgBathroom1Light
   
   
   if not init then
-     r8_1Bathroom2Light14_15_16_auto  := AUTO_MODE_DEFAULT_STATE;
+     r7_1Bathroom1Light17_18_19_auto  := AUTO_MODE_DEFAULT_STATE;
      Auto.timeAfterMotionDetect       := AUTO_MODE_DEFAULT_TIME;
      Auto.Sensor_Motion.mode          := NC;
      Auto.nightMode                   := true;

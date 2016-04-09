@@ -17,7 +17,7 @@ PROGRAM prgBedroom1Light
 
   if not init then
 
-     r1_1HallLight01_auto       := AUTO_MODE_DEFAULT_STATE;
+     r4_1Bedroom1Light09_auto   := AUTO_MODE_DEFAULT_STATE;
      Auto.timeAfterMotionDetect := AUTO_MODE_DEFAULT_TIME;
      Auto.Sensor_Motion.mode    := NC;
      Auto.nightMode             := true;

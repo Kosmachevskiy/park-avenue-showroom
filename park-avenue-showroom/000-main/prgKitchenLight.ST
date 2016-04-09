@@ -26,7 +26,7 @@ PROGRAM prgKitchenLight
   end_if;
   
   button1(btn :=MODULE6_IN.DI.DI3 );
-  button2(btn := MODULE6_IN.DI.DI2);
+  button2(btn := MODULE6_IN.DI.DI2 OR MODULE6_IN.DI.DI8 );
   
 
 

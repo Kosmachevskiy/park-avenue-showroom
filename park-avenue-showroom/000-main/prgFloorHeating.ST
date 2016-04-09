@@ -11,12 +11,12 @@ PROGRAM prgFloorHeating
   VAR_TEMP
   END_VAR
   
-  
+ (*
       termostat( period := T#30m,
                  state  := floorHeatingState,
                  power  := floorHeatingLevel,
-                 out    => MODULE4_OUT.DO1
+                 out    =>
                  );
-
+   *)
 
 END_PROGRAM

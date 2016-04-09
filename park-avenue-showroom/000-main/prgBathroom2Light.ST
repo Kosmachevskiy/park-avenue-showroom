@@ -17,10 +17,10 @@ PROGRAM prgBathroom2Light
 
   if not init then
 
-     r1_1HallLight01_auto       := AUTO_MODE_DEFAULT_STATE;
-     Auto.timeAfterMotionDetect := AUTO_MODE_DEFAULT_TIME;
-     Auto.Sensor_Motion.mode    := NC;
-     Auto.nightMode             := true;
+     r8_1Bathroom2Light14_15_16_auto       := AUTO_MODE_DEFAULT_STATE;
+     Auto.timeAfterMotionDetect            := AUTO_MODE_DEFAULT_TIME;
+     Auto.Sensor_Motion.mode               := NC;
+     Auto.nightMode                        := true;
 
      init := true;
   end_if;

@@ -4,7 +4,7 @@ PROGRAM prgLivingroomLight
   VAR_OUTPUT
   END_VAR
   VAR
-      Lamp1     : fbManualDimm;
+      Lamp1     : fbManualRelay;
       Auto      : fbAutoRelay;
 
       button    : fbButtonProcessor;
@@ -17,32 +17,34 @@ PROGRAM prgLivingroomLight
 
   if not init then
 
-     r8_1Bathroom2Light14_15_16_auto  := AUTO_MODE_DEFAULT_STATE;
-     Auto.timeAfterMotionDetect       := AUTO_MODE_DEFAULT_TIME;
-     Auto.Sensor_Motion.mode          := NC;
-     Auto.nightMode                   := true;
+     r2_3LivingroomLight02_07_08_auto  := AUTO_MODE_DEFAULT_STATE;
+     Auto.timeAfterMotionDetect        := AUTO_MODE_DEFAULT_TIME;
+     Auto.Sensor_Motion.mode           := NC;
+     Auto.nightMode                    := true;
 
 
      init := true;
  end_if;
 
-
-  Lamp1( btn        := MODULE6_IN.DI.DI1,
-         slider     := r2_3LivingroomLight02_07_08_level,
-         trigButton := r2_3LivingroomLight02_07_08,
-         value      => MODULE3_OUT.OUT2.LEVEL
-         );
-
+  button(btn:= MODULE6_IN.DI.DI1);
+  if button.shortPress then
+     lamp1.setState := not lamp1.state;
+  end_if;
+  
+  Lamp1(trigButton :=r2_3LivingroomLight02_07_08,
+                   state => MODULE4_OUT.DO1);
 
   Auto( Sensor_Motion.state   := MODULE2_IN.DI.DI1,
         autoMode              := r2_3LivingroomLight02_07_08_auto);
 
 
   if Auto.stateChanged then
-     Lamp1.setValue := 100.;
+     lamp1.setState := not lamp1.state;
   end_if;
 
-  MODULE6_OUT.DOs.DO2:= (MODULE3_OUT.OUT2.LEVEL > 0.);
+
+
+  MODULE6_OUT.DOs.DO2:=MODULE4_OUT.DO1;
 
 END_PROGRAM
 

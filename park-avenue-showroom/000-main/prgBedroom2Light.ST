@@ -20,17 +20,19 @@ PROGRAM prgBedroom2Light
   END_VAR
 
   if not init then
-     r2_2KitchenLight04_24_auto := AUTO_MODE_DEFAULT_STATE;
+     r5_1Bedroom2Light10_auto   := AUTO_MODE_DEFAULT_STATE;
      Auto.timeAfterMotionDetect := AUTO_MODE_DEFAULT_TIME;
      Auto.Sensor_Motion.mode    := NC;
      Auto.nightMode             := true;
      init := true;
   end_if;
   
+  (*
   button1(btn:= MODULE5_AI1.ENG > 0.6);
   button2(btn:= MODULE5_AI2.ENG > 0.6);
+  *)
   button3(btn:= MODULE4_IN.DI3);
-  
+
   if button1.shortPress then
      Lamp1.setState:= not Lamp1.state;
   end_if;
