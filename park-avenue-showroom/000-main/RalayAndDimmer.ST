@@ -124,7 +124,8 @@ FUNCTION_BLOCK fbAutoRelay
            if motionDetected then
               if not anyLightOn then
                  setState := true;
-//                 timerAfterMotionDetected(start := true);
+                 
+                 stateChanged:= true; // !!! Dirty patch
               end_if;
               timerAfterDoorOpened    (reset := true);
               timerAfterDoorClosed    (reset := true);

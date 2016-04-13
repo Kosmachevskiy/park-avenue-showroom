@@ -30,9 +30,17 @@ PROGRAM prgHallLight
      lamp1.setState := not lamp1.state;
   end_if;
 
+  if panel.button[4].shortPress then
+     Lamp1.setState := not Lamp1.state;
+  end_if;
+  
+
+
   lamp1( trigButton := r1_1HallLight01,
          state      => MODULE1_OUT.DO0
          );
+
+  panel.led[4]:= Lamp1.state;
 
   Auto( Sensor_Motion.state   := MODULE1_IN.DI0,
         autoMode              := r1_1HallLight01_auto

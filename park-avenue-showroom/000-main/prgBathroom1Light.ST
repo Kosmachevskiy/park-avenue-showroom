@@ -5,9 +5,9 @@ PROGRAM prgBathroom1Light
   END_VAR
   VAR
 
-      (*Lamp1     : fbManualDimm;*)
       Lamp1     : fbManualRelay;
       Auto      : fbAutoRelay;
+      button    : fbButtonProcessor;
       
       init      : bool;
   END_VAR
@@ -25,13 +25,11 @@ PROGRAM prgBathroom1Light
  end_if;
 
 
-  (*
-  Lamp1( btn        := MODULE5_AI6.STAT.OVR,
-         slider     := r7_1Bathroom1Light17_18_19_level,
-         trigButton := r7_1Bathroom1Light17_18_19,
-         value      => MODULE3_OUT.OUT1.LEVEL
-         );
-  *)
+  button(btn := MODULE2_IN.DI.DI7);
+  
+  if button.shortPress then
+     Lamp1.setState := not Lamp1.state;
+  end_if;
   
   Lamp1(trigButton := r7_1Bathroom1Light17_18_19);
   MODULE3_OUT.OUT1.LEVEL := BOOL_TO_REAL(Lamp1.state) * 100.;
@@ -40,7 +38,7 @@ PROGRAM prgBathroom1Light
         autoMode              := r7_1Bathroom1Light17_18_19_auto);
 
   if Auto.stateChanged then
-     Lamp1.setState := true;
+     Lamp1.setState := Auto.state;
   end_if;
 
 

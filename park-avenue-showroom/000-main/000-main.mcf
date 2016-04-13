@@ -15,5 +15,6 @@ CONFIGURATION _000_main
     PROGRAM FloorHeating WITH FreeWheeling : prgFloorHeating ();
     PROGRAM WaterLeakegeControl WITH FreeWheeling : prgWaterLeakegeControl ();
     PROGRAM Security WITH FreeWheeling : prgSecurity ();
+    PROGRAM LivingRoomMedia WITH FreeWheeling : prgLivingRoomMedia ();
   END_RESOURCE
 END_CONFIGURATION

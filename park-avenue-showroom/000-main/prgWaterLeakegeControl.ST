@@ -16,14 +16,13 @@ PROGRAM prgWaterLeakegeControl
   if not init then
      waterLeackegeControl.config.sensorMode := NO;
      waterLeackegeControl.config.valveMode  := NO;
-     waterLeackegeControl.config.timeTreshold := t#5s;
+     waterLeackegeControl.config.timeTreshold := t#4s;
   end_if;
 
-  waterLeackegeControl( sensor := MODULE6_IN.DI.DI7,
+  waterLeackegeControl( sensor := MODULE7_IN.DI3,
                         openWater := waterOpen,
                         closeWater := waterClose,
                         alarmReset := waterAlarmReset,
-                        //autoControl := ,
                         valve => MODULE4_OUT.DO7,
                         alarm => waterAlarm,
                         waterState := waterState

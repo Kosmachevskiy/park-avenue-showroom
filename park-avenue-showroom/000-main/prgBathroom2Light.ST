@@ -25,14 +25,15 @@ PROGRAM prgBathroom2Light
      init := true;
   end_if;
   
-  button(btn:= MODULE5_AI4.STAT.OVR);
+  
+  button(btn := MODULE7_IN.DI1);
+  
   if button.shortPress then
-     lamp1.setState := not lamp1.state;
+     Lamp1.setState := not Lamp1.state;
   end_if;
 
   lamp1( trigButton := r8_1Bathroom2Light14_15_16,
-         state      => MODULE4_OUT.DO0
-         );
+         state      => MODULE4_OUT.DO0);
 
   Auto( Sensor_Motion.state   := MODULE2_IN.DI.DI5,
         autoMode              := r8_1Bathroom2Light14_15_16_auto);

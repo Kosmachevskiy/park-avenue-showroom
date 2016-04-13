@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="windows-1250" ?>
+<web version="6.0" propfont="true" foot="© Gravity Electric LTD" MaxUid="1639" height="445" width="780" menu="false" title="false" border="true" top="8" left="8" iniScale="100" maxScale="100" useIniScale="false" useMaxScale="fales" userScale="true" webApp="true" bgdupl="false" bgcolor="16777215" icon="" id18="0" author="Gravity" encoding="windows-1250">
+	<Grid Enable="1" X="5" Y="5" />
+	<group caption="" Uid="1633">
+		<page caption="Index" name="MAIN.XML" background="" bgcolor="16777215" repeat="false" hidden="false" ajax="true" pause="1000" level="0" default="true" ucid="1460475007" width="154" height="70" Uid="1638">
+			<object caption="" X="7" Y="4" xoff="2" yoff="6" level="0" readonly="false" front="0" back="16777215" strong="false" italic="false" size="13" transparent="true" visneg="false" Uid="1636">
+				<image optcap="" variable="updateIridiumProjectFlag" type="BOOL" on="LED_BL_4.PNG" off="LED_BL_2.PNG" />
+			</object>
+			<object caption="Îáíîâčňü" X="12" Y="6" xoff="2" yoff="5" level="0" readonly="false" front="0" back="16777215" strong="false" italic="false" size="13" transparent="true" visneg="false" Uid="1637">
+				<label />
+			</object>
+		</page>
+	</group>
+	<images>
+		<img name="LED_BL_4.PNG" type="PNG" height="40" width="40" longname="LED_BLUE_ON_40TR" />
+		<img name="LED_BL_2.PNG" type="PNG" height="40" width="40" longname="LED_BLUE_OFF_40TR" />
+	</images>
+	<Languages>
+		<Language Code="5" Editor="1" />
+	</Languages>
+	<Layers active="0">
+		<layer visible="1" frozen="0" name="" />
+		<layer visible="1" frozen="0" name="" />
+		<layer visible="1" frozen="0" name="" />
+		<layer visible="1" frozen="0" name="" />
+		<layer visible="1" frozen="0" name="" />
+		<layer visible="1" frozen="0" name="" />
+		<layer visible="1" frozen="0" name="" />
+		<layer visible="1" frozen="0" name="" />
+		<layer visible="1" frozen="0" name="" />
+		<layer visible="1" frozen="0" name="" />
+		<layer visible="1" frozen="0" name="" />
+		<layer visible="1" frozen="0" name="" />
+		<layer visible="1" frozen="0" name="" />
+		<layer visible="1" frozen="0" name="" />
+		<layer visible="1" frozen="0" name="" />
+		<layer visible="1" frozen="0" name="" />
+	</Layers>
+	<security crypt="0">
+		<user level="0" name="admin" pass="9825C34CE26DF3" page="MAIN.XML" />
+		<user level="-1" name="1" pass="CE" />
+		<user level="-1" name="2" pass="CD" />
+		<user level="-1" name="3" pass="CC" />
+		<user level="-1" name="4" pass="CB" />
+		<user level="-1" name="5" pass="CA" />
+		<user level="-1" name="6" pass="C9" />
+		<user level="-1" name="7" pass="C8" />
+		<user level="-1" name="8" pass="C7" />
+		<user level="-1" name="9" pass="C6" />
+	</security>
+	<autologin>
+		<mac level="0" mac="00:00:00:00:00:00" note="" />
+		<mac level="0" mac="00:00:00:00:00:00" note="" />
+		<mac level="0" mac="00:00:00:00:00:00" note="" />
+		<mac level="0" mac="00:00:00:00:00:00" note="" />
+		<mac level="0" mac="00:00:00:00:00:00" note="" />
+		<mac level="0" mac="00:00:00:00:00:00" note="" />
+		<mac level="0" mac="00:00:00:00:00:00" note="" />
+		<mac level="0" mac="00:00:00:00:00:00" note="" />
+		<mac level="0" mac="00:00:00:00:00:00" note="" />
+		<mac level="0" mac="00:00:00:00:00:00" note="" />
+	</autologin>
+</web>

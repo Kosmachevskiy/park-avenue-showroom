@@ -26,6 +26,7 @@ PROGRAM prgBedroom1Light
   end_if;
   
   button(btn:= MODULE4_IN.DI1);
+  
   if button.shortPress then
      lamp1.setState := not lamp1.state;
   end_if;

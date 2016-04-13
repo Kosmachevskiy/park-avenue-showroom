@@ -1,18 +1,3 @@
-[Pos0]
-ModulID=1602
-ModuleName=MODULE5
-ModuleFileName=panel_R1_P1
-RemUnit=1
-Verze=
-ModulFormat=1
-ScriptFormat=1
-XPosE2=108,0|
-YPosE2=20,0|
-ExtendedSizeParam=0
-Table=2
-_Table_0=1602 , $00, $00, $80, $00, $00, $80, $80, $00, $80, $00, $80, $00, $80, $00, $80, $00, $80, $00, $80, $00, $80, $00, $80, $00, $80, $00, $80, $00, $80, $00, $80, $00, $80, $00, $00, $80, $00, $00, $80, $00, $83, 00, $83, 00, $83, 00, $83, 00, $83, 00, $83
-_Table_1=, 00, $83, 00, $83, 00, $80, 0, 0, $80, 0, 0
-
 [Pos1]
 ModulID=1501
 ModuleName=MODULE4
@@ -25,4 +10,16 @@ XPosE2=86,0|
 YPosE2=5,0|
 ExtendedSizeParam=0
 Table=1501 , $00, $00, $80, $00, $00, $00, $00, $00, $00, $00, $80, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+
+[Pos0]
+ModulID=1501
+ModuleName=MODULE7
+ModuleFileName=panel_R1_P0
+RemUnit=0
+Verze= 26H0200
+ModulFormat=1
+ScriptFormat=1
+XPosE2=108,0|
+YPosE2=20,0|
+ExtendedSizeParam=0
 

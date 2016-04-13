@@ -22,29 +22,29 @@ PROGRAM prgLivingroomLight
      Auto.Sensor_Motion.mode           := NC;
      Auto.nightMode                    := true;
 
-
      init := true;
  end_if;
 
-  button(btn:= MODULE6_IN.DI.DI1);
   if button.shortPress then
      lamp1.setState := not lamp1.state;
+  end_if;
+  
+  if panel.button[1].shortPress then
+     Lamp1.setState := not Lamp1.state;
   end_if;
   
   Lamp1(trigButton :=r2_3LivingroomLight02_07_08,
                    state => MODULE4_OUT.DO1);
 
+  panel.led[1]:= Lamp1.state;
+
   Auto( Sensor_Motion.state   := MODULE2_IN.DI.DI1,
         autoMode              := r2_3LivingroomLight02_07_08_auto);
 
-
   if Auto.stateChanged then
-     lamp1.setState := not lamp1.state;
+     lamp1.setState := Auto.state;
   end_if;
 
-
-
-  MODULE6_OUT.DOs.DO2:=MODULE4_OUT.DO1;
 
 END_PROGRAM
 

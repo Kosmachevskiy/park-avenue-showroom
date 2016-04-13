@@ -1,4 +1,3 @@
-
 VAR_GLOBAL RETAIN
   (*Light groups*)
            r1_1HallLight01                                  at %R0.0  : bool;
@@ -65,10 +64,13 @@ VAR_GLOBAL RETAIN
 (*TV on/off*)
              r2_3_tvOnOff                                   at %R5.7  : bool;
              r2_1_tvOnOff                                   at %R6.0  : bool;
+             
+(*Update*)
+             updateIridiumProjectFlag                       at %R6.1  : bool;
 
 (*Dimmed groups brightness level*)
            r2_3LivingroomLight02_07_08_level                at %R105  : real;
-           r7_1Bathroom1Light17_18_19_level                 at %R109   : real;
+           r7_1Bathroom1Light17_18_19_level                 at %R109  : real;
 
 (*Blinds position control*)
            r2_1EatingroomBlindsPosition                     at %R113   : real;
@@ -90,7 +92,7 @@ END_VAR
 
 VAR_GLOBAL CONSTANT
   new : BOOL := false;
-  AUTO_MODE_DEFAULT_STATE   : bool := TRUE;
-  AUTO_MODE_DEFAULT_TIME    : time := t#5m;
+  AUTO_MODE_DEFAULT_STATE   : bool := true;
+  AUTO_MODE_DEFAULT_TIME    : time := t#150s;
 END_VAR
 

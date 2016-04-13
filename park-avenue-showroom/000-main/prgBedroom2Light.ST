@@ -8,8 +8,8 @@ PROGRAM prgBedroom2Light
       Lamp2     : fbManualRelay;
       Lamp3     : fbManualRelay;
 
-      button1,
-      button2,
+      button1   :fbButtonProcessor;
+      button2   :fbButtonProcessor;
       button3   :fbButtonProcessor;
 
       Auto      : fbAutoRelay;
@@ -27,34 +27,23 @@ PROGRAM prgBedroom2Light
      init := true;
   end_if;
   
-  (*
-  button1(btn:= MODULE5_AI1.ENG > 0.6);
-  button2(btn:= MODULE5_AI2.ENG > 0.6);
-  *)
-  button3(btn:= MODULE4_IN.DI3);
-
-  if button1.shortPress then
-     Lamp1.setState:= not Lamp1.state;
-  end_if;
+  button1(btn := MODULE7_IN.DI2);
+  button2(btn := MODULE7_IN.DI0);
+  button3(btn := MODULE4_IN.DI3);
 
   if button2.shortPress then
-     Lamp2.setState:= not Lamp2.state;
+     Lamp2.setState := not Lamp2.state;
   end_if;
-  
-    if button3.shortPress then
+
+  if button3.shortPress or button1.shortPress then
      Lamp3.setState:= not Lamp3.state;
   end_if;
   
-  lamp1( trigButton := r5_1Bedroom2Light11,
-         state      => MODULE2_OUT.DOs.DO7
-         );
   lamp2( trigButton := r5_1Bedroom2Light12,
-         state      => MODULE2_OUT.DOs.DO8
-         );
+         state      => MODULE2_OUT.DOs.DO8);
+         
   lamp3( trigButton := r5_1Bedroom2Light10_22,
-         state      => MODULE2_OUT.DOs.DO7
-         );
-
+         state      => MODULE2_OUT.DOs.DO7);
 
   Auto( Sensor_Motion.state   := MODULE2_IN.DI.DI2,
         autoMode              := r5_1Bedroom2Light10_auto);

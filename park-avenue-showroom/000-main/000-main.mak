@@ -32,13 +32,15 @@
 #usefile "SysGen\000-main.hwc", 'auto'
 #usefile "..\park-avenue-showroom.hwn", 'auto'
 #usefile "000-MAIN.ST"
+#usefile "fbGlobalCacheSender.ST"
 #usefile "WaterLeakegeControl.ST"
 #usefile "fbRealObserver.ST"
 #usefile "fbTimer.ST"
 #usefile "RalayAndDimmer.ST"
 #usefile "fbBlindController.ST"
-#usefile "fbGlobalCacheSender.ST"
 #usefile "fbFloorHeatingSimple.ST"
+#usefile "fbBoolObserver.ST"
+#usefile "fbPanel.ST"
 #usefile "prgWardrobeLight.ST"
 #usefile "fbSecuritySystem.ST"
 #usefile "prgMain.ST"
@@ -54,4 +56,5 @@
 #usefile "prgFloorHeating.ST"
 #usefile "prgWaterLeakegeControl.ST"
 #usefile "prgSecurity.ST"
+#usefile "prgLivingRoomMedia.ST"
 #usefile "000-main.mcf", 'auto'

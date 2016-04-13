@@ -17,7 +17,7 @@ tout=500
 parity=1
 rs485=1
 dtron=0
-networksel=1
+networksel=0
 ipaddr="192.168.1.176"
 isdyn=0
 dynip=""
@@ -94,7 +94,7 @@ fifwhere=0
 fifsubdirs=0
 fif2ndmsg=1
 fif2ndmsg=1
-findhistory="btn^"
+findhistory="MODULE4_OUT.DO3"
 replacehistory=""
 dirhistory=""
 maskhistory=""
@@ -186,7 +186,7 @@ genbin=0
 [/compileropts]
 
 [filesystem]
-autofiletransfer=1
+autofiletransfer=0
 sendpux=0
 sendexp=0
 sendpub=0
