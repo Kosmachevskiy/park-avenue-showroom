@@ -1,5 +1,6 @@
 VAR_GLOBAL RETAIN
   (*Light groups*)
+           (*
            r1_1HallLight01                                  at %R0.0  : bool;
            r2_3LivingroomLight02_07_08                      at %R0.1  : bool; //dimm
            r3_1BalconyLight                                 at %R0.2  : bool;
@@ -13,8 +14,25 @@ VAR_GLOBAL RETAIN
            r6_1WardrobeLight13_21                           at %R1.2  : bool;
            r8_1Bathroom2Light14_15_16                       at %R1.3  : bool;
            r7_1Bathroom1Light17_18_19                       at %R1.4  : bool; //dimm
+           *)
+           supervisorLight_01_08_23_24                      at %R0.0  : bool;
+           supervisorLight_02_06_07                         at %R0.1  : bool;
+           supervisorLight_balcony                          at %R0.2  : bool;
+           supervisorLight_03_04                            at %R0.3  : bool;
+           supervisorLight_05                               at %R0.4  : bool;
+           supervisorLight_09                               at %R0.5  : bool;
+           supervisorLight_10_13_22                         at %R0.6  : bool;
+           supervisorLight_11_12_21                         at %R0.7  : bool;
+           supervisorLight_14_16                            at %R1.0  : bool;
+           supervisorLight_15                               at %R1.1  : bool;
+           supervisorLight_17_19                            at %R1.2  : bool;
+           supervisorLight_18                               at %R1.3  : bool;
+           
+           
+           
 
 (*Lightgroups mode switches*)
+              (*
            r1_1HallLight01_auto                             at %R1.5  : bool;
            r2_3LivingroomLight02_07_08_auto                 at %R1.6  : bool; //dimm
            r2_2KitchenLight03_auto                          at %R1.7  : bool;
@@ -27,6 +45,16 @@ VAR_GLOBAL RETAIN
            r6_1WardrobeLight13_21_auto                      at %R2.6  : bool;
            r8_1Bathroom2Light14_15_16_auto                  at %R2.7  : bool;
            r7_1Bathroom1Light17_18_19_auto                  at %R3.0  : bool; //dimm
+              *)
+           supervisorAuto01                                 at %R1.5  : bool; (*Hall*)
+           supervisorAuto02                                 at %R1.6  : bool; (*Kitchen*)
+           supervisorAuto03                                 at %R1.7  : bool; (*EatingRoom*)
+           supervisorAuto04                                 at %R2.0  : bool; (*Bedroom01*)
+           supervisorAuto05                                 at %R2.1  : bool; (*Livingroom*)
+           supervisorAuto06                                 at %R2.2  : bool; (*Bedroom02*)
+           supervisorAuto07                                 at %R2.3  : bool; (*Wardrobe*)
+           supervisorAuto08                                 at %R2.4  : bool; (*Bathroom01*)
+           supervisorAuto09                                 at %R2.5  : bool; (*Bathroom02*)
 
 (*Blinds Moving Buttons*)
            r2_1EatingroomBlindsUp                           at %R3.1  : bool;

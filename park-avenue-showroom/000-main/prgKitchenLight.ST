@@ -5,11 +5,8 @@ PROGRAM prgKitchenLight
   END_VAR
   VAR
       Lamp1     : fbManualRelay;
-      Lamp2     : fbManualRelay;
       
-      Auto      : fbAutoRelay;
-      
-      button    : fbButtonProcessor;
+      Auto2     : fbAutoRelay;
       
       init      : bool;
   END_VAR
@@ -17,33 +14,30 @@ PROGRAM prgKitchenLight
   END_VAR
 
   if not init then
-     r2_2KitchenLight04_24_auto := AUTO_MODE_DEFAULT_STATE;
-     Auto.timeAfterMotionDetect := AUTO_MODE_DEFAULT_TIME;
-     Auto.Sensor_Motion.mode    := NC;
-     Auto.nightMode             := true;
+     supervisorAuto02               := AUTO_MODE_DEFAULT_STATE;
+     Auto2.timeAfterMotionDetect    := AUTO_MODE_DEFAULT_TIME;
+     Auto2.Sensor_Motion.mode       := NC;
+     Auto2.nightMode                := true;
      init := true;
   end_if;
   
   if panel.button[2].shortPress then
-     Lamp2.setState := not Lamp2.state;
+     Lamp1.setState := not Lamp1.state;
   end_if;
   
-  lamp1( trigButton := r2_2KitchenLight03,
-         state      => MODULE1_OUT.DO1
+  lamp1( trigButton := supervisorLight_03_04,
+         state      => light_03_04
          );
          
-  lamp2( trigButton := r2_2KitchenLight04_24,
-         state      =>  MODULE2_OUT.DOs.DO1
-         );
 
-  panel.led[2]:= Lamp2.state;
+  panel.led[2]:= Lamp1.state;
 
-  Auto( Sensor_Motion.state   := MODULE1_IN.DI1,
-        autoMode              := r2_2KitchenLight04_24_auto
+  Auto2( Sensor_Motion.state   := msensor02,
+        autoMode               := supervisorAuto02
         );
 
-  if Auto.stateChanged then
-     Lamp2.setState := Auto.state;
+  if Auto2.stateChanged then
+     Lamp1.setState := Auto2.state;
   end_if;
 
 END_PROGRAM

@@ -6,7 +6,7 @@ PROGRAM prgBedroom1Light
   VAR
       Lamp1     : fbManualRelay;
 
-      Auto      : fbAutoRelay;
+      Auto4      : fbAutoRelay;
       
       button    : fbButtonProcessor;
 
@@ -17,29 +17,29 @@ PROGRAM prgBedroom1Light
 
   if not init then
 
-     r4_1Bedroom1Light09_auto   := AUTO_MODE_DEFAULT_STATE;
-     Auto.timeAfterMotionDetect := AUTO_MODE_DEFAULT_TIME;
-     Auto.Sensor_Motion.mode    := NC;
-     Auto.nightMode             := true;
+     supervisorAuto04                := AUTO_MODE_DEFAULT_STATE;
+     Auto4.timeAfterMotionDetect     := AUTO_MODE_DEFAULT_TIME;
+     Auto4.Sensor_Motion.mode        := NC;
+     Auto4.nightMode                 := true;
 
-     init := true;
+     init                           := true;
   end_if;
   
-  button(btn:= MODULE4_IN.DI1);
+  button(btn:= button_07_1_08_1);
   
   if button.shortPress then
      lamp1.setState := not lamp1.state;
   end_if;
 
-  lamp1( trigButton := r4_1Bedroom1Light09,
-         state      =>  MODULE2_OUT.DOs.DO4
+  lamp1( trigButton := supervisorLight_09,
+         state      =>  light_09
          );
 
-  Auto( Sensor_Motion.state   := MODULE1_IN.DI3,
-        autoMode              := r4_1Bedroom1Light09_auto);
+  Auto4(Sensor_Motion.state   := msensor04,
+        autoMode              := supervisorAuto04);
 
-  if Auto.stateChanged then
-     Lamp1.setState := Auto.state;
+  if Auto4.stateChanged then
+     Lamp1.setState := Auto4.state;
   end_if;
 
 END_PROGRAM

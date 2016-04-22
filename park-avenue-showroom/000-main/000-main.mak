@@ -41,7 +41,6 @@
 #usefile "fbFloorHeatingSimple.ST"
 #usefile "fbBoolObserver.ST"
 #usefile "fbPanel.ST"
-#usefile "prgWardrobeLight.ST"
 #usefile "fbSecuritySystem.ST"
 #usefile "prgMain.ST"
 #usefile "prgHallLight.ST"

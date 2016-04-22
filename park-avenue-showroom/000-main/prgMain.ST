@@ -30,7 +30,7 @@ PROGRAM prgMain
 
                         //MODULE2_OUT.DOs.DO8
 //--Light and sockets relay control--//
-     generalPowerButton(btn := MODULE2_IN.DI.DI6);
+     generalPowerButton(btn := button_24_1);
      
      if generalPowerButton.shortPress then
         generalPower := true;
@@ -40,7 +40,8 @@ PROGRAM prgMain
         generalPower := false;
      end_if;
 
-     MODULE4_OUT.DO5  := generalPower;
+     (*MODULE4_OUT.DO5*)
+     electricitySwitch  := generalPower;
 
 
 //--Global Cache--//

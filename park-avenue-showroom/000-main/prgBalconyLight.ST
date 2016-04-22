@@ -17,14 +17,16 @@ PROGRAM prgBalconyLight
      init := true;
   end_if;
   
-  button(btn :=MODULE6_IN.DI.DI8);
+  button(btn :=button_04_1);
 
   if button.shortPress then
      Lamp1.setState:= not Lamp1.state;
   end_if;
 
-  lamp1( trigButton := r3_1BalconyLight,
-         state      => MODULE4_OUT.DO3);
+  lamp1(
+        trigButton := supervisorLight_balcony,
+        state      => light_balcony
+        );
 
 END_PROGRAM
 

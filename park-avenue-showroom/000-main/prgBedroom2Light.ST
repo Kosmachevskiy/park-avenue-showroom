@@ -6,13 +6,14 @@ PROGRAM prgBedroom2Light
   VAR
       Lamp1     : fbManualRelay;
       Lamp2     : fbManualRelay;
-      Lamp3     : fbManualRelay;
+
 
       button1   :fbButtonProcessor;
       button2   :fbButtonProcessor;
-      button3   :fbButtonProcessor;
 
-      Auto      : fbAutoRelay;
+
+      Auto6,
+      Auto7      : fbAutoRelay;
 
       init      : bool;
   END_VAR
@@ -20,38 +21,53 @@ PROGRAM prgBedroom2Light
   END_VAR
 
   if not init then
-     r5_1Bedroom2Light10_auto   := AUTO_MODE_DEFAULT_STATE;
-     Auto.timeAfterMotionDetect := AUTO_MODE_DEFAULT_TIME;
-     Auto.Sensor_Motion.mode    := NC;
-     Auto.nightMode             := true;
+     supervisorAuto06               := AUTO_MODE_DEFAULT_STATE;
+     supervisorAuto07               := AUTO_MODE_DEFAULT_STATE;
+     Auto6.timeAfterMotionDetect    := AUTO_MODE_DEFAULT_TIME;
+     Auto7.timeAfterMotionDetect    := AUTO_MODE_DEFAULT_TIME;
+     Auto6.Sensor_Motion.mode       := NC;
+     Auto7.Sensor_Motion.mode       := NC;
+     Auto6.nightMode                := true;
+     Auto7.nightMode                := true;
+     
      init := true;
   end_if;
   
-  button1(btn := MODULE7_IN.DI2);
-  button2(btn := MODULE7_IN.DI0);
-  button3(btn := MODULE4_IN.DI3);
+  (*Lamp1*)
+  button1(btn := button_09_1_10_2_17_1);
 
-  if button2.shortPress then
+  if button1.shortPress then
+     Lamp1.setState := not Lamp1.state;
+  end_if;
+
+  Lamp1(trigButton := supervisorLight_10_13_22);
+
+  light_10_13_22 := Lamp1.state;
+
+  Auto6(Sensor_Motion.state   := msensor06,
+        autoMode              := supervisorAuto06);
+
+  if Auto6.stateChanged then
+     Lamp1.setState := Auto6.state;
+  end_if;
+  
+(*Lamp2*)
+  button2(btn := button_09_2_09_3_11_1_12_1_13_1_14_1_17_2);
+
+  if button1.shortPress then
      Lamp2.setState := not Lamp2.state;
   end_if;
 
-  if button3.shortPress or button1.shortPress then
-     Lamp3.setState:= not Lamp3.state;
+  Lamp2(trigButton := supervisorLight_11_12_21);
+
+  light_11_12_21 := Lamp2.state;
+
+  Auto7(Sensor_Motion.state   := msensor07,
+        autoMode              := supervisorAuto07);
+
+  if Auto7.stateChanged then
+     Lamp2.setState := Auto7.state;
   end_if;
-  
-  lamp2( trigButton := r5_1Bedroom2Light12,
-         state      => MODULE2_OUT.DOs.DO8);
-         
-  lamp3( trigButton := r5_1Bedroom2Light10_22,
-         state      => MODULE2_OUT.DOs.DO7);
-
-  Auto( Sensor_Motion.state   := MODULE2_IN.DI.DI2,
-        autoMode              := r5_1Bedroom2Light10_auto);
-
-  if Auto.stateChanged then
-     Lamp3.setState := Auto.state;
-  end_if;
-
 
 END_PROGRAM
 

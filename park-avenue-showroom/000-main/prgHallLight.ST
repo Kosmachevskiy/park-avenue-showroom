@@ -6,7 +6,7 @@ PROGRAM prgHallLight
   VAR
       Lamp1     : fbManualRelay;
 
-      Auto      : fbAutoRelay;
+      Auto1     : fbAutoRelay;
 
       button    : fbButtonProcessor;
       
@@ -17,37 +17,32 @@ PROGRAM prgHallLight
 
   if not init then
 
-     r1_1HallLight01_auto       := AUTO_MODE_DEFAULT_STATE;
-     Auto.timeAfterMotionDetect := AUTO_MODE_DEFAULT_TIME;
-     Auto.Sensor_Motion.mode    := NC;
-     Auto.nightMode             := true;
+     supervisorAuto01               := AUTO_MODE_DEFAULT_STATE;
+     Auto1.timeAfterMotionDetect    := AUTO_MODE_DEFAULT_TIME;
+     Auto1.Sensor_Motion.mode       := NC;
+     Auto1.nightMode                := true;
 
      init := true;
   end_if;
   
-  button(btn:= MODULE4_IN.DI0);
-  if button.shortPress then
-     lamp1.setState := not lamp1.state;
-  end_if;
-
-  if panel.button[4].shortPress then
+  if panel.button[1].shortPress then
      Lamp1.setState := not Lamp1.state;
   end_if;
   
 
 
-  lamp1( trigButton := r1_1HallLight01,
-         state      => MODULE1_OUT.DO0
+  lamp1( trigButton := supervisorLight_01_08_23_24,
+         state      => light_01_08_23_24
          );
 
-  panel.led[4]:= Lamp1.state;
+  panel.led[1]:= Lamp1.state;
 
-  Auto( Sensor_Motion.state   := MODULE1_IN.DI0,
-        autoMode              := r1_1HallLight01_auto
+  Auto1( Sensor_Motion.state   := msensor01,
+        autoMode              := supervisorAuto01
         );
 
-  if Auto.stateChanged then
-     Lamp1.setState := Auto.state;
+  if Auto1.stateChanged then
+     Lamp1.setState := Auto1.state;
   end_if;
   
 END_PROGRAM

@@ -5,9 +5,7 @@ PROGRAM prgLivingroomLight
   END_VAR
   VAR
       Lamp1     : fbManualRelay;
-      Auto      : fbAutoRelay;
-
-      button    : fbButtonProcessor;
+      Auto5     : fbAutoRelay;
 
       init      : bool;
   END_VAR
@@ -17,32 +15,28 @@ PROGRAM prgLivingroomLight
 
   if not init then
 
-     r2_3LivingroomLight02_07_08_auto  := AUTO_MODE_DEFAULT_STATE;
-     Auto.timeAfterMotionDetect        := AUTO_MODE_DEFAULT_TIME;
-     Auto.Sensor_Motion.mode           := NC;
-     Auto.nightMode                    := true;
+     supervisorAuto05                   := AUTO_MODE_DEFAULT_STATE;
+     Auto5.timeAfterMotionDetect        := AUTO_MODE_DEFAULT_TIME;
+     Auto5.Sensor_Motion.mode           := NC;
+     Auto5.nightMode                    := true;
 
      init := true;
  end_if;
 
-  if button.shortPress then
-     lamp1.setState := not lamp1.state;
-  end_if;
-  
-  if panel.button[1].shortPress then
+  if panel.button[4].shortPress then
      Lamp1.setState := not Lamp1.state;
   end_if;
   
-  Lamp1(trigButton :=r2_3LivingroomLight02_07_08,
-                   state => MODULE4_OUT.DO1);
+  Lamp1(trigButton :=supervisorLight_02_06_07,
+                   state => light_02_06_07);
 
-  panel.led[1]:= Lamp1.state;
+  panel.led[4]:= Lamp1.state;
 
-  Auto( Sensor_Motion.state   := MODULE2_IN.DI.DI1,
-        autoMode              := r2_3LivingroomLight02_07_08_auto);
+  Auto5(Sensor_Motion.state   := msensor05,
+        autoMode              := supervisorAuto05);
 
-  if Auto.stateChanged then
-     lamp1.setState := Auto.state;
+  if Auto5.stateChanged then
+     lamp1.setState := Auto5.state;
   end_if;
 
 

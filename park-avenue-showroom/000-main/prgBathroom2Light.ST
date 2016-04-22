@@ -4,43 +4,57 @@ PROGRAM prgBathroom2Light
   VAR_OUTPUT
   END_VAR
   VAR
-      Lamp1     : fbManualRelay;
+      Lamp1,
+      Lamp2     : fbManualRelay;
 
-      Auto      : fbAutoRelay;
+      Auto9     : fbAutoRelay;
       
-      button    : fbButtonProcessor;
+      button1,
+      button2   : fbButtonProcessor;
 
       init      : bool;
+      
   END_VAR
   VAR_TEMP
   END_VAR
 
   if not init then
-
-     r8_1Bathroom2Light14_15_16_auto       := AUTO_MODE_DEFAULT_STATE;
-     Auto.timeAfterMotionDetect            := AUTO_MODE_DEFAULT_TIME;
-     Auto.Sensor_Motion.mode               := NC;
-     Auto.nightMode                        := true;
+     supervisorAuto09                  := AUTO_MODE_DEFAULT_STATE;
+     Auto9.timeAfterMotionDetect       := AUTO_MODE_DEFAULT_TIME;
+     Auto9.Sensor_Motion.mode          := NC;
+     Auto9.nightMode                   := true;
 
      init := true;
-  end_if;
-  
-  
-  button(btn := MODULE7_IN.DI1);
-  
-  if button.shortPress then
+ end_if;
+
+ (*Lamp1*)
+  button1(btn := button_20_1_21_1);
+
+  if button1.shortPress then
      Lamp1.setState := not Lamp1.state;
   end_if;
 
-  lamp1( trigButton := r8_1Bathroom2Light14_15_16,
-         state      => MODULE4_OUT.DO0);
+  Lamp1(trigButton := supervisorLight_14_16);
 
-  Auto( Sensor_Motion.state   := MODULE2_IN.DI.DI5,
-        autoMode              := r8_1Bathroom2Light14_15_16_auto);
+  light_14_16 := Lamp1.state;
 
-  if Auto.stateChanged then
-     Lamp1.setState := Auto.state;
+  Auto9(Sensor_Motion.state   := msensor09,
+        autoMode              := supervisorAuto09);
+
+  if Auto9.stateChanged then
+     Lamp1.setState := Auto9.state;
   end_if;
+
+  (*Lamp2*)
+  button2(btn := button_20_2_22_1);
+
+  if button2.shortPress then
+     Lamp2.setState := not Lamp2.state;
+  end_if;
+
+  Lamp2(trigButton := supervisorLight_15);
+
+  light_15 := Lamp2.state;
 
 END_PROGRAM
 

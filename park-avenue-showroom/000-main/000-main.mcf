@@ -11,7 +11,6 @@ CONFIGURATION _000_main
     PROGRAM Bathroom2Light WITH FreeWheeling : prgBathroom2Light ();
     PROGRAM LivingroomLight WITH FreeWheeling : prgLivingroomLight ();
     PROGRAM Bedroom1Light WITH FreeWheeling : prgBedroom1Light ();
-    PROGRAM WardrobeLight WITH FreeWheeling : prgWardrobeLight ();
     PROGRAM FloorHeating WITH FreeWheeling : prgFloorHeating ();
     PROGRAM WaterLeakegeControl WITH FreeWheeling : prgWaterLeakegeControl ();
     PROGRAM Security WITH FreeWheeling : prgSecurity ();
