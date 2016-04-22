@@ -5,28 +5,8 @@ contentversion=1
 
 [Watch2Bank0]
 bankname="Bank1"
-shortcut=1
-watchcnt=10
+shortcut=-1
+watchcnt=0
 bindfile=""
-watchobjEx0=0,"FloorHeating.termostat|"
-watchobj0="FloorHeating.termostat",1,0,0,""
-watchobjEx1=0,"LivingRoomMedia.allOnState|"
-watchobj1="LivingRoomMedia.allOnState",1,0,0,""
-watchobjEx2=0,"LivingRoomMedia.allOffState|"
-watchobj2="LivingRoomMedia.allOffState",1,0,0,""
-watchobjEx3=0,"floorHeatingState|"
-watchobj3="floorHeatingState",1,0,0,""
-watchobjEx4=0,"floorHeatingLevel|"
-watchobj4="floorHeatingLevel",1,0,0,""
-watchobjEx5=0,"r2_3LivingroomLight02_07_08|"
-watchobj5="r2_3LivingroomLight02_07_08",1,0,0,""
-watchobjEx6=0,"r5_1Bedroom2Light12|"
-watchobj6="r5_1Bedroom2Light12",1,0,0,""
-watchobjEx7=0,"MODULE7_IN.DI3|"
-watchobj7="MODULE7_IN.DI3",1,0,0,""
-watchobjEx8=0,"r3_1BalconyLight|"
-watchobj8="r3_1BalconyLight",1,0,0,""
-watchobjEx9=0,"MODULE6_IN.DI.DI8|"
-watchobj9="MODULE6_IN.DI.DI8",1,0,0,""
 [/Watch2Bank0]
 
