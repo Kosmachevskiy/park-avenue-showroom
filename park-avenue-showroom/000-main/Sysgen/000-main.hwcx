@@ -2,12 +2,14 @@
 ACTIVE=22
 ACTIVE_type=FOXTROT
 NetworkFileName=..\..\park-avenue-showroom.hwnx
+Signature=HWCX project
+VER=2
 
 [ChanelSet]
 ETH1_uni_count=1
-ETH1_uni0_IN=0;255;%R0;ETH1_UNI0_IN;
-ETH1_uni0_OUT=0;255;%R0;ETH1_UNI0_OUT;
-ETH1_uni0_IP=33;192.168.1.4;4998;4998;
+ETH1_uni0_IN=0;100;%R0;ETH1_UNI0_IN;
+ETH1_uni0_OUT=0;256;%R0;ETH1_UNI0_OUT;
+ETH1_uni0_IP=33;192.168.1.4;4998;0;
 INFO=0.PC,1.PLC,2.MAS,3.MPC,4.STM,5.uni,6.SL,7.BB,8.Off,9.Dis
 CH1=0
 CH2=8
@@ -264,10 +266,13 @@ CH252=9
 CH253=9
 CH254=9
 CH255=9
+ETH1_log=1
+ETH0=5
 CH1_log=1
 CH2_log=2
 CH3_log=3
 CH4_log=4
-ETH1_log=1
-ETH0=5
+
+[PanelSIM]
+ActiveSetupPanelSim1=;;-1;-1;;;;;;;32;1;0;2;0;0;100;260;0;0;1
 

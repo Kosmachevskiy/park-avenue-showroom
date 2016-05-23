@@ -110,6 +110,13 @@ TYPE
     falseMes   : UDINT;
   END_STRUCT;
 
+  TETHStatistic_BACnet : STRUCT
+    STAT       : USINT;
+    ERR        : USINT;
+    trueMes    : UDINT;
+    falseMes   : UDINT;
+  END_STRUCT;
+
   TETHStatistic_UNI : STRUCT
     STAT       : USINT;
     ERR        : USINT;
@@ -176,7 +183,7 @@ TYPE
     STAT : TUniStat;
     ERR : USINT;
     NUMR : UINT ;
-    DATA : ARRAY [0..254] OF USINT;
+    DATA : ARRAY [0..99] OF USINT;
   END_STRUCT;
 END_TYPE
 
@@ -185,7 +192,7 @@ TYPE
     CONT : TUniCont;
     SIGN : TUniSign;
     NUMT : UINT ;
-    DATA : ARRAY [0..254] OF USINT;
+    DATA : ARRAY [0..255] OF USINT;
   END_STRUCT;
 END_TYPE
 
