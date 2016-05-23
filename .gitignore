@@ -1,6 +1,9 @@
 */*/SendRoot
-*/*/Sysgen
 */*/Datalogger
+*/*/GraphMaker
+*/*/PIDMaker
+*/*/PanelMaker
+*/*/KEYB2Maker
 *.DSK
 *.bak
 *._m_
