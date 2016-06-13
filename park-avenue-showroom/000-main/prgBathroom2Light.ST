@@ -14,6 +14,8 @@ PROGRAM prgBathroom2Light
 
       init      : bool;
       
+      kostyl    :R_TRIG;
+      
   END_VAR
   VAR_TEMP
   END_VAR
@@ -33,6 +35,14 @@ PROGRAM prgBathroom2Light
   if button1.shortPress then
      Lamp1.setState := not Lamp1.state;
   end_if;
+
+  //эта штука появилась тут из-за того, что нужно было
+  //добавить в сценарий "пришел домой" включение света в СУ2
+  //а Юрко не нашел кода, который этот сценарий реализует
+  kostyl(CLK := generalPower);
+  if kostyl.Q Then
+     supervisorLight_14_16 := true;
+  End_if;
 
   Lamp1(trigButton := supervisorLight_14_16);
 

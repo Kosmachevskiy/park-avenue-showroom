@@ -8,7 +8,7 @@ bankname="Bank1"
 shortcut=1
 watchcnt=1
 bindfile=""
-watchobjEx0=0,"Main.generalPowerButton|{+}"
+watchobjEx0=0,"Main.generalPowerButton|"
 watchobj0="Main.generalPowerButton",1,0,0,""
 [/Watch2Bank0]
 
