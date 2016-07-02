@@ -12,7 +12,7 @@
 ;</History>
 ;**************************************
 #useoption CPM = 9              ; CPM type: K
-#useoption RemZone = 139        ; the remanent zone length
+#useoption RemZone = 144        ; the remanent zone length
 #useoption AlarmTime = 500      ; first alarm [milisec]
 #useoption MaxCycleTime = 600   ; maximum cycle [milisec]
 #useoption PLCstart = 1         ; cold start

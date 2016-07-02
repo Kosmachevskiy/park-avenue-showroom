@@ -110,6 +110,13 @@ TYPE
     falseMes   : UDINT;
   END_STRUCT;
 
+  TETHStatistic_BACnet : STRUCT
+    STAT       : USINT;
+    ERR        : USINT;
+    trueMes    : UDINT;
+    falseMes   : UDINT;
+  END_STRUCT;
+
   TETHStatistic_UNI : STRUCT
     STAT       : USINT;
     ERR        : USINT;

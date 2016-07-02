@@ -109,12 +109,14 @@ VAR_GLOBAL RETAIN
            floorHeatingLevel                                at %R125   : real;
            
 (*AC set temperature*)
-           r4_Bedroom1ACSetTemperature                      at %R129   : real;
+           r2_3_GuestRoomACSetTemperature                   at %R129   : real;
            r5_Bedroom2ACSetTemperature                      at %R133   : real;
-           
+           r4_Bedroom1ACSetTemperature                      at %R140   : real;
 (*AC mode*)
-           r4_Bedroom1ACMode                                at %R137   : usint;
+           r2_3_GuestRoomACMode                             at %R137   : usint;
            r5_Bedroom2ACMode                                at %R138   : usint;
+           r4_Bedroom1ACMode                                at %R139   : usint;
+           
            
 END_VAR
 

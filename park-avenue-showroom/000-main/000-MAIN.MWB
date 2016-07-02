@@ -5,10 +5,12 @@ contentversion=1
 
 [Watch2Bank0]
 bankname="Bank1"
-shortcut=1
-watchcnt=1
+shortcut=-1
+watchcnt=2
 bindfile=""
-watchobjEx0=0,"Main.generalPowerButton|"
-watchobj0="Main.generalPowerButton",1,0,0,""
+watchobjEx0=0,"r4_Bedroom1ACMode|"
+watchobj0="r4_Bedroom1ACMode",1,0,0,""
+watchobjEx1=0,"r5_Bedroom2ACMode|"
+watchobj1="r5_Bedroom2ACMode",1,0,0,""
 [/Watch2Bank0]
 

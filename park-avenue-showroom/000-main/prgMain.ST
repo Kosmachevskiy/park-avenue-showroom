@@ -22,8 +22,9 @@ PROGRAM prgMain
          
          generalPowerButton.longPressTime := T#2s;
 
-         r4_Bedroom1ACSetTemperature := 23.0;
+         r2_3_GuestRoomACSetTemperature := 23.0;
          r5_Bedroom2ACSetTemperature := 20.0;
+         r4_Bedroom1ACSetTemperature := 20.0;
 
          init := true;
       end_if;
