@@ -27,6 +27,10 @@ PROGRAM prgBalconyLight
         trigButton := supervisorLight_balcony,
         state      => light_balcony
         );
+        
+  if generalPowerObserver.falling then
+     Lamp1.setState := false;
+  end_if;
 
 END_PROGRAM
 

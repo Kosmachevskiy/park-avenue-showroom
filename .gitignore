@@ -4,6 +4,9 @@
 */*/PIDMaker
 */*/PanelMaker
 */*/KEYB2Maker
+
+*$*
+*.hwc
 *.DSK
 *.bak
 *._m_

@@ -57,6 +57,11 @@ PROGRAM prgBathroom1Light
   Lamp2(trigButton := supervisorLight_18);
 
   light_18_mirror := Lamp2.state;
+  
+  if generalPowerObserver.falling then
+     Lamp1.setState := false;
+     Lamp2.setState := false;
+  end_if;
 
 END_PROGRAM
 

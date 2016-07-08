@@ -1,6 +1,7 @@
 VAR_GLOBAL
     globalCache : fbGlobalCacheSender;
     globalCacheCodes : irCodesString;
+    generalPowerObserver : fbBoolObserver;
     panel : fbPanel;
 END_VAR
 
@@ -12,13 +13,15 @@ PROGRAM prgMain
   VAR
          init       : bool;
 
-         generalPowerButton : fbButtonProcessor;
+         generalPowerButton   : fbButtonProcessor;
+
   END_VAR
   VAR_TEMP
   END_VAR
 
    if not init then
-         generalPower     := true;
+         generalPower      := true;
+         electricitySwitch := true;
          
          generalPowerButton.longPressTime := T#2s;
 
@@ -29,7 +32,7 @@ PROGRAM prgMain
          init := true;
       end_if;
 
-                        //MODULE2_OUT.DOs.DO8
+
 //--Light and sockets relay control--//
      generalPowerButton(btn := button_24_1);
      
@@ -42,7 +45,9 @@ PROGRAM prgMain
      end_if;
 
      (*MODULE4_OUT.DO5*)
-     electricitySwitch  := generalPower;
+     //electricitySwitch  := generalPower;
+     
+     generalPowerObserver(state := generalPower);
 
 
 //--Global Cache--//
@@ -63,5 +68,29 @@ PROGRAM prgMain
             led[5] => MODULE6_OUT.DOs.DO5,
             led[6] => MODULE6_OUT.DOs.DO4);
             
+            
+     if generalPowerObserver.rising then
+        supervisorAuto01 := true;
+        supervisorAuto02 := true;
+        supervisorAuto03 := true;
+        supervisorAuto04 := true;
+        supervisorAuto05 := true;
+        supervisorAuto06 := true;
+        supervisorAuto07 := true;
+        supervisorAuto08 := true;
+        //supervisorAuto09 := true;
+     end_if;
+     if generalPowerObserver.falling then
+        supervisorAuto01 := false;
+        supervisorAuto02 := false;
+        supervisorAuto03 := false;
+        supervisorAuto04 := false;
+        supervisorAuto05 := false;
+        supervisorAuto06 := false;
+        supervisorAuto07 := false;
+        supervisorAuto08 := false;
+        //supervisorAuto09 := false;
+     end_if;
+     
 END_PROGRAM
 

@@ -19,7 +19,7 @@ PROGRAM prgWaterLeakegeControl
      waterLeackegeControl.config.timeTreshold := t#4s;
   end_if;
 
-  waterLeackegeControl( sensor := MODULE7_IN.DI3,
+  waterLeackegeControl( sensor    := MODULE7_IN.DI3,
                         openWater := waterOpen,
                         closeWater := waterClose,
                         alarmReset := waterAlarmReset,
@@ -31,6 +31,14 @@ PROGRAM prgWaterLeakegeControl
   waterOpen  := false;
   waterClose := false;
   waterAlarmReset := false;
+  
+  if generalPowerObserver.falling then
+     waterState := false;
+  end_if;
+  
+  if generalPowerObserver.rising then
+     waterState := true;
+  end_if;
 
 END_PROGRAM
 

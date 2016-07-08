@@ -38,6 +38,10 @@ PROGRAM prgLivingroomLight
   if Auto5.stateChanged then
      lamp1.setState := Auto5.state;
   end_if;
+  
+  if generalPowerObserver.falling then
+     Lamp1.setState := false;
+  end_if;
 
 
 END_PROGRAM

@@ -14,7 +14,7 @@ PROGRAM prgBathroom2Light
 
       init      : bool;
       
-      kostyl    :R_TRIG;
+      //kostyl    :R_TRIG;
       
   END_VAR
   VAR_TEMP
@@ -39,8 +39,8 @@ PROGRAM prgBathroom2Light
   //эта штука появилась тут из-за того, что нужно было
   //добавить в сценарий "пришел домой" включение света в СУ2
   //а Юрко не нашел кода, который этот сценарий реализует
-  kostyl(CLK := generalPower);
-  if kostyl.Q Then
+  //kostyl(CLK := generalPower);
+  if generalPowerObserver.rising Then
      supervisorLight_14_16 := true;
   End_if;
 
@@ -65,6 +65,12 @@ PROGRAM prgBathroom2Light
   Lamp2(trigButton := supervisorLight_15);
 
   light_15 := Lamp2.state;
+  
+  
+  if generalPowerObserver.falling then
+     Lamp1.setState := false;
+     Lamp2.setState := false;
+  end_if;
 
 END_PROGRAM
 

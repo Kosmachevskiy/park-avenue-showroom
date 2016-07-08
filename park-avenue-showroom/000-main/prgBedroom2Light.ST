@@ -68,6 +68,12 @@ PROGRAM prgBedroom2Light
   if Auto7.stateChanged then
      Lamp2.setState := Auto7.state;
   end_if;
+  
+  if generalPowerObserver.falling then
+     Lamp1.setState := false;
+     Lamp2.setState := false;
+  end_if;
+  
 
 END_PROGRAM
 

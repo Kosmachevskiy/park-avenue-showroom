@@ -117,7 +117,6 @@ VAR_GLOBAL RETAIN
            r5_Bedroom2ACMode                                at %R138   : usint;
            r4_Bedroom1ACMode                                at %R139   : usint;
            
-           
 END_VAR
 
 VAR_GLOBAL CONSTANT

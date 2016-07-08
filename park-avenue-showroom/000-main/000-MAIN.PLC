@@ -10,7 +10,7 @@ dirs=""
 
 [plcselection]
 connection=2
-openchannel=1
+openchannel=0
 chanel=0
 speed=9
 tout=500
@@ -27,7 +27,7 @@ altport=0
 udpport=61682
 excltchdr=0
 onemsgpckt=0
-ipaddr2="91.142.174.241"
+ipaddr2="176.104.13.128"
 isdyn2=0
 dynip2=""
 iptout2=1000
@@ -59,7 +59,7 @@ slTRportnum=61682
 
 [plcwusb]
 type=17
-genrst=0
+genrst=2
 askrst=1
 genrunp=1
 genhltp=11

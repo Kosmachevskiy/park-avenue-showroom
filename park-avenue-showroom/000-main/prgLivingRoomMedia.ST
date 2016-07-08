@@ -13,7 +13,7 @@ PROGRAM prgLivingRoomMedia
   VAR_OUTPUT
   END_VAR
   VAR
-      generalPowerObserber     : fbBoolObserver;
+      //generalPowerObserber     : fbBoolObserver;
       clock                 : fbTick;
       allOnState  : usint;
       allOffState : usint;
@@ -35,13 +35,13 @@ PROGRAM prgLivingRoomMedia
   end_if;
   
 
-  generalPowerObserber(state := generalPower);
+  //generalPowerObserber(state := generalPower);
 
   if panel.button[5].shortPress then
      allOnState := 1;
   end_if;
   
-  if panel.button[6].shortPress  or generalPowerObserber.falling then
+  if panel.button[6].shortPress  or generalPowerObserver.falling then
      allOffState := 1;
   end_if;
   

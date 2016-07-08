@@ -45,5 +45,9 @@ PROGRAM prgHallLight
      Lamp1.setState := Auto1.state;
   end_if;
   
+  if generalPowerObserver.falling then
+     Lamp1.setState := false;
+  end_if;
+  
 END_PROGRAM
 
