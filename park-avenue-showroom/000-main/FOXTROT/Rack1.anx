@@ -16,3 +16,4 @@
 1;0;|0;|;|0;DI.DI3;waterLeakageSensor;
 1;0;|0;|;|0;DO.DO0;FH_01;floorHeating
 1;0;|0;|;|0;DO.DO1;FH_02;floorHeating
+1;0;|0;|;|0;DO.DO2;SPEAKERS;speaker motors

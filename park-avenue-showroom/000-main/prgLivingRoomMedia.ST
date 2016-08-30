@@ -39,10 +39,12 @@ PROGRAM prgLivingRoomMedia
 
   if panel.button[5].shortPress then
      allOnState := 1;
+     SPEAKERS := true;
   end_if;
   
   if panel.button[6].shortPress  or generalPowerObserver.falling then
      allOffState := 1;
+     SPEAKERS := false;
   end_if;
   
   clock(IN := true, PT := T#1000ms);

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="windows-1250" ?>
-<web version="6.0" propfont="true" foot="© Gravity Electric LTD" MaxUid="1639" height="445" width="780" menu="false" title="false" border="true" top="8" left="8" iniScale="100" maxScale="100" useIniScale="false" useMaxScale="fales" userScale="true" webApp="true" bgdupl="false" bgcolor="16777215" icon="" id18="0" author="Gravity" encoding="windows-1250">
+<web version="7.0" propfont="true" foot="© Gravity Electric LTD" MaxUid="1639" height="445" width="780" menu="false" title="false" border="true" top="8" left="8" iniScale="100" maxScale="100" useIniScale="false" useMaxScale="fales" userScale="true" webApp="true" bgdupl="false" bgcolor="16777215" icon="" id18="0" author="Gravity" encoding="windows-1250">
+	<panels></panels>
 	<Grid Enable="1" X="5" Y="5" />
 	<group caption="" Uid="1633">
 		<page caption="Index" name="MAIN.XML" background="" bgcolor="16777215" repeat="false" hidden="false" ajax="true" pause="1000" level="0" default="true" ucid="1460475007" width="154" height="70" Uid="1638">
@@ -18,7 +19,7 @@
 	<Languages>
 		<Language Code="5" Editor="1" />
 	</Languages>
-	<Layers active="0">
+	<Layers active="0" pasteMode="0">
 		<layer visible="1" frozen="0" name="" />
 		<layer visible="1" frozen="0" name="" />
 		<layer visible="1" frozen="0" name="" />

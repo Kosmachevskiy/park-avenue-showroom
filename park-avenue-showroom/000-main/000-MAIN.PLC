@@ -10,7 +10,7 @@ dirs=""
 
 [plcselection]
 connection=2
-openchannel=0
+openchannel=1
 chanel=0
 speed=9
 tout=500
@@ -181,7 +181,7 @@ autosavebincode=0
 autosavebincodedir=""
 autosavebincodefname=""
 extrainittables=0
-retainmap=0
+abszonesize=0
 genbin=0
 [/compileropts]
 
@@ -205,9 +205,11 @@ resrcip=""
 [/filesystem]
 
 [environment]
+updatelibs=1
 aopts=1
 adsktp=1
 aedfiles=0
+zipcompress=9
 compsnd=0
 docomp=1
 hkshift=0

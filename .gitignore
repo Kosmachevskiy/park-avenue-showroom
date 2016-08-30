@@ -6,9 +6,13 @@
 */*/KEYB2Maker
 
 *$*
+*.lih
+*.map
 *.hwc
 *.DSK
 *.bak
+*.mlh
+*.p2b
 *._m_
 *.mas
 *.origin
@@ -19,3 +23,7 @@
 *.pch
 *.prg
 *.pub
+*.MWB
+*.duh
+*.hwn
+*usrvoc*
